@@ -1,4 +1,4 @@
 GEM
 ===
 
-Geospatial-semantic Exploration on the Move
+Geospatial-semantic Exploration on the Move Adobe Phonegap / Apache Cordova project
