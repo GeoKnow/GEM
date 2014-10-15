@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html ng-app="jassa.demo.map.ol.basic" ng-controller="AppCtrl">
+
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+
+	<link rel="stylesheet" href="css/index.css" />
+	<link rel="stylesheet" href="css/gem.css" />
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+
+	<link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.css" />
+	<link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+	<link rel="stylesheet" href="bower_components/angular-snap/angular-snap.css" />
+
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/ng-grid/ng-grid.css" />
+    <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css" />
+    <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
+    <!-- endbower -->
+
+	
+    <script src="bower_components/jscache/cache.js"></script>	
+
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/jassa/jassa.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/ng-grid/build/ng-grid.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
+    <script src="bower_components/angular-ui-sortable/sortable.js"></script>
+    <script src="bower_components/angular-ui-utils/ui-utils.js"></script>
+    <script src="bower_components/jassa-ui-angular/jassa-ui-angular-tpls.js"></script>
+    <script src="bower_components/leaflet/dist/leaflet.js"></script>
+    <script src="bower_components/leaflet/dist/leaflet-src.js"></script>
+    <script src="bower_components/snapjs/snap.js"></script>
+    <script src="bower_components/bluebird/js/browser/bluebird.js"></script>
+    <!-- endbower -->
+
+	<script src="bower_components/angular-snap/angular-snap.js"></script>	
+
+    <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/underscore.string/lib/underscore.string.js"></script>
+	<script src="bower_components/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+
+	<script src="lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script>	
+	<script src="lib/wicket/wicket.js"></script>
+	<script src="lib/wicket/wicket-leaflet.js"></script>
+
+	
+    <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
+	<script src="js/controllers.js"></script>		
+
+
+	<title>GEM - {{bar.value}}</title>
+	
+	<script type="text/javascript">
+    _.mixin(_.str.exports());
+
+    jassa = new Jassa(Promise, $.ajax);
+
+	var rdf = jassa.rdf;
+	var sparql = jassa.sparql;
+    var service = jassa.service;
+	var sponate = jassa.sponate;
+    var facete = jassa.facete;
+
+    var geo = jassa.geo;
+
+	var vocab = jassa.vocab;
+	
+    angular.module('jassa.demo.map.ol.basic', ['ui.bootstrap', 'ui.jassa.openlayers', 'snap'])
+
+    .controller('AppCtrl', ['$scope', function($scope) {
+		$scope.bar = {"value" : "Filter text here"};
+
+        var geoMapFactoryVirt = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
+        var geoMapFactoryAsWktVirt = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
+        var geoMapFactoryWgs =  geo.GeoMapFactoryUtils.wgs84MapFactory;       
+
+        var createSparqlService = function(url, graphUris) {
+            var result = new service.SparqlServiceHttp(url, graphUris);        
+            result = new service.SparqlServiceCache(result);
+            result = new service.SparqlServiceVirtFix(result);
+            result = new service.SparqlServicePaginate(result, 1000);
+            return result;
+        };
+        
+        var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);        
+        var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);        
+        var sparqlServiceC = createSparqlService('http://localhost/data/geolink/sparql', ['http://geolink.aksw.org/']);        
+        
+        var conceptA = facete.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');      
+        var conceptB = facete.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');      
+        var conceptC = facete.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
+                
+        var createMapDataSource = function(sparqlService, geoMapFactory, concept, fillColor) {
+            
+            var attrs = {
+		        fillColor: fillColor,
+		        fontColor: fillColor,
+		        strokeColor: fillColor,
+		
+		        stroke: true,
+		        strokeLinecap: 'round',
+		        strokeWidth: 100,
+		        pointRadius: 12,
+		        labelAlign: 'cm'
+            };
+            
+            var result = geo.GeoDataSourceUtils.createGeoDataSourceLabels(sparqlService, geoMapFactory, concept, attrs);
+            return result;
+        }
+        
+        var bounds = new geo.Bounds(7.0, 49.0, 9, 51.0);
+
+        $scope.dataSources = [
+            createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
+            //createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
+            //createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#663300'),
+        ];
+        
+        $scope.selectGeom = function(data) {
+            alert(JSON.stringify(data));
+            //console.log('Status', data);
+        };
+        
+		$scope.mapConfig = {
+			center: { lon: 8, lat: 50 },
+			zoom: 8
+		};
+
+		$scope.setCenter = function() {
+			$scope.mapConfig.center = { lon: 20, lat: 20 };
+			$scope.mapConfig.zoom = 4;
+		};
+
+        $scope.$watch('mapConfig', function(v) {
+            console.log('Config changed: ' + JSON.stringify(v));
+        }, true);
+
+    }]);
+	</script>
+
+</head>
+
+<body>
+	<div snap-drawer="left">
+		<facet-tree
+			sparql-service="sparqlService"
+			facet-tree-config="facetTreeConfig"
+			select="selectFacet(path)"
+			plugins="facetTreePlugins"
+			plugin-context="facetTreePluginContext">
+		</facet-tree>
+	</div>
+	<div snap-drawer="right">
+	  <ul> 
+		<li>Facet tree</li>
+		<li>Facet 8</li>
+		<li>Facet 9</li>
+		<li>Facet 10</li>
+		<li>Facet 11</li>
+		<li>Facet 12</li>
+	  </ul>
+	</div>
+	<!-- <div class="app"></div>
+	<div id="header">
+		<input ng-model="query"> {{query}}
+	</div>-->
+	<div snap-content snap-options="opts">
+		<div id="search-box" class="ui-element">
+			<div class="ui-element-content">
+				<input ng-model="bar.value" />
+			</div>
+		</div>
+		<snap-dragger="left">
+		<div id="drawer-left" class="drawer ui-element" snap-toggle="left">
+			<div class="ui-element-content">
+				<img src="img/slider_left_icon.png" />
+			</div>
+		</div>
+		</snap-dragger>
+		<snap-dragger="right">
+		<div id="drawer-right" class="drawer ui-element" snap-toggle="right">
+			<div class="ui-element-content">
+				<img src="img/slider_right_icon.png" />
+			</div>
+		</div>
+		</snap-dragger>
+		<div jassa-map-ol="map" style="position: absolute; width: 100%; height: 100%" config="mapConfig" data-sources="dataSources" select="selectGeom(data)" id="map"></div>
+	</div>
+	<script type="text/javascript" src="cordova.js"></script>
+	<script type="text/javascript" src="js/index.js"></script>
+	<script type="text/javascript">
+		app.initialize();
+	</script>
+	<script type="text/javascript" src="js/snap.js"></script>
+	<script type="text/javascript">
+	var snapper = new Snap({
+		element: document.getElementById('content')
+	});       
+	</script>
+</body>
+
+</html>
+
