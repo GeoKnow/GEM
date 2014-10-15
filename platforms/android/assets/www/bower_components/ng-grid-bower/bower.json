@@ -1,0 +1,9 @@
+{
+  "name": "ng-grid-bower",
+  "author": {
+    "name": "https://github.com/angular-ui/ng-grid"
+  },
+    
+  "version": "2.0.7",
+  "main": "./ng-grid.js"
+}

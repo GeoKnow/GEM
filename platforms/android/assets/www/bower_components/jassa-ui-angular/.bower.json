@@ -1,0 +1,50 @@
+{
+  "name": "jassa-ui-angular",
+  "homepage": "https://github.com/GeoKnow/Jassa-UI-Angular",
+  "authors": [
+    "Claus Stadler <cstadler@informatik.uni-leipzig.de>"
+  ],
+  "description": "UI for JAvascript Suite for Sparql Access",
+  "main": [
+    "jassa-ui-angular-tpls.js",
+    "jassa-ui-angular.css"
+  ],
+  "dependencies": {
+    "jassa": "0.0.4-SNAPSHOT",
+    "angular": "1.2.16-build.63+sha.8d4d437",
+    "bootstrap": "3.1.0",
+    "angular-ui-bootstrap": "",
+    "ng-grid": "2.0.11",
+    "angular-sanitize": "v1.2.16-build.63+sha.8d4d437",
+    "jquery-ui": "1.10.3"
+  },
+  "keywords": [
+    "rdf",
+    "sparql",
+    "faceted-search",
+    "facete",
+    "sponate",
+    "sparql-to-json",
+    "jena",
+    "cache"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "version": "0.0.4-SNAPSHOT",
+  "_release": "0.0.4-SNAPSHOT",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.0.4-SNAPSHOT",
+    "commit": "293bf23f1edbbab730acee5a4c6d48ad86067fcc"
+  },
+  "_source": "git://github.com/GeoKnow/Jassa-UI-Angular-Bower.git",
+  "_target": "~0.0.4-SNAPSHOT",
+  "_originalSource": "jassa-ui-angular",
+  "_direct": true
+}

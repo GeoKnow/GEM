@@ -1,0 +1,43 @@
+{
+  "name": "jassa",
+  "version": "0.0.4-SNAPSHOT",
+  "homepage": "https://github.com/GeoKnow/Jassa",
+  "authors": [
+    "Claus Stadler <cstadler@informatik.uni-leipzig.de>"
+  ],
+  "description": "JAvascript Suite for Sparql Access",
+  "main": "jassa.js",
+  "dependencies": {
+    "jquery": "1.9.1",
+    "underscore": "1.6.0",
+    "underscore.string": "2.3.2",
+    "jscache": ""
+  },
+  "keywords": [
+    "rdf",
+    "sparql",
+    "faceted-search",
+    "facete",
+    "sponate",
+    "sparql-to-json",
+    "jena",
+    "cache"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "0.0.4-SNAPSHOT",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.0.4-SNAPSHOT",
+    "commit": "33cd029241525ec329149f6cb597d91047130bb8"
+  },
+  "_source": "git://github.com/GeoKnow/Jassa-Bower.git",
+  "_target": "0.0.4-SNAPSHOT",
+  "_originalSource": "jassa"
+}

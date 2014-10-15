@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html ng-app="gemMap" ng-controller="MapCtrl">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+		<link rel="stylesheet" type="text/css" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/gem.css" />
+		<link rel="stylesheet" type="text/css" href="bower_components/angular-snap/angular-snap.css" />
+		<script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+		<script src="bower_components/angular/angular.js"></script>
+		<script src="bower_components/angular-snap/angular-snap.js"></script>
+		<script src="js/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>		
+		
+		<script src="js/controllers.js"></script>		
+        <title>GEM - {{bar.value}}</title>
+    </head>
+    <body>
+		<div snap-drawer="left">
+		    <facet-tree
+				sparql-service="sparqlService"
+				facet-tree-config="facetTreeConfig"
+				select="selectFacet(path)"
+				plugins="facetTreePlugins"
+				plugin-context="facetTreePluginContext">
+			</facet-tree>
+		</div>
+		<div snap-drawer="right">
+		  <ul> 
+			<li>Facet 7</li>
+			<li>Facet 8</li>
+			<li>Facet 9</li>
+			<li>Facet 10</li>
+			<li>Facet 11</li>
+			<li>Facet 12</li>
+		  </ul>
+		</div>
+        <!-- <div class="app"></div>
+		<div id="header">
+			<input ng-model="query"> {{query}}
+		</div>-->
+		<div snap-content snap-options="opts">
+			<div id="search-box" class="ui-element">
+				<div class="ui-element-content">
+					<input ng-model="bar.value" />
+				</div>
+			</div>
+			<snap-dragger="left">
+			<div id="drawer-left" class="drawer ui-element" snap-toggle="left">
+				<div class="ui-element-content">
+					<img src="img/slider_left_icon.png" />
+				</div>
+			</div>
+			</snap-dragger>
+			<snap-dragger="right">
+			<div id="drawer-right" class="drawer ui-element" snap-toggle="right">
+				<div class="ui-element-content">
+					<img src="img/slider_right_icon.png" />
+				</div>
+			</div>
+			</snap-dragger>
+			<div id="map">
+				<script src="js/map.js"></script>
+			</div>
+		</div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+		<script type="text/javascript" src="js/snap.js"></script>
+		<script type="text/javascript">
+		var snapper = new Snap({
+			element: document.getElementById('content')
+		});       
+		</script>
+    </body>
+</html>
