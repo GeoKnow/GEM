@@ -20,7 +20,8 @@
     "leaflet": "0.7.3",
     "leaflet.markercluster": "0.4.0",
     "angular-snap": "1.6.0",
-    "bluebird": "2.3.5"
+    "bluebird": "2.3.5",
+    "jquery-cookie": "~1.4.1"
   },
   "keywords": [
     "rdf",

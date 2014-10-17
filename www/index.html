@@ -28,7 +28,7 @@
     <script src="bower_components/jscache/cache.js"></script>	
 
     <!-- bower:js -->
-    <script src="bower_components/jquery/jquery.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/jassa/jassa.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
@@ -42,6 +42,7 @@
     <script src="bower_components/leaflet/dist/leaflet-src.js"></script>
     <script src="bower_components/snapjs/snap.js"></script>
     <script src="bower_components/bluebird/js/browser/bluebird.js"></script>
+    <script src="bower_components/jquery-cookie/jquery.cookie.js"></script>
     <!-- endbower -->
 
 	<script src="bower_components/angular-snap/angular-snap.js"></script>	
@@ -56,7 +57,7 @@
 
 	
     <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
-	<script src="js/controllers.js"></script>		
+	<script src="js/sourcemanager.js"></script>		
 
 
 	<title>GEM - {{bar.value}}</title>
@@ -94,9 +95,9 @@
             return result;
         };
         
-        var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);        
-        var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);        
-        var sparqlServiceC = createSparqlService('http://localhost/data/geolink/sparql', ['http://geolink.aksw.org/']);        
+        //var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);        
+        //var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);        
+        //var sparqlServiceC = createSparqlService('http://localhost/data/geolink/sparql', ['http://geolink.aksw.org/']);        
         
         var conceptA = sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');      
         var conceptB = sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');      
@@ -122,11 +123,20 @@
         
         var bounds = new geo.Bounds(7.0, 49.0, 9, 51.0);
 
-        $scope.dataSources = [
-            createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
+        $scope.dataSources = [];
+		
+		
+            //createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
             //createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
             //createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#663300'),
-        ];
+			
+        var sources = $.parseJSON($.cookie("sources"));
+		$("#sources ul").html('');
+		$.each(sources, function(key, source){
+			var sparqlService = createSparqlService(source.endpoint, ['']); // second argument is default graph
+			var dataSource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '#CC0020');
+			$scope.dataSources.push(dataSource);
+		});
         
         $scope.selectGeom = function(data) {
             alert(JSON.stringify(data));
@@ -163,14 +173,17 @@
 		</facet-tree>
 	</div>
 	<div snap-drawer="right">
-	  <ul> 
-		<li>Facet tree</li>
-		<li>Facet 8</li>
-		<li>Facet 9</li>
-		<li>Facet 10</li>
-		<li>Facet 11</li>
-		<li>Facet 12</li>
-	  </ul>
+	  <div id="sources">
+		  <h2>Sources</h2>
+		  <ul> 
+			<li>Facet tree</li>
+			<li>Facet 8</li>
+			<li>Facet 9</li>
+			<li>Facet 10</li>
+			<li>Facet 11</li>
+			<li>Facet 12</li>
+		  </ul>
+	  </div>
 	</div>
 	<!-- <div class="app"></div>
 	<div id="header">
