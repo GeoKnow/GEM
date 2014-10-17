@@ -5,13 +5,13 @@
  * Version: 0.0.4-SNAPSHOT - 2014-08-06
  * License: MIT
  */
-angular.module("ui.jassa.openlayers", ["ui.jassa.openlayers.tpls", "ui.jassa.openlayers.jassa-map-ol"]);
-angular.module("ui.jassa.openlayers.tpls", []);
+angular.module("ui.jassa.leaflet", ["ui.jassa.leaflet.tpls", "ui.jassa.leaflet.jassa-map-leaflet"]);
+angular.module("ui.jassa.leaflet.tpls", []);
 //TODO Move to some better place
 
-angular.module('ui.jassa.openlayers.jassa-map-ol', [])
+angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
-.controller('JassaMapOlCtrl', ['$scope', '$q', function($scope, $q) {
+.controller('JassaMapLeafletCtrl', ['$scope', '$q', function($scope, $q) {
 
     $scope.loadingSources = [];
     
@@ -145,7 +145,7 @@ angular.module('ui.jassa.openlayers.jassa-map-ol', [])
         jassa.util.ArrayUtils.clear($scope.items);
 
         var dataSources = $scope.sources;
-        //var bounds = jassa.geo.openlayers.MapUtils.getExtent($scope.map);
+        //var bounds = jassa.geo.leaflet.MapUtils.getExtent($scope.map);
 		var tempbounds = $scope.map.getBounds();
 		//console.log("TEMP BOUNDS OBJECT: " + JSON.stringify(tempbounds));
 		
@@ -197,12 +197,12 @@ angular.module('ui.jassa.openlayers.jassa-map-ol', [])
 }])
 
 //http://jsfiddle.net/A2G3D/1/
-.directive('jassaMapOl', ['$compile', function($compile) {
+.directive('jassaMapLeaflet', ['$compile', function($compile) {
     return {
         restrict: 'EA',
         replace: true,
         template: '<div></div>',
-        controller: 'JassaMapOlCtrl',
+        controller: 'JassaMapLeafletCtrl',
         scope: {
             config: '=',
             sources: '=',
@@ -211,8 +211,8 @@ angular.module('ui.jassa.openlayers.jassa-map-ol', [])
         },
         link: function (scope, element, attrs) {
             
-            var $el = jQuery(element).ssbMap();
-            var widget = $el.data('custom-ssbMap');
+            var $el = jQuery(element).ssbLeafletMap();
+            var widget = $el.data('custom-ssbLeafletMap');
 
             var map = widget.map;
             map.widget = widget;
@@ -301,7 +301,7 @@ angular.module('ui.jassa.openlayers.jassa-map-ol', [])
 (function($) {
     
     
-$.widget('custom.ssbMap', {
+$.widget('custom.ssbLeafletMap', {
 
     // TODO: Add _init method for backward compatibility
 
@@ -309,7 +309,7 @@ $.widget('custom.ssbMap', {
     _create: function() {
         var self = this;
         
-        //this.wktParser = new OpenLayers.Format.WKT();
+        //this.wktParser = new leaflet.Format.WKT();
         
         // var opts = this.options;
         //this.options.event += '.ssbinstances'; // namespace event
@@ -338,10 +338,10 @@ $.widget('custom.ssbMap', {
         //this.tree.logDebug('Dynatree._init(): done.');
 
 
-        // var panZoomBar = new OpenLayers.Control.PanZoomBar(null);
-        // panZoomBar = OpenLayers.Util.extend(panZoomBar, {
+        // var panZoomBar = new leaflet.Control.PanZoomBar(null);
+        // panZoomBar = leaflet.Util.extend(panZoomBar, {
              // draw: function(px) {
-                 // OpenLayers.Control.PanZoomBar.prototype.draw.apply(this, [new  OpenLayers.Pixel(250, 0)]);
+                 // leaflet.Control.PanZoomBar.prototype.draw.apply(this, [new  leaflet.Pixel(250, 0)]);
                  // return this.div;
              // }
         // });
@@ -350,11 +350,11 @@ $.widget('custom.ssbMap', {
         
         
         /* var options = {
-                projection: new OpenLayers.Projection('EPSG:900913'),
-                displayProjection: new OpenLayers.Projection('EPSG:4326'),
+                projection: new leaflet.Projection('EPSG:900913'),
+                displayProjection: new leaflet.Projection('EPSG:4326'),
 
-                //maxExtent: new OpenLayers.Bounds(-180, -90, 180, 90),
-                //minExtent: new OpenLayers.Bounds(-1, -1, 1, 1),
+                //maxExtent: new leaflet.Bounds(-180, -90, 180, 90),
+                //minExtent: new leaflet.Bounds(-1, -1, 1, 1),
                 //numZoomLevels: 19,
                 units: 'm',
 
@@ -368,14 +368,14 @@ $.widget('custom.ssbMap', {
 //                minResolution: 'auto',
 
                 controls: [
-                            new OpenLayers.Control.Navigation(),
-//                            new OpenLayers.Control.LayerSwitcher(),
+                            new leaflet.Control.Navigation(),
+//                            new leaflet.Control.LayerSwitcher(),
                             panZoomBar,
-                            new OpenLayers.Control.MousePosition(),
-//                                new OpenLayers.Control.OverviewMap(),
-                            //new OpenLayers.Control.PanZoomBar(),
-                            new OpenLayers.Control.ScaleLine(),
-                            new OpenLayers.Control.Attribution()
+                            new leaflet.Control.MousePosition(),
+//                                new leaflet.Control.OverviewMap(),
+                            //new leaflet.Control.PanZoomBar(),
+                            new leaflet.Control.ScaleLine(),
+                            new leaflet.Control.Attribution()
                 ]
         }; */
 
@@ -383,7 +383,7 @@ $.widget('custom.ssbMap', {
 			detectRetina: true,	
 		});
 
-        //this.map = new OpenLayers.Map(this.domElement, options);
+        //this.map = new leaflet.Map(this.domElement, options);
 		this.map = new L.Map("map", {
 			center: new L.LatLng(44.8167, 20.4667),
 			zoom: 13,
@@ -431,8 +431,8 @@ $.widget('custom.ssbMap', {
          * Renderer init (needed for outlines of labels)
          */
         
-        /* var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
-        renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers; */
+        /* var renderer = leaflet.Util.getParameters(window.location.href).renderer;
+        renderer = (renderer) ? [renderer] : leaflet.Layer.Vector.prototype.renderers; */
 
         //console.log('The renderer is: ' + renderer);
 
@@ -441,13 +441,13 @@ $.widget('custom.ssbMap', {
          * Style definitions 
          */
         
-        // var defaultStyle = OpenLayers.Feature.Vector.style['default'];
+        // var defaultStyle = leaflet.Feature.Vector.style['default'];
         
         // this.styles = {};
         
-        // //OpenLayers.Feature.Vector.style['temporary']['fillColor'] = '#8080a0';
-        // this.styles.hoverStyle = OpenLayers.Util.extend(
-            // OpenLayers.Util.extend({}, defaultStyle), {
+        // //leaflet.Feature.Vector.style['temporary']['fillColor'] = '#8080a0';
+        // this.styles.hoverStyle = leaflet.Util.extend(
+            // leaflet.Util.extend({}, defaultStyle), {
                 // fillColor: '#8080ff',
                 // fillOpacity: 0.4,
                 // stroke: true,
@@ -463,8 +463,8 @@ $.widget('custom.ssbMap', {
         // //console.log('HoverStyle: ', this.styles.hoverStyle);
         
 
-        // this.styles.markerStyle = OpenLayers.Util.extend(
-            // OpenLayers.Util.extend({}, defaultStyle), {
+        // this.styles.markerStyle = leaflet.Util.extend(
+            // leaflet.Util.extend({}, defaultStyle), {
                 // //externalGraphic: config.markerUrlDefault,
                 // graphicOpacity: 0.8, //0.8,
                 // graphicWidth: 31,
@@ -502,8 +502,8 @@ $.widget('custom.ssbMap', {
         // //console.log('MarkerStyle', this.styles.markerStyle);
         
 
-        // this.styles.boxStyle = OpenLayers.Util.extend(
-            // OpenLayers.Util.extend({}, defaultStyle), {
+        // this.styles.boxStyle = leaflet.Util.extend(
+            // leaflet.Util.extend({}, defaultStyle), {
                 // fillColor: '#8080ff',
                 // fillOpacity: 0.2,
                 // stroke: true,
@@ -534,8 +534,8 @@ $.widget('custom.ssbMap', {
          // */
         
         // // The layer for the massive instance indicator boxes
-        // this.boxLayer = new OpenLayers.Layer.Vector('Boxes', {
-            // projection: new OpenLayers.Projection('EPSG:4326'),
+        // this.boxLayer = new leaflet.Layer.Vector('Boxes', {
+            // projection: new leaflet.Projection('EPSG:4326'),
             // visibility: true,
             // displayInLayerSwitcher: true,
             // renderers: renderer
@@ -545,20 +545,20 @@ $.widget('custom.ssbMap', {
         // // The layer for the actual features        
         this.featureLayer = new L.MarkerClusterGroup();
 		this.featureLayer.addTo(this.map);
-            // projection: new OpenLayers.Projection('EPSG:4326'),
+            // projection: new leaflet.Projection('EPSG:4326'),
             // visibility: true,
             // displayInLayerSwitcher: true,
-            // styleMap: new OpenLayers.StyleMap({'default': new OpenLayers.Style(this.styles.markerStyle)}),
+            // styleMap: new leaflet.StyleMap({'default': new leaflet.Style(this.styles.markerStyle)}),
             // renderers: renderer
         // });
 
         // // TODO Make it easy to exchange the URL pattern
-        // //var mapnikLayer = new OpenLayers.Layer.OSM.Mapnik('Mapnik');
+        // //var mapnikLayer = new leaflet.Layer.OSM.Mapnik('Mapnik');
         
-        // var mapnikLayer = new OpenLayers.Layer.OSM('Mapnik', 'http://a.tile.openstreetmap.org/${z}/${x}/${y}.png', {numZoomLevels: 19}); //http://a.tile.openstreetmap.org
+        // var mapnikLayer = new leaflet.Layer.OSM('Mapnik', 'http://a.tile.openstreetmap.org/${z}/${x}/${y}.png', {numZoomLevels: 19}); //http://a.tile.openstreetmap.org
         
         
-        // //var mapnikLayer = new OpenLayers.Layer.OSM.Local('Mapnik');
+        // //var mapnikLayer = new leaflet.Layer.OSM.Local('Mapnik');
         // this.map.addLayers([mapnikLayer, this.boxLayer, this.featureLayer]); //, this.vectorLayer]); //, this.markerLayer]);
 
 
@@ -591,11 +591,11 @@ $.widget('custom.ssbMap', {
         
 
         // TODO Following example is probably how to do it the proper way:
-        // http://openlayers.org/dev/examples/select-feature-multilayer.html
+        // http://leaflet.org/dev/examples/select-feature-multilayer.html
         
         
         
-        // this.highlightController = new OpenLayers.Control.SelectFeature(this.boxLayer, {
+        // this.highlightController = new leaflet.Control.SelectFeature(this.boxLayer, {
             // hover: true,
             // highlightOnly: true,
             // //renderIntent: 'temporary',
@@ -609,7 +609,7 @@ $.widget('custom.ssbMap', {
                     
                     // var geometry = feature.geometry;
                                         
-                    // if(geometry instanceof OpenLayers.Geometry.Point) {
+                    // if(geometry instanceof leaflet.Geometry.Point) {
                         
                         // // Seems like we can abort the highlight by returning false here.
                         // // However, a seemingly cleaner solution would be to keep MII-boxes and features in separate layers
@@ -632,7 +632,7 @@ $.widget('custom.ssbMap', {
         
         
         
-        // this.selectFeatureController = new OpenLayers.Control.SelectFeature([this.boxLayer, this.featureLayer], {
+        // this.selectFeatureController = new leaflet.Control.SelectFeature([this.boxLayer, this.featureLayer], {
 
             // onUnselect: function(feature) {
                 // var data = feature.attributes;
@@ -647,11 +647,11 @@ $.widget('custom.ssbMap', {
                 // var data = feature.attributes;
                 // var geometry = feature.geometry;
                 
-                // // FIXME Find a better way to get the click coordinates; but it might not exists yet, see http://trac.osgeo.org/openlayers/ticket/2089
+                // // FIXME Find a better way to get the click coordinates; but it might not exists yet, see http://trac.osgeo.org/leaflet/ticket/2089
                 // var xy = this.handlers.feature.evt.xy;
                 
                 
-                // if(data.zoomable && geometry instanceof OpenLayers.Geometry.Polygon) {
+                // if(data.zoomable && geometry instanceof leaflet.Geometry.Polygon) {
                     
                     // //alert(JSON.stringify(data) + data.zoomable);
 
@@ -696,13 +696,13 @@ $.widget('custom.ssbMap', {
 
         
         /*
-        var size = new OpenLayers.Size(21,25);
-        var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-        var icon = new OpenLayers.Icon('http://www.openstreetmap.org/openlayers/img/marker.png',size,offset);
+        var size = new leaflet.Size(21,25);
+        var offset = new leaflet.Pixel(-(size.w/2), -size.h);
+        var icon = new leaflet.Icon('http://www.openstreetmap.org/leaflet/img/marker.png',size,offset);
         */
 
-        //var center = new OpenLayers.LonLat(12.3747, 51.3405);
-        // var center = new OpenLayers.LonLat(-3.56, 56.07);
+        //var center = new leaflet.LonLat(12.3747, 51.3405);
+        // var center = new leaflet.LonLat(-3.56, 56.07);
         
         // var tCenter = center.clone().transform(
                 // this.map.displayProjection,
@@ -714,8 +714,8 @@ $.widget('custom.ssbMap', {
 
         // this.redraw();
         
-//new OpenLayers.Projection('EPSG:4326'), // transform from WGS 1984
-//new OpenLayers.Projection('EPSG:900913') // to Spherical Mercator Projection
+//new leaflet.Projection('EPSG:4326'), // transform from WGS 1984
+//new leaflet.Projection('EPSG:900913') // to Spherical Mercator Projection
         
         
 
@@ -761,8 +761,8 @@ $.widget('custom.ssbMap', {
         //feature.geometry.transform(this.map.displayProjection, this.map.projection);
 
         /*
-            var newAttrs = OpenLayers.Util.extend(
-                    OpenLayers.Util.extend({}, attrs), {
+            var newAttrs = leaflet.Util.extend(
+                    leaflet.Util.extend({}, attrs), {
                         point: point,
                         nodeId: id,
                         label: attrs.abbr,
@@ -770,7 +770,7 @@ $.widget('custom.ssbMap', {
                     }
                 );
 
-            var green = OpenLayers.Util.applyDefaults(green, OpenLayers.Feature.Vector.style['default']);
+            var green = leaflet.Util.applyDefaults(green, leaflet.Feature.Vector.style['default']);
 
             feature.attributes = newAttrs
           */
@@ -779,8 +779,8 @@ $.widget('custom.ssbMap', {
         //feature.geometry = g;
                 
         /*
-        var newAttrs = OpenLayers.Util.extend(
-            OpenLayers.Util.extend({}, attrs), {
+        var newAttrs = leaflet.Util.extend(
+            leaflet.Util.extend({}, attrs), {
                 point: point,
                 nodeId: id,
                 label: attrs.abbr,
@@ -793,7 +793,7 @@ $.widget('custom.ssbMap', {
         //{point: point, nodeId: nodeId}
         //alert(JSON.stringify(attrs));
         //alert(JSON.stringify(newAttrs)); , this.styles.markerStyle
-        //var feature = new OpenLayers.Feature.Vector(geometry, attrs);
+        //var feature = new leaflet.Feature.Vector(geometry, attrs);
         //this.idToFeature[id] = feature;
         
         //this.featureLayer.addFeatures([feature]);
@@ -908,10 +908,10 @@ $.widget('custom.ssbMap', {
         
         //console.log('Adding box: ' + bounds);
 
-        var limit = new OpenLayers.Bounds(-179.999, -85.0, 179.999, 85.0);
+        var limit = new leaflet.Bounds(-179.999, -85.0, 179.999, 85.0);
 
         
-        var newBounds = new OpenLayers.Bounds(
+        var newBounds = new leaflet.Bounds(
                 Math.max(bounds.left, limit.left),
                 Math.max(bounds.bottom, limit.bottom),
                 Math.min(bounds.right, limit.right),
@@ -923,8 +923,8 @@ $.widget('custom.ssbMap', {
         
         
         // a = original lonlat, b = screen space, c = modified lonlal
-        var orig_ll_min = new OpenLayers.LonLat(newBounds.left, newBounds.bottom);
-        var orig_ll_max = new OpenLayers.LonLat(newBounds.right, newBounds.top);
+        var orig_ll_min = new leaflet.LonLat(newBounds.left, newBounds.bottom);
+        var orig_ll_max = new leaflet.LonLat(newBounds.right, newBounds.top);
         //console.log('mmi orig_ll', orig_ll_min, orig_ll_max);
                 
         
@@ -935,8 +935,8 @@ $.widget('custom.ssbMap', {
         
         var border_px = 10;
         
-        var border_px_min = new OpenLayers.Pixel(orig_px_min.x + border_px, orig_px_min.y - border_px);
-        var border_px_max = new OpenLayers.Pixel(orig_px_max.x - border_px, orig_px_max.y + border_px);
+        var border_px_min = new leaflet.Pixel(orig_px_min.x + border_px, orig_px_min.y - border_px);
+        var border_px_max = new leaflet.Pixel(orig_px_max.x - border_px, orig_px_max.y + border_px);
         //console.log('mmi border_px', border_px_min, border_px_max);
         
 //        border_px_min = orig_px_min;
@@ -947,7 +947,7 @@ $.widget('custom.ssbMap', {
         var border_ll_max = this.map.getLonLatFromPixel(border_px_max);
         //console.log('mmi border_ll', border_ll_min, border_ll_max);
         
-        var b = new OpenLayers.Bounds(
+        var b = new leaflet.Bounds(
                 border_ll_min.lon,
                 border_ll_min.lat,
                 Math.max(border_ll_min.lon, border_ll_max.lon),
@@ -956,7 +956,7 @@ $.widget('custom.ssbMap', {
 
         
         //console.log('Box style: ', this.styles.boxStyle);
-        var boxFeature = new OpenLayers.Feature.Vector(b.toGeometry(), {
+        var boxFeature = new leaflet.Feature.Vector(b.toGeometry(), {
             zoomable: true,
         }, this.styles.boxStyle);
         
@@ -1092,7 +1092,7 @@ $.widget('custom.ssbMap', {
 
         
         /*
-        var style_blue = OpenLayers.Util.extend({}, layer_style);
+        var style_blue = leaflet.Util.extend({}, layer_style);
         style_blue.strokeColor = 'blue';
         style_blue.fillColor = 'blue';
         style_blue.graphicName = 'star';
@@ -1104,10 +1104,10 @@ $.widget('custom.ssbMap', {
         
         var tPoint = point.clone().transform(this.map.displayProjection, this.map.projection);
         
-        var pt = new OpenLayers.Geometry.Point(tPoint.lon, tPoint.lat);
+        var pt = new leaflet.Geometry.Point(tPoint.lon, tPoint.lat);
         
-        var newAttrs = OpenLayers.Util.extend(
-            OpenLayers.Util.extend({}, attrs), {
+        var newAttrs = leaflet.Util.extend(
+            leaflet.Util.extend({}, attrs), {
                 point: point,
                 nodeId: id,
                 label: attrs.abbr,
@@ -1119,7 +1119,7 @@ $.widget('custom.ssbMap', {
         //{point: point, nodeId: nodeId}
         //alert(JSON.stringify(attrs));
         //alert(JSON.stringify(newAttrs)); , this.styles.markerStyle
-        var result = new OpenLayers.Feature.Vector(pt, newAttrs);
+        var result = new leaflet.Feature.Vector(pt, newAttrs);
         //console.log('Feature attributes: ', result.attributes);
 
         //result.attributes = {label: 'test'};
@@ -1141,28 +1141,28 @@ $.widget('custom.ssbMap', {
         var iconUrl = type ? this.schemaIcons.get(type) : null;
         
         if(!iconUrl || iconUrl == '(missing icon)') {
-            iconUrl = config.markerUrlDefault; //'src/main/resources/icons/markers/marker.png';//'http://www.openlayers.org/dev/img/marker.png';
+            iconUrl = config.markerUrlDefault; //'src/main/resources/icons/markers/marker.png';//'http://www.leaflet.org/dev/img/marker.png';
         }
         
-        //point = new OpenLayers.LonLat(-1, 52);
+        //point = new leaflet.LonLat(-1, 52);
         
         var tPoint = point.clone().transform(this.map.displayProjection, this.map.projection);
         //var tPoint = point;
         
         //console.log(tPoint);
         
-        var size = new OpenLayers.Size(21, 25);
-        var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-        var icon = new OpenLayers.Icon(iconUrl, size, offset);
+        var size = new leaflet.Size(21, 25);
+        var offset = new leaflet.Pixel(-(size.w/2), -size.h);
+        var icon = new leaflet.Icon(iconUrl, size, offset);
 
         /*
-        markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(0,0),icon));
+        markers.addMarker(new leaflet.Marker(new leaflet.LonLat(0,0),icon));
         * 
 
         
-        var feature = new OpenLayers.Feature(this.markerLayer, tPoint, {icon: icon});
+        var feature = new leaflet.Feature(this.markerLayer, tPoint, {icon: icon});
         feature.closeBox = true;
-        feature.popupClass = OpenLayers.Class(OpenLayers.Popup.FramedCloud,{'panMapIfOutOfView':false, 'autoSize': true});
+        feature.popupClass = leaflet.Class(leaflet.Popup.FramedCloud,{'panMapIfOutOfView':false, 'autoSize': true});
         //feature.data.popupContentHTML = 'No content loaded yet';
         feature.data.overflow = 'auto';
 
@@ -1171,7 +1171,7 @@ $.widget('custom.ssbMap', {
         var self = this;
         var markerClick = function(event) {
             
-            OpenLayers.Event.stop(event);
+            leaflet.Event.stop(event);
             
             self._trigger('onMarkerClick', event, {'nodeId': nodeId, 'feature': feature});
             
@@ -1250,7 +1250,7 @@ $.widget('custom.ssbMap', {
         console.log('Load raw center ', c);
         var center;
         if(c) {
-            var tmp = new OpenLayers.LonLat(state.center.lon, state.center.lat);
+            var tmp = new leaflet.LonLat(state.center.lon, state.center.lat);
             center = tmp.transform(map.displayProjection, map.projection);
         }
         else {
@@ -1278,7 +1278,7 @@ $.widget('custom.ssbMap', {
 
 // Legacy version - don't use if you don't have to
 
-// angular.module('ui.jassa.openlayers.jassa-map-ol-a', [])
+// angular.module('ui.jassa.leaflet.jassa-map-ol-a', [])
 
 // .controller('JassaMapOlACtrl', ['$scope', '$rootScope', function($scope, $rootScope) {
         
@@ -1320,7 +1320,7 @@ $.widget('custom.ssbMap', {
             // var dataSources = $scope.sources;
             
             
-            // var bounds = Jassa.geo.openlayers.MapUtils.getExtent($scope.map);
+            // var bounds = Jassa.geo.leaflet.MapUtils.getExtent($scope.map);
             
             // _(dataSources).each(function(dataSource) {
 
