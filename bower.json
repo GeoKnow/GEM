@@ -9,7 +9,7 @@
     "Claus Stadler <cstadler@informatik.uni-leipzig.de>"
   ],
   "description": "JAvascript Suite for Sparql Access",
-  "main": "app/index.html",
+  "main": "www/index.html",
   "repository": {
     "type": "git",
     "url": "git://github.com/GeoKnow/GEM.git"
