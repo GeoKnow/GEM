@@ -143,7 +143,7 @@ module.exports = function (grunt) {
     bowerInstall: {
       target: {
         src: [
-          'app/index.html',
+          'www/index.html',
         ]
       }
 //      app: {
