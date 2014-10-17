@@ -28,7 +28,8 @@ angular.module('ui.jassa.openlayers.jassa-map-ol', [])
             mapWrapper.addBox(item.id, item.zoomClusterBounds);
         }
         else {
-            var wktNode = item.wkt;
+            var val = item.val;
+            var wktNode = val.wkt;
             var wkt = wktNode.getLiteralLexicalForm();
 
 			
@@ -50,7 +51,7 @@ angular.module('ui.jassa.openlayers.jassa-map-ol', [])
         
         var p = dataSource.fetchData(bounds);
         
-        var result = p.pipe(function(items) {
+        var result = $q.when(p).then(function(items) {
 
             items = _(items).compact();
 
@@ -91,7 +92,7 @@ angular.module('ui.jassa.openlayers.jassa-map-ol', [])
         
         var promise = fetchDataFromSourceCore(dataSource, bounds);
         
-        var result = promise.pipe(function(items) {
+        var result = $q.when(promise).then(function(items) {
             if(idToState[dataSourceId].requestId != requestId) {
                 return;
             }
