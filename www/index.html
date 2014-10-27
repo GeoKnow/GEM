@@ -34,7 +34,7 @@
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="bower_components/ng-grid/build/ng-grid.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-    <script src="bower_components/jquery-ui/jquery-ui.js"></script>
+    <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
     <script src="bower_components/angular-ui-sortable/sortable.js"></script>
     <script src="bower_components/angular-ui-utils/ui-utils.js"></script>
     <script src="bower_components/jassa-ui-angular/jassa-ui-angular-tpls.js"></script>
@@ -42,6 +42,7 @@
     <script src="bower_components/leaflet/dist/leaflet-src.js"></script>
     <script src="bower_components/snapjs/snap.js"></script>
     <script src="bower_components/bluebird/js/browser/bluebird.js"></script>
+    <script src="bower_components/jquery-cookie/jquery.cookie.js"></script>
     <!-- endbower -->
 
     <script src="bower_components/angular-snap/angular-snap.js"></script>
@@ -56,7 +57,7 @@
 
 
     <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
-    <script src="js/controllers.js"></script>
+    <script src="js/sourcemanager.js"></script>
 
 
     <title>GEM - {{bar.value}}</title>
@@ -131,6 +132,17 @@
             //createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#663300'),
         ];
         */
+		
+		$scope.dataSources = [];
+		
+        var sources = $.parseJSON(localStorage.sources);
+		$("#sources ul").html('');
+		console.log("S: " + sources);
+		$.each(sources, function(key, source){
+			var sparqlService = createSparqlService(source.endpoint, ['']); // second argument is default graph
+			var dataSource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '#CC0020');
+			$scope.dataSources.push(dataSource);
+		});
 
         $scope.selectGeom = function(data) {
             alert(JSON.stringify(data));
@@ -196,14 +208,17 @@
         ></constraint-list>
     </div>
     <div snap-drawer="right">
-      <ul>
-        <li>Facet tree</li>
-        <li>Facet 8</li>
-        <li>Facet 9</li>
-        <li>Facet 10</li>
-        <li>Facet 11</li>
-        <li>Facet 12</li>
-      </ul>
+      <div id="sources">
+		  <h2>Sources</h2>
+		  <ul> 
+			<li>Facet tree</li>
+			<li>Facet 8</li>
+			<li>Facet 9</li>
+			<li>Facet 10</li>
+			<li>Facet 11</li>
+			<li>Facet 12</li>
+		  </ul>
+	  </div>
     </div>
     <!-- <div class="app"></div>
     <div id="header">

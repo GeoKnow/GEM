@@ -70,7 +70,7 @@ describe('typeahead tests', function () {
         this.message = function () {
           return 'Expected "' + angular.mock.dump(typeaheadEl) + '" to be closed.';
         };
-        return typeaheadEl.length === 0;
+        return typeaheadEl.hasClass('ng-hide') === true;
 
       }, toBeOpenWithActive: function (noOfMatches, activeIdx) {
 
@@ -80,7 +80,7 @@ describe('typeahead tests', function () {
         this.message = function () {
           return 'Expected "' + this.actual + '" to be opened.';
         };
-        return typeaheadEl.length === 1 && liEls.length === noOfMatches && $(liEls[activeIdx]).hasClass('active');
+        return typeaheadEl.length === 1 && typeaheadEl.hasClass('ng-hide') === false && liEls.length === noOfMatches && $(liEls[activeIdx]).hasClass('active');
       }
     });
   });
@@ -148,6 +148,16 @@ describe('typeahead tests', function () {
       expect(element).toBeClosed();
       expect(inputEl.attr('aria-expanded')).toBe('false');
       expect(inputEl.attr('aria-activedescendant')).toBeUndefined();
+    });
+
+    it('should allow expressions over multiple lines', function () {
+      var element = prepareInputEl('<div><input ng-model="result" typeahead="item for item in source \n' +
+        '| filter:$viewValue"></div>');
+      changeInputValueTo(element, 'ba');
+      expect(element).toBeOpenWithActive(2, 0);
+
+      changeInputValueTo(element, '');
+      expect(element).toBeClosed();
     });
 
     it('should not open typeahead if input value smaller than a defined threshold', function () {
@@ -554,6 +564,21 @@ describe('typeahead tests', function () {
 
       expect($scope.isLoading).toBeFalsy();
     });
+
+    it('should cancel old timeout when deleting characters', inject(function ($timeout) {
+      var values = [];
+      $scope.loadMatches = function(viewValue) {
+        values.push(viewValue);
+        return $scope.source;
+      };
+      var element = prepareInputEl('<div><input ng-model="result" typeahead="item for item in loadMatches($viewValue) | filter:$viewValue" typeahead-min-length="2" typeahead-wait-ms="200"></div>');
+      changeInputValueTo(element, 'match');
+      changeInputValueTo(element, 'm');
+
+      $timeout.flush();
+
+      expect(values).not.toContain('match');
+    }));
 
     it('does not close matches popup on click in input', function () {
       var element = prepareInputEl('<div><input ng-model="result" typeahead="item for item in source | filter:$viewValue"></div>');

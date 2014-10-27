@@ -1,18 +1,102 @@
+/**
+ * inline pagination
+ */
+/*
+.pagination-tiny > li > a, .pagination-tiny > li > span {
+       padding: 5px;
+}
+*/
 
-.pagination {
-    margin-top: 5px;
-    margin-bottom: 5px;
+.label-gray {
+    color: gray;
+    background-color: transparent;
 }
 
+.pagination-inline > li > a, .pagination > li > span {
+    background-color: transparent;
+    border: 0px;
+}
+.pagination-inline > .disabled > span, .pagination > .disabled > span:hover, .pagination > .disabled > span:focus, .pagination > .disabled > a, .pagination > .disabled > a:hover, .pagination > .disabled > a:focus {
+    background-color: transparent;
+}
+.pagination-inline {
+    margin: 0px;
+}
+
+.pagination-inline > li > a {
+    font-size: 10px;
+    padding: 0px 3px;
+}
+
+
+
+/* Force pointer cursor on 'a' elements - even without href attribute */
+a {
+    cursor: pointer
+}
+
+.thumbnail-center {
+    display: table;
+    border-spacing: 1px;
+    border-collapse: separate;
+}
+
+.thumbnail-wrapper {
+    display:table-cell;
+    vertical-align:middle;
+}
+
+.thumbnail-wrapper > img {
+    width:100%;
+}
+
+
+
+.no-border-radius {
+    border-radius: 0px !important;
+}
+
+.lang-item {
+    cursor: move;
+    min-width: 20px;
+    min-height: 1em;
+}
+
+.lang-sortable-placeholder {
+    width: 25px;
+    height: 0.9em;
+    border: 2px dotted #aaaaaa;
+}
+
+.lang-borderless,
+.lang-boderless:active,
+.lang-borderless:focus {
+    border: none;
+    outline: none;
+    outline-offset: 0;
+    border-color: transparent;
+}
+
+.preserve-whitespace {
+    white-space: pre;
+}
+
+
+/* .pagination { */
+/*     margin-top: 5px; */
+/*     margin-bottom: 5px; */
+/* } */
+
 .image {
-	    max-width: 144px;
-	    max-height: 144px;
+        max-width: 144px;
+        max-height: 144px;
     vertical-align: middle;
 }
 
 .facet-row:hover {
     background-color: #bbccff;
 }
+
 
 .highlite {
     /*background-color: #ddeeff;*/
@@ -24,24 +108,24 @@ input[type=text] .btn-xs, input[type=password] .btn-xs {
    }
 
 .portlet-frame {
-	border: 1px;
-	border-collapse: true;
-	border-style: solid;
-	border-color: #cccccc;
-	padding-right: 0px;
-	margin: 3px;
-	padding: 3px;	
-}	
+    border: 1px;
+    border-collapse: true;
+    border-style: solid;
+    border-color: #cccccc;
+    padding-right: 0px;
+    margin: 3px;
+    padding: 3px;
+}
 
 .frame {
-	border: 1px;
-	border-collapse: true;
-	border-style: solid;
-	border-color: #cccccc;
-	padding-right: 0px;
+    border: 1px;
+    border-collapse: true;
+    border-style: solid;
+    border-color: #cccccc;
+    padding-right: 0px;
 /* 		padding-bottom: 16px; */
-		margin-top: 3px;
-		margin-bottom: 3px;
+        margin-top: 3px;
+        margin-bottom: 3px;
 /*  		background-color: #eeeeee; */
 /* 		background-color: #EEEEEE; */
 }
@@ -51,35 +135,35 @@ a {
 }
 
 .image-frame {
-	display: table;
+    display: table;
 
     width: 150px;
-    height: 150px;	
-	line-height: 150px; /* should match height */
-	text-align: center;
- 
-	border: 1px;
-	border-collapse: true;
-	border-style: solid;
-	border-color: #CCCCCC;
-	background-color: #EEEEEE;
+    height: 150px;
+    line-height: 150px; /* should match height */
+    text-align: center;
+
+    border: 1px;
+    border-collapse: true;
+    border-style: solid;
+    border-color: #CCCCCC;
+    background-color: #EEEEEE;
 }
 
 .navbar-inner {
     background-color: #CCCCFA;
        background-image: linear-gradient(to bottom, #CCCCFF, #EEEEFF);
    }
-   
+
    .nav-tabs {
-	background-color: #eeeeff;
+    background-color: #eeeeff;
    }
-   
+
    .modal {
-   	display: block;
-   	height: 0;
-   	overflow: visible;
+       display: block;
+       height: 0;
+       overflow: visible;
    }
-   
+
    .modal-header {
        background-color: #FFFFFF !important;
    }
@@ -87,50 +171,54 @@ a {
    .modal-body {
        background-color: #FFFFFF !important;
    }
-   
+
    .layout-table {
-	width: 100%;
-	min-height: 100%;
-	border:none;
-	border-collapse: collapse;
+    width: 100%;
+    min-height: 100%;
+    border:none;
+    border-collapse: collapse;
 }
 
 .layout-table > tbody > tr > td {
-	padding: 0px;
-	border-left: 5px solid #1c3048;
-	border-right: 5px solid #1c3048;
-	vertical-align: top;
+    padding: 0px;
+    border-left: 5px solid #1c3048;
+    border-right: 5px solid #1c3048;
+    vertical-align: top;
 }
 
-.visible-on-hover {
+.visible-on-hover-child {
     visibility: hidden;
 }
 
-.visible-on-hover:hover {
+.visible-on-hover-parent:hover .visible-on-hover-child {
     visibility: visible;
 }
-   
-   
+
+
+.show-on-hover-child {
+    display: none;
+}
+.show-on-hover-parent-inline:hover .show-on-hover-child {
+    display: inline;
+}
+
+
    /* Not working yet, as openlayers positions the element programmatically */
 .olControlPanZoomBar {
-	right: 10px;
+    right: 10px;
 /* 		position: absolute; */
 /* 		top: 10px; */
 /* 		left: 10px; */
 }
 
 .inactive {
-	color: #aaaaaa;
+    color: #aaaaaa;
 }
 
 .tabset-small > .nav > li > a {
-   	display: block;
-   	padding: 3px 15px;
-   	position: relative;
+       display: block;
+       padding: 3px 15px;
+       position: relative;
 }
 
-.pagination-tiny > li > a, .pagination-tiny > li > span {
-   	font-size: 10px;
-   	padding: 5px;
-}
 

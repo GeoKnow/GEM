@@ -16,7 +16,9 @@
     "angular-ui-bootstrap": "",
     "ng-grid": "2.0.11",
     "angular-sanitize": "v1.2.16-build.63+sha.8d4d437",
-    "jquery-ui": "1.10.3"
+    "jquery-ui": "1.10.3",
+    "angular-ui-sortable": "0.12.11",
+    "angular-ui-utils": "0.1.1"
   },
   "keywords": [
     "rdf",
@@ -41,10 +43,9 @@
   "_resolution": {
     "type": "version",
     "tag": "v0.0.4-SNAPSHOT",
-    "commit": "293bf23f1edbbab730acee5a4c6d48ad86067fcc"
+    "commit": "99a2c51e3b5041fda442b28701d7ee32d053c805"
   },
   "_source": "git://github.com/GeoKnow/Jassa-UI-Angular-Bower.git",
-  "_target": "~0.0.4-SNAPSHOT",
-  "_originalSource": "jassa-ui-angular",
-  "_direct": true
+  "_target": "0.0.4-SNAPSHOT",
+  "_originalSource": "jassa-ui-angular"
 }

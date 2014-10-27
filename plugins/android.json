@@ -1,11 +1,1 @@
-{
-    "prepare_queue": {
-        "installed": [],
-        "uninstalled": []
-    },
-    "config_munge": {
-        "files": {}
-    },
-    "installed_plugins": {},
-    "dependent_plugins": {}
-}
+{"prepare_queue":{"installed":[],"uninstalled":[]},"config_munge":{"files":{}},"installed_plugins":{},"dependent_plugins":{}}

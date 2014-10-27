@@ -2,103 +2,217 @@
  * jassa-ui-angular
  * https://github.com/GeoKnow/Jassa-UI-Angular
 
- * Version: 0.0.1-SNAPSHOT - 2014-03-02
+ * Version: 0.0.4-SNAPSHOT - 2014-08-06
  * License: MIT
  */
-angular.module("ui.jassa.openlayers", ["ui.jassa.openlayers.tpls", "ui.jassa.openlayers.jassa-map-ol"]);
+angular.module("ui.jassa.openlayers", ["ui.jassa.openlayers.tpls", "ui.jassa.openlayers.jassa-map-ol","ui.jassa.openlayers.jassa-map-ol-a"]);
 angular.module("ui.jassa.openlayers.tpls", []);
+//TODO Move to some better place
+jassa.setOlMapCenter = function(map, config) {
+    var zoom = config.zoom;
+
+    var center = config.center;
+    var olCenter = null;
+    if(center && center.lon != null && center.lat != null) {
+        var lonlat = new OpenLayers.LonLat(center.lon, center.lat);
+        olCenter = lonlat.clone().transform(map.displayProjection, map.projection);
+    }
+
+    if(olCenter != null) {
+        map.setCenter(olCenter, zoom);
+    }
+    else if(zoom != null) {
+        map.setZoom(zoom);
+    }
+};
+
+
+
 angular.module('ui.jassa.openlayers.jassa-map-ol', [])
 
-.controller('JassaMapOlCtrl', ['$scope', '$rootScope', function($scope, $rootScope) {
-        
-        var refresh;
+.controller('JassaMapOlCtrl', ['$scope', '$q', function($scope, $q) {
 
-//        $scope.center = null;
-//        $scope.zoom = null;
-//        $scope.config = [];
-        
-        var defaultViewStateFetcher = new Jassa.geo.ViewStateFetcher();
+    $scope.loadingSources = [];
+    
+    $scope.items = [];
 
-        console.log('scope', $scope);
-        console.log('config: ' + Jassa.util.ObjectUtils.hashCode($scope.config), $scope.config);
+    
+    /**
+     * Checks whether the item is a box or a generic object
+     */
+    var addItem = function(item) {
+        var mapWrapper = $scope.map.widget;
 
-        // Make Jassa's ObjectUtils known to the scope - features the hashCode utility function
-        $scope.ObjectUtils = Jassa.util.ObjectUtils;
-        
-        //var watchList = '[map.center, map.zoom, ObjectUtils.hashCode(config), viewStateFetcher]';
-        var watchList = '[map.center, map.zoom, ObjectUtils.hashCode(config)]'; //viewStateFetcher
-        
-        $scope.$watch(watchList, function() {
-            console.log('Map refresh: ' + Jassa.util.ObjectUtils.hashCode($scope.config));
-            refresh();
-        }, true);
-        
-        
-        refresh = function() {
-             
-            var mapWrapper = $scope.map.widget;
- 
-            mapWrapper.clearItems();
+        if(item.zoomClusterBounds) {
+            mapWrapper.addBox(item.id, item.zoomClusterBounds);
+        }
+        else {
+            var wktNode = item.wkt;
+            var wkt = wktNode.getLiteralLexicalForm();
 
-            var configs = $scope.config;
+            mapWrapper.addWkt(item.id, wkt, item);// {fillColor: markerFillColor, strokeColor: markerStrokeColor});
+        }
+    };
+    
+    $scope.$watchCollection('items', function(after, before) {
+        var mapWrapper = $scope.map.widget;
+        mapWrapper.clearItems();
+
+        _($scope.items).each(function(item) {
+            addItem(item);
+        });
+    });
+    
+    
+    //$scope.boxes = [];
+    var fetchDataFromSourceCore = function(dataSource, bounds) {
+        
+        var p = dataSource.fetchData(bounds);
+        
+        var result = p.pipe(function(items) {
+
+            items = _(items).compact();
+
+            // Commented out because this is the application's decision 
+            // Add the dataSource as the config
+//            _(items).each(function(item) {
+//                item.config = dataSource;
+//            });
+
+            return items;
+        });
+        
+        return result;
+    };
+    
+    var fetchDataFromSource = function(dataSourceId, dataSource, bounds) {
+        // Check if we are already loading from this data source
+        var idToState = _($scope.loadingSources).indexBy('id');
+        
+        var state = idToState[dataSourceId];
+        
+        // If there is a prior state, cancel it
+        if(state) {
+            if(state.promise.abort) {
+                state.promise.abort();
+            }
+        } else {
+            state = {
+                id: dataSourceId,
+                requestId: 0
+            };
+
+            idToState[dataSourceId] = state;
+            $scope.loadingSources.push(state);
+        }
+        
+        var requestId = ++state.requestId;
+        
+        var promise = fetchDataFromSourceCore(dataSource, bounds);
+        
+        var result = promise.pipe(function(items) {
+            if(idToState[dataSourceId].requestId != requestId) {
+                return;
+            }
+
+            items = _(items).compact(true);
             
             
-            var bounds = Jassa.geo.openlayers.MapUtils.getExtent($scope.map);
-            
-            _(configs).each(function(config) {
-
-                var viewStateFetcher = config.viewStateFetcher || defaultViewStateFetcher;
-                
-                var sparqlService = config.sparqlService;
-                var mapFactory = config.mapFactory;
-                //var conceptFactory = config.conceptFactory
-                var conceptFactory = config.conceptFactory;
-                var concept = conceptFactory.createConcept();
-                
-                var quadTreeConfig = config.quadTreeConfig;
-                
-                var promise = viewStateFetcher.fetchViewState(sparqlService, mapFactory, concept, bounds, quadTreeConfig);
-                
-                // TODO How to obtain the marker style?
-                promise.done(function(viewState) {
-                    var nodes = viewState.getNodes();
-                    
-                    _(nodes).each(function(node) {
-                        //console.log('booooo', node);
-                        if(!node.isLoaded) {
-                            //console.log('box: ' + node.getBounds());
-                            mapWrapper.addBox('' + node.getBounds(), node.getBounds());
-                        }
-                        
-                        var data = node.data || {};
-                        var docs = data.docs || [];
-
-                        _(docs).each(function(doc) {
-                            var itemData = {
-                                id: doc.id
-                            };
-                            
-                            mapWrapper.addWkt(doc.id, doc.wkt, itemData);// {fillColor: markerFillColor, strokeColor: markerStrokeColor});
-                            
-                        });
-                    });
-                });
-                
-                
+            jassa.util.ArrayUtils.removeByGrep($scope.loadingSources, function(item) {
+                return item.id === dataSourceId;
             });
-        };
+            
+            jassa.util.ArrayUtils.addAll($scope.items, items);
+
+            if(!$scope.$$phase && !$scope.$root.$$phase) {
+                $scope.$apply();
+            }
+            
+            return items;
+        });
+
         
+        state.promise = result;
+        
+        return result;
+    };
+    
+        
+    var fetchData = function(dataSources, bounds, progressionCallback) {
+
+        var promises = [];
+        //for(var i = 0; i < dataSources.length; ++i) {
+        _(dataSources).each(function(dataSource, i) {
+            var promise = fetchDataFromSource('' + i, dataSource, bounds);
+            promises.push(promise);
+        });
+        
+        //var promises = _(dataSources).map(function(dataSource) {
+        //    fetchDataFromSource
+        //});
+        
+        var result = jQuery.when.apply(window, promises).pipe(function() {
+            var r = _(arguments).flatten(true);
+            return r;
+        });
+
+        return result;
+    };
+
+    var refresh = function() {
+        
+        jassa.util.ArrayUtils.clear($scope.items);
+
+        var dataSources = $scope.sources;
+        var bounds = jassa.geo.openlayers.MapUtils.getExtent($scope.map);
+
+        var promise = fetchData(dataSources, bounds);
+
+        // Nothing to to with the promise as the scope has already been updated
+//        jassa.sponate.angular.bridgePromise(promise, $q.defer(), $scope, function(items) {
+//            $scope.items = items;
+//        });
+    };
+    
+    
+    // Make Jassa's ObjectUtils known to the scope - features the hashCode utility function
+    $scope.ObjectUtils = jassa.util.ObjectUtils;
+    
+    $scope.$watch('config', function(config, oldConfig) {
+        if(_(config).isEqual(oldConfig)) {
+            return;
+        }
+        
+        jassa.setOlMapCenter($scope.map, config);
+    }, true);
+    
+
+    $scope.$watch('[map.center, map.zoom]', function() {
+        //console.log('Map refresh: ' + jassa.util.ObjectUtils.hashCode($scope.config));
+        refresh();
+    }, true);
+    
+    
+//    $scope.$watch('sources', function() {
+//        refresh();
+//    });
+    $scope.$watchCollection('sources', function() {
+        refresh();
+    });
+
+    
 }])
 
 //http://jsfiddle.net/A2G3D/1/
-.directive('jassaMapOl', function($parse) {
+.directive('jassaMapOl', ['$compile', function($compile) {
     return {
-        restrict: 'EA', // says that this directive is only for html elements
+        restrict: 'EA',
         replace: true,
         template: '<div></div>',
         controller: 'JassaMapOlCtrl',
         scope: {
             config: '=',
+            sources: '=',
             onSelect: '&select',
             onUnselect: '&unselect'
         },
@@ -111,62 +225,50 @@ angular.module('ui.jassa.openlayers.jassa-map-ol', [])
             map.widget = widget;
             
             scope.map = map;
-            //scope.$parent.map = map;
-                        
+
+            jassa.setOlMapCenter(scope.map, scope.config);
+
+            // Status Div
+            //<ul><li ng-repeat="item in loadingSources">{{item.id}}</li></ul>
+            var statusDivHtml = '<span ng-show="loadingSources.length > 0" class="label label-primary" style="position: absolute; right: 10px; bottom: 25px; z-index: 1000;">Waiting for data from <span class="badge">{{loadingSources.length}}</span> sources... </span>';
+            
+            var $elStatus = $compile(statusDivHtml)(scope);
+            element.append($elStatus);
+            
             /*
-            var getCenter = $parse('map.center');
-            var setCenter = getCenter.assign;
+            var $;
+            if (!$) {$ = angular.element; }
+            var $statusDiv = $('<div>');
+            $statusDiv.css({
+                position: 'absolute',
+                right: 10,
+                bottom: 10,
+                'z-index': 1000
+            });
+            var $statusContent = $('<span>YAAAY</span>');
             
-            var getCenter = $parse('map.center');
-            var setCenter = getCenter.assign;
-            */
+            $statusDiv.append($statusContent);
             
-            //var model = $parse(attrs.jassaMapOl);
-
-
-//            if(model) {
-//                //model.assign(scope, map);
-//            }
-
-
+            element.append($statusDiv);
+*/
+            
+            // Status Div
+            
             var syncModel = function(event) {
-                console.log('syncModel');
+                var tmp = scope.map.getCenter();
+                var center = tmp.transform(scope.map.projection, scope.map.displayProjection);
+                
+                //console.log('syncModel', center);
 
-                scope.config.center = scope.map.getCenter();
+                scope.config.center = {lon: center.lon, lat: center.lat};
                 scope.config.zoom = scope.map.getZoom();
-                if(!scope.$$phase) {
+                if(!scope.$root.$$phase) {
                     scope.$apply();
                 }
-                /*
-                var center = scope.map.getCenter();
-                //scope.config.center = {lon: center.lon; lat: center.lat};
-
-//              if(scope.$root.$$phase != '$apply' && scope.$root.$$phase != '$digest') {
-//              scope.$apply();
-//          }
-*/
             };
 
-            /*
-            var watchList = '[map.getCenter(), map.getZoom()]';
-            scope.$watch(watchList, function() {
-                syncModel();
-            }, true);
-*/
             
-/*
-            scope.$watch('[config.center, config.zoom]', function(arr) {
-                console.log('New map center', arr);
-               scope.map.setCenter(arr[0], arr[1]);
-            }, true);
-*/
-//            scope.$watch('config.zoom', function(val) {
-//                scope.map.setZoom(val);
-//            });
-            
-            //$(this.el).on("ssbmap2featureselect"
             $el.on('ssbmapfeatureselect', function(ev, data) {
-                console.log('args', arguments);
                 scope.onSelect({data: data});
             });
 
@@ -180,135 +282,10 @@ angular.module('ui.jassa.openlayers.jassa-map-ol', [])
         }
             
     };
-})
+}])
 
 ;
 
-
-
-
-/*
-    var bounds = ns.MapUtils.getExtent($scope.map)
-    //console.log('extent', bounds);
-    
-//     if(viewStateCtrl == null) {
-//         viewStateCtrl = new ns.ViewStateCtrlOpenLayers($scope.map.widget);
-//     }
-
-
-    $scope.map.widget.clearItems();
-
-    
-    var mapLinkIndex = 0;
-    
-    
-            var sparqlService = sparqlServiceFactory.createSparqlService(wsConf.sparqlServiceIri, wsConf.defaultGraphIris);
-            var facetConfig = conceptSpace.getFacetTreeConfig().getFacetConfig();
-            var facetConceptGenerator = facete.FaceteUtils.createFacetConceptGenerator(facetConfig);
-
-            var paths = conceptSpace.getData().activeMapLinkPaths.getArray();
-            
-
-            _(paths).each(function(path) {
-                
-                var markerFillColor = markerFillColors[mapLinkIndex];
-                var markerStrokeColor = markerStrokeColors[mapLinkIndex];
-                
-                var concept = facetConceptGenerator.createConceptResources(path); 
-                
-                //console.log('PAAAAA ' + geoConcept);
-                
-                
-                var mapFactory = mapLinkFactories[0];
-                var promise = viewStateFetcher.fetchViewState(sparqlService, mapFactory, concept, bounds);
-                
-                promise.done(function(viewState) {
-                    var nodes = viewState.getNodes();
-                    
-                    _(nodes).each(function(node) {
-                        //console.log('booooo', node);
-                        if(!node.isLoaded) {
-                            //console.log('box: ' + node.getBounds());
-                            $scope.map.widget.addBox('' + node.getBounds(), node.getBounds());
-                        }
-                        
-                        var data = node.data || {};
-                        var docs = data.docs || [];
-
-                        _(docs).each(function(doc) {
-     
-                            $scope.map.widget.addWkt(doc.id, doc.wkt, {fillColor: markerFillColor, strokeColor: markerStrokeColor});
-                        });                 
-                    });
-                });
-                
-                ++mapLinkIndex;
-            });
-                                
-        });
-    });
-    */
-    
-    //var concept = fctService.createConceptFacetValues(new facete.Path());
-/* TODO RE-ENABLE           
-    viewStateFetcher.fetchViewState(bounds).done(function(viewState) {
-       //var nodes = viewState.getNodes();
-       //console.log('viewStateNodes', nodes);
-       
-       viewStateCtrl.updateView(viewState);            
-    });
-*/
-/*            
-    var promise = qtc.fetchData(bounds);
-    promise.done(function(nodes) {
-        $scope.map.widget.clearItems();
-        console.log('nodes', nodes);
-
-        _(nodes).each(function(node) {
-            
-            if(!node.isLoaded) {
-                console.log('box: ' + node.getBounds());
-                $scope.map.widget.addBox('' + node.getBounds(), node.getBounds());
-            }
-            
-            var data = node.data || {};
-            var docs = data.docs || [];
-
-            _(docs).each(function(doc) {
-
-                $scope.map.widget.addWkt(doc.id, doc.wkt);
-                
-                //var wktParser = new OpenLayers.Format.WKT();
-                //var polygonFeature = wktParser.read(wkt);
-                //console.log('wkt: ', polygonFeature);
-                //polygonFeature.geometry.transform(map.displayProjection, map.getProjectionObject());         
-            });                 
-        });
-        
-//      vectors.addFeatures([polygonFeature]);
-    });
-
-};
-
-$scope.$watch('map.center', function(center) {
-    refresh();
-});
-
-$scope.$watch('map.zoom', function(zoom) {
-    refresh();
-});
-
-$scope.$watch('ObjectUtils.hashCode(config)', function(newHashCode) {
-    refresh();
-});
-
-
-refresh = function() {
-    console.log('refereshing');
-};
-
-
-*/
 
 /**
  * Copyright (C) 2011, MOLE research group at AKSW,
@@ -470,13 +447,14 @@ $.widget('custom.ssbMap', {
 //                pointRadius: '${radius}',
 //                pointerEvents: 'visiblePainted',
 //    
-                fontColor: '#0000FF', //'#0000FF',
+//                fontColor: '#0000FF', //'#0000FF',
+                fontColor: '${fontColor}',
                 fontSize: '12px',
                 fontFamily: 'Courier New, monospace',
                 fontWeight: 'bold',
                 //labelAlign: 'cm',
 //                
-                label: '', //'${label}',
+                label: '${shortLabel}', //'${label}',
                 //labelXOffset: 0,
                 labelYOffset: 21
 //                labelOutlineColor: '#0080FF',
@@ -618,7 +596,7 @@ $.widget('custom.ssbMap', {
         this.selectFeatureController = new OpenLayers.Control.SelectFeature([this.boxLayer, this.featureLayer], {
 
             onUnselect: function(feature) {
-                var data = feature.data;
+                var data = feature.attributes;
                 
                 var event = null;
                 self._trigger('featureUnselect', event, data);
@@ -627,7 +605,7 @@ $.widget('custom.ssbMap', {
             onSelect: function(feature) {
                                 
                 //var vector = feature; // Note: We assume a vector feature - might have to check in the future                
-                var data = feature.data;
+                var data = feature.attributes;
                 var geometry = feature.geometry;
                 
                 // FIXME Find a better way to get the click coordinates; but it might not exists yet, see http://trac.osgeo.org/openlayers/ticket/2089
@@ -752,8 +730,8 @@ $.widget('custom.ssbMap', {
 
             feature.attributes = newAttrs
           */
-        //feature.attributes = attrs;
-        feature.data = attrs;
+        feature.attributes = attrs;
+        //feature.data = attrs;
         //feature.geometry = g;
                 
         /*
@@ -1253,3 +1231,156 @@ $.widget('custom.ssbMap', {
 });
 
 })(jQuery);
+
+// Legacy version - don't use if you don't have to
+
+angular.module('ui.jassa.openlayers.jassa-map-ol-a', [])
+
+.controller('JassaMapOlACtrl', ['$scope', '$rootScope', function($scope, $rootScope) {
+        
+        var refresh;
+        
+        var defaultViewStateFetcher = new Jassa.geo.ViewStateFetcher();
+
+        // Make Jassa's ObjectUtils known to the scope - features the hashCode utility function
+        $scope.ObjectUtils = Jassa.util.ObjectUtils;
+        
+        
+        $scope.$watch('config', function(config, oldConfig) {
+            //console.log('Config update: ', config);
+            
+            if(_(config).isEqual(oldConfig)) {
+                return;
+            }
+            
+            //console.log('Compared: ' + JSON.stringify(config) + ' -> ' + JSON.stringify(oldConfig));
+            
+            Jassa.setOlMapCenter($scope.map, config);
+        }, true);
+        
+
+        var watchList = '[map.center, map.zoom, ObjectUtils.hashCode(sources)]'; //viewStateFetcher
+        
+        $scope.$watch(watchList, function() {
+            //console.log('Map refresh: ' + Jassa.util.ObjectUtils.hashCode($scope.config));
+            refresh();
+        }, true);
+        
+        
+        refresh = function() {
+             
+            var mapWrapper = $scope.map.widget;
+ 
+            mapWrapper.clearItems();
+
+            var dataSources = $scope.sources;
+            
+            
+            var bounds = Jassa.geo.openlayers.MapUtils.getExtent($scope.map);
+            
+            _(dataSources).each(function(dataSource) {
+
+                var viewStateFetcher = dataSource.viewStateFetcher || defaultViewStateFetcher;
+                
+                var sparqlService = dataSource.sparqlService;
+                var mapFactory = dataSource.mapFactory;
+                //var conceptFactory = dataSource.conceptFactory
+                var conceptFactory = dataSource.conceptFactory;
+                var concept = conceptFactory.createConcept();
+                
+                var quadTreeConfig = dataSource.quadTreeConfig;
+                
+                var promise = viewStateFetcher.fetchViewState(sparqlService, mapFactory, concept, bounds, quadTreeConfig);
+                
+                // TODO How to obtain the marker style?
+                promise.done(function(viewState) {
+                    var nodes = viewState.getNodes();
+                    
+                    _(nodes).each(function(node) {
+                        //console.log('booooo', node);
+                        if(!node.isLoaded) {
+                            //console.log('box: ' + node.getBounds());
+                            mapWrapper.addBox('' + node.getBounds(), node.getBounds());
+                        }
+                        
+                        var data = node.data || {};
+                        var docs = data.docs || [];
+
+                        _(docs).each(function(doc) {
+                            var itemData = {
+                                id: doc.id,
+                                config: dataSource // Make the dataSource object part of the marker's data
+                            };
+
+							var wkt = doc.wkt.getLiteralLexicalForm();
+
+                            mapWrapper.addWkt(doc.id, wkt, itemData);// {fillColor: markerFillColor, strokeColor: markerStrokeColor});
+                            
+                        });
+                    });
+                });
+                
+                
+            });
+        };
+        
+}])
+
+//http://jsfiddle.net/A2G3D/1/
+.directive('jassaMapOlA', function($parse) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        template: '<div></div>',
+        controller: 'JassaMapOlACtrl',
+        scope: {
+            config: '=',
+            sources: '=',
+            onSelect: '&select',
+            onUnselect: '&unselect'
+        },
+        link: function (scope, element, attrs) {
+            
+            var $el = jQuery(element).ssbMap();
+            var widget = $el.data('custom-ssbMap');
+
+            var map = widget.map;
+            map.widget = widget;
+            
+            scope.map = map;
+
+            Jassa.setOlMapCenter(scope.map, scope.config);
+
+            
+            var syncModel = function(event) {
+                var tmp = scope.map.getCenter();
+                var center = tmp.transform(scope.map.projection, scope.map.displayProjection);
+                
+                //console.log('syncModel', center);
+
+                scope.config.center = {lon: center.lon, lat: center.lat};
+                scope.config.zoom = scope.map.getZoom();
+                if(!scope.$root.$$phase) {
+                    scope.$apply();
+                }
+            };
+
+            
+            $el.on('ssbmapfeatureselect', function(ev, data) {
+                scope.onSelect({data: data});
+            });
+
+            $el.on('ssbmapfeatureunselect', function(ev, data) {
+                scope.onUnselect({data: data});
+            });
+                    
+            
+            map.events.register('moveend', this, syncModel);
+            map.events.register('zoomend', this, syncModel);
+        }
+            
+    };
+})
+
+;
+

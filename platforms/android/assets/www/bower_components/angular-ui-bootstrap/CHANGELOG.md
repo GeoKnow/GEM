@@ -1,3 +1,41 @@
+# 0.11.2 (2014-09-26)
+
+Revert breaking change in **dropdown** ([c7829b9](http://github.com/angular-ui/bootstrap/commit/c7829b9))
+
+# 0.11.1 (2014-09-26)
+
+## Features
+
+- **modal:** 
+  - add backdropClass option, similar to windowClass option ([353e6127](http://github.com/angular-ui/bootstrap/commit/353e6127))  
+  - support alternative controllerAs syntax ([8d7c2a26](http://github.com/angular-ui/bootstrap/commit/8d7c2a26))  
+  - allow templateUrl to be a function ([990015fb](http://github.com/angular-ui/bootstrap/commit/990015fb))   
+
+## Bug Fixes
+
+- **alert:** 
+  - correct binding of alert type class ([aa188aec](http://github.com/angular-ui/bootstrap/commit/aa188aec))  
+- **dateparser:** 
+  - do not parse if no format specified ([42cc3f26](http://github.com/angular-ui/bootstrap/commit/42cc3f26))  
+- **datepicker:** 
+  - correct `datepicker-mode` binding for popup ([63ae06c9](http://github.com/angular-ui/bootstrap/commit/63ae06c9))  
+  - memory leak fix for datepicker ([08c150e1](http://github.com/angular-ui/bootstrap/commit/08c150e1))  
+- **dropdown:** 
+  - close after selecting an item ([3ac3b487](http://github.com/angular-ui/bootstrap/commit/3ac3b487))  
+  - remove `C` restrictions to avoid conflicts ([7512b93f](http://github.com/angular-ui/bootstrap/commit/7512b93f))  
+- **modal:** 
+  - allow modal.{dismiss,close} to be called again ([1590920c](http://github.com/angular-ui/bootstrap/commit/1590920c))  
+  - add a work-around for transclusion scope ([0b31e865](http://github.com/angular-ui/bootstrap/commit/0b31e865))  
+  - allow in-lined controller-as controllers ([79105368](http://github.com/angular-ui/bootstrap/commit/79105368))  
+  - respect autofocus on child elements ([e62ab94a](http://github.com/angular-ui/bootstrap/commit/e62ab94a))  
+  - controllerAs not checked ([7b7cdf84](http://github.com/angular-ui/bootstrap/commit/7b7cdf84))  
+- **tabs:** 
+  - remove leading newline from a template ([a708fe6d](http://github.com/angular-ui/bootstrap/commit/a708fe6d))  
+- **typeahead:** 
+  - timeout cancellation when deleting characters ([5dc57927](http://github.com/angular-ui/bootstrap/commit/5dc57927))  
+  - allow multiple line expression ([c7db0df4](http://github.com/angular-ui/bootstrap/commit/c7db0df4))  
+  - replace ng-if with ng-show in matches popup ([a0be450d](http://github.com/angular-ui/bootstrap/commit/a0be450d))   
+
 # 0.11.0 (2014-05-01)
 
 ## Features
@@ -123,41 +161,53 @@
  * `on-select-page` is removed since `ng-change` can now be used.
 
   Before:
-
+  
+  ```html
   <pagination page="current" on-select-page="changed(page)" ...></pagination>
-
+  ```
+  
   After:
 
+  ```html
   <pagination ng-model="current" ng-change="changed()" ...></pagination>
-
+  ```
+  
 - **rating:** 
  `rating` is now integrated with `ngModelController`.
  * `value` is replaced from `ng-model`.
 
   Before:
 
+  ```html
   <rating value="rate" ...></rating>
-
+  ```
+  
   After:
-
+  
+  ```html
   <rating ng-model="rate" ...></rating>
-
+  ```
+  
 - **tabs:**
 
  Use interpolation for type attribute.
 
   Before:
-
+  
+  ```html
   <tabset type="'pills'" ...></tabset >
-  or
+  <!-- or -->
   <tabset type="navtype" ...></tabset>
-
+  ```
+  
   After:
-
+  
+  ```html
   <tabset type="pills" ...></tabset>
-  or
+  <!-- or -->
   <tabset type="{{navtype}}" ...></tabset>
- 
+  ```
+  
 # 0.10.0 (2014-01-13)
 
 _This release adds AngularJS 1.2 support_

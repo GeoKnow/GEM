@@ -2,43 +2,122 @@
  * jassa-ui-angular
  * https://github.com/GeoKnow/Jassa-UI-Angular
 
- * Version: 0.0.4-SNAPSHOT - 2014-06-05
+ * Version: 0.0.4-SNAPSHOT - 2014-10-17
  * License: MIT
  */
-angular.module("ui.jassa", ["ui.jassa.constraint-list","ui.jassa.facet-tree","ui.jassa.facet-typeahead","ui.jassa.facet-value-list","ui.jassa.pointer-events-scroll-fix","ui.jassa.resizable","ui.jassa.sparql-grid","ui.jassa.template-list"]);
+angular.module("ui.jassa", ["ui.jassa.auto-focus","ui.jassa.blurify","ui.jassa.constraint-list","ui.jassa.facet-tree","ui.jassa.facet-typeahead","ui.jassa.facet-value-list","ui.jassa.jassa-list-browser","ui.jassa.jassa-media-list","ui.jassa.lang-select","ui.jassa.list-search","ui.jassa.pointer-events-scroll-fix","ui.jassa.resizable","ui.jassa.sparql-grid","ui.jassa.template-list"]);
+angular.module('ui.jassa.auto-focus', [])
+
+// Source: http://stackoverflow.com/questions/14833326/how-to-set-focus-on-input-field
+.directive('autoFocus', function($timeout, $parse) {
+    return {
+        link: function(scope, element, attrs) {
+            var model = $parse(attrs.autoFocus);
+            scope.$watch(model, function(value) {
+                if(value === true) {
+                    $timeout(function() {
+                         element[0].focus();
+                    });
+                }
+            });
+            // to address @blesh's comment, set attribute value to 'false'
+            // on blur event:
+            element.bind('blur', function() {
+                if(model.assign) {
+                    scope.$apply(model.assign(scope, false));
+                }
+            });
+        }
+    };
+})
+
+;
+
+
+angular.module('ui.jassa.blurify', [])
+
+/**
+ * Replaces text content with an alternative on blur
+ * blurify="(function(model) { return 'displayValue'; })"
+ *
+ */
+.directive('blurify', [ '$parse', function($parse) {
+    return {
+        require: 'ngModel',
+        restrict: 'A',
+        link: function($scope, element, attrs, model) {
+            element.on('focus', function () {
+                // Re-render the model on focus
+                model.$render();
+            });
+            element.on('blur', function () {
+                var modelVal = $parse(attrs['ngModel'])($scope);
+                var labelFn = $parse(attrs['blurify'])($scope);
+
+                if(labelFn) {
+                    var val = labelFn(modelVal);
+                    if(val && val.then) {
+                        val.then(function(label) {
+                            element.val(label);
+                        });
+                    } else {
+                        element.val(val);
+                    }
+                }
+//              $scope.$apply(function() {
+//                  model.$setViewValue(val);
+//              });
+            });
+        }
+    };
+}])
+
+;
+
+
 angular.module('ui.jassa.constraint-list', [])
 
-.controller('ConstraintListCtrl', ['$scope', '$rootScope', function($scope, $rootScope) {
+.controller('ConstraintListCtrl', ['$scope', '$q', '$rootScope', function($scope, $q, $rootScope) {
 
     var self = this;
 
-    //var constraintManager;
-
-    var updateConfig = function() {
-        var isConfigured = $scope.facetTreeConfig;
-        //debugger;
-        $scope.constraintManager = isConfigured ? $scope.facetTreeConfig.getFacetConfig().getConstraintManager() : null;
+    var reset = function() {
+        if($scope.sparqlService && $scope.facetTreeConfig) {
+            var labelConfig = $scope.facetTreeConfig.getBestLiteralConfig();
+            var mappedConcept = jassa.sponate.MappedConceptUtils.createMappedConceptBestLabel(labelConfig);
+            var ls = jassa.sponate.LookupServiceUtils.createLookupServiceMappedConcept($scope.sparqlService, mappedConcept);
+            ls = new jassa.service.LookupServiceTransform(ls, function(val) {
+                return val.displayLabel || val.id;
+            });
+            $scope.constraintLabelsLookupService = new jassa.facete.LookupServiceConstraintLabels(ls);
+        }
     };
-    
-    var update = function() {
-        updateConfig();
-        self.refresh();
+
+    var refresh = function() {
+
+        if($scope.constraintLabelsLookupService) {
+
+            var constraints = $scope.constraintManager ? $scope.constraintManager.getConstraints() : [];
+            var promise = $scope.constraintLabelsLookupService.lookup(constraints);
+
+            $q.when(promise).then(function(map) {
+
+                var items =_(constraints).map(function(constraint) {
+                    var label = map.get(constraint);
+
+                    var r = {
+                        constraint: constraint,
+                        label: label
+                    };
+
+                    return r;
+                });
+
+                $scope.constraints = items;
+            });
+        }
     };
 
-
-    $scope.ObjectUtils = Jassa.util.ObjectUtils;
-
-    var watchList = '[ObjectUtils.hashCode(facetTreeConfig)]';
-    $scope.$watch(watchList, function() {
-		update();
-	}, true);
-    
-    $scope.$watch('sparqlService', function() {
-        update();
-    });
-    
-    
-    
     var renderConstraint = function(constraint) {
         var type = constraint.getName();
 
@@ -54,39 +133,31 @@ angular.module('ui.jassa.constraint-list', [])
         default:
             result = constraint;
         }
-        
+
         return result;
     };
-    
-    self.refresh = function() {
 
-        var constraintManager = $scope.constraintManager;
-        
-        var items;
-        if(!constraintManager) {
-            items = [];
-        }
-        else {
-            var constraints = constraintManager.getConstraints();
-            
-            items =_(constraints).map(function(constraint) {
-                var r = {
-                    constraint: constraint,
-                    label: '' + renderConstraint(constraint)
-                };
-                
-                return r;
-            });
-        }
+    $scope.$watch('constraintLabelsLookupService', function() {
+        refresh();
+    });
 
-        $scope.constraints = items;
-    };
-    
+    $scope.$watch('facetTreeConfig.getFacetConfig().getConstraintManager()', function(cm) {
+        $scope.constraintManager = cm;
+        refresh();
+    }, true);
+
+    $scope.$watch('sparqlService', function() {
+        reset();
+    });
+
+    $scope.$watch('facetTreeConfig.getBestLiteralConfig()', function() {
+        reset();
+    }, true);
+
     $scope.removeConstraint = function(item) {
         $scope.constraintManager.removeConstraint(item.constraint);
-        //$scope.$emit('facete:constraintsChanged');
     };
-    
+
 }])
 
 
@@ -94,7 +165,7 @@ angular.module('ui.jassa.constraint-list', [])
  * The actual dependencies are:
  * - sparqlServiceFactory
  * - facetTreeConfig
- * - labelMap (maybe this should be part of the facetTreeConfig) 
+ * - labelMap (maybe this should be part of the facetTreeConfig)
  */
 .directive('constraintList', function() {
     return {
@@ -105,6 +176,7 @@ angular.module('ui.jassa.constraint-list', [])
         require: 'constraintList',
         scope: {
             sparqlService: '=',
+            labelService: '=',
             facetTreeConfig: '=',
             onSelect: '&select'
         },
@@ -156,160 +228,178 @@ angular.module('ui.jassa.facet-tree', [])
 
 angular.module('ui.jassa.facet-tree', ['ui.jassa.template-list'])
 
+/*
+.controller('FacetDirCtrl', ['$scope', function($scope) {
+    dirset.offset = dirset.listFilter.getOffset() || 0;
+    dirset.limit = dirset.listFilter.getLimit() || 0;
+    dirset.pageCount = dirset.limit ? Math.floor(dirset.childCountInfo.count / dirset.limit) : 1;
+    dirset.currentPage = dirset.limit ? Math.floor(dirset.offset / dirset.limit) + 1 : 1;
+}])
+*/
+
+.controller('FacetNodeCtrl', ['$scope', function($scope) {
+    $scope.$watchCollection('[facet.incoming, facet.outgoing]', function() {
+        var facet = $scope.facet;
+        if(facet) {
+            $scope.dirset = facet.outgoing ? facet.outgoing : facet.incoming;
+        }
+    });
+
+    $scope.$watchCollection('[dirset, dirset.listFilter.getOffset(), dirset.listFilter.getLimit(), dirset.childCountInfo.count]', function() {
+        var dirset = $scope.dirset;
+        if(dirset) {
+            dirset.offset = dirset.listFilter.getOffset() || 0;
+            dirset.limit = dirset.listFilter.getLimit() || 0;
+            dirset.pageCount = dirset.limit ? Math.floor(dirset.childCountInfo.count / dirset.limit) : 1;
+            dirset.currentPage = dirset.limit ? Math.floor(dirset.offset / dirset.limit) + 1 : 1;
+        }
+    });
+
+}])
+
 /**
  * Controller for the SPARQL based FacetTree
  * Supports nested incoming and outgoing properties
  *
  */
-.controller('FacetTreeCtrl', ['$rootScope', '$scope', '$q', function($rootScope, $scope, $q) {
-        
+.controller('FacetTreeCtrl', ['$rootScope', '$scope', '$q', '$timeout', function($rootScope, $scope, $q, $timeout) {
+
     var self = this;
-      
-      
+
     var updateFacetTreeService = function() {
         var isConfigured = $scope.sparqlService && $scope.facetTreeConfig;
-        //debugger;
-        $scope.facetTreeService = isConfigured ? Jassa.facete.FaceteUtils.createFacetTreeService($scope.sparqlService, $scope.facetTreeConfig, null) : null;
+        $scope.facetTreeService = isConfigured ? jassa.facete.FacetTreeServiceUtils.createFacetTreeService($scope.sparqlService, $scope.facetTreeConfig) : null;
     };
-    
+
     var update = function() {
         updateFacetTreeService();
-        //controller.refresh();
         self.refresh();
     };
-    
-    
-    $scope.setFacetHover = function(facet, isHovered) {
-        facet.isHovered = isHovered;
-        if(facet.incoming) {
-            facet.incoming.isHovered = isHovered;
-        }
-        
-        if(facet.outgoing) {
-            facet.outgoing.isHovered = isHovered;
-        }
-    };
 
-    $scope.ObjectUtils = Jassa.util.ObjectUtils;
+    $scope.itemsPerPage = [10, 25, 50, 100];
 
-    var watchList = '[ObjectUtils.hashCode(facetTreeConfig)]';
+    $scope.ObjectUtils = jassa.util.ObjectUtils;
+    $scope.Math = Math;
+
+    $scope.startPath = null;
+
+    var watchList = '[ObjectUtils.hashCode(facetTreeConfig), startPath]';
     $scope.$watch(watchList, function() {
+        //console.log('UpdateTree', $scope.facetTreeConfig);
         update();
     }, true);
-    
+
     $scope.$watch('sparqlService', function() {
         update();
     });
-    
-      
-    $scope.doFilter = function(path, filterString) {
-        $scope.facetTreeConfig.getPathToFilterString().put(path, filterString);
-        self.refresh();
+
+
+    $scope.doFilter = function(pathHead, filterString) {
+        var pathHeadToFilter = $scope.facetTreeConfig.getFacetTreeState().getPathHeadToFilter();
+        var filter = pathHeadToFilter.get(pathHead);
+        if(!filter) {
+            filter = new jassa.facete.ListFilter(null, 10, 0);
+            pathHeadToFilter.put(pathHead, filter);
+        }
+
+        filter.setConcept(filterString);
+        filter.setOffset(0);
+
+
+        //getOrCreateState(path).getListFilter().setFilter(filterString);
+
+        //$scope.facetTreeConfig.getPathToFilterString().put(path, filterString);
+        //self.refresh();
     };
-    
+
     self.refresh = function() {
-                  
-        var facet = $scope.facet;
-        var startPath = facet ? facet.item.getPath() : new Jassa.facete.Path();
-    
+
         if($scope.facetTreeService) {
-          
-            var facetTreeTagger = Jassa.facete.FaceteUtils.createFacetTreeTagger($scope.facetTreeConfig.getPathToFilterString());
-    
-            //console.log('scopefacets', $scope.facet);             
-            var promise = $scope.facetTreeService.fetchFacetTree(startPath);
-              
-            Jassa.sponate.angular.bridgePromise(promise, $q.defer(), $rootScope, function(data) {
-                facetTreeTagger.applyTags(data);
+            var promise = $scope.facetTreeService.fetchFacetTree($scope.startPath);
+            $q.when(promise).then(function(data) {
                 $scope.facet = data;
+                //console.log('TREE: ' + JSON.stringify($scope.facet, null, 4));
             });
-    
+
         } else {
             $scope.facet = null;
         }
     };
-              
+
+    $scope.toggleControls = function(path) {
+        var pathToTags = $scope.facetTreeConfig.getPathToTags();
+        //tags.showControls = !tags.showControls;
+        var tags = pathToTags.get(path);
+        if(!tags) {
+            tags = {};
+            pathToTags.put(path, tags);
+        }
+
+        tags.showControls = !tags.showControls;
+    };
+
     $scope.toggleCollapsed = function(path) {
-        Jassa.util.CollectionUtils.toggleItem($scope.facetTreeConfig.getExpansionSet(), path);
-          
-        var val = $scope.facetTreeConfig.getExpansionMap().get(path);
-        if(val == null) {
-            $scope.facetTreeConfig.getExpansionMap().put(path, 1);
-        }
-          
-        self.refresh();
+        var pathExpansions = $scope.facetTreeConfig.getFacetTreeState().getPathExpansions();
+        jassa.util.CollectionUtils.toggleItem(pathExpansions, path);
+
+        // No need to refresh here, as we are changing the config object
+        //self.refresh();
     };
-      
+
+    $scope.isEqual = function(a, b) {
+        var r = a == null ? b == null : a.equals(b);
+        return r;
+    };
+
+    $scope.setStartPath = function(path) {
+        //var p = path.getParent();
+        //var isRoot = p == null || $scope.isEqual($scope.startPath, p);
+        //$scope.startPath = isRoot ? null : p;
+
+        var isRoot = path == null || $scope.isEqual($scope.startPath, path);
+        $scope.startPath = isRoot ? null : path;
+    };
+
     $scope.selectIncoming = function(path) {
-        console.log('Incoming selected at path ' + path);
         if($scope.facetTreeConfig) {
-            var val = $scope.facetTreeConfig.getExpansionMap().get(path);
-            if(val != 2) {
-                $scope.facetTreeConfig.getExpansionMap().put(path, 2);
-                self.refresh();
-            }
+            var pathToDirection = $scope.facetTreeConfig.getFacetTreeState().getPathToDirection();
+            pathToDirection.put(path, -1);
+
+            // No need to refresh here, as we are changing the config object
+            //self.refresh();
         }
     };
-      
+
     $scope.selectOutgoing = function(path) {
-        console.log('Outgoing selected at path ' + path);
         if($scope.facetTreeConfig) {
-            var val = $scope.facetTreeConfig.getExpansionMap().get(path);
-            if(val != 1) {
-                $scope.facetTreeConfig.getExpansionMap().put(path, 1);
-                self.refresh();
-            }
+            var pathToDirection = $scope.facetTreeConfig.getFacetTreeState().getPathToDirection();
+            pathToDirection.put(path, 1);
+
+            // No need to refresh here, as we are changing the config object
+            //self.refresh();
         }
     };
-      
-      
-    $scope.selectFacetPage = function(page, facet) {
-        var path = facet.item.getPath();
-        var state = $scope.facetTreeConfig.getFacetStateProvider().getFacetState(path);
-        var resultRange = state.getResultRange();
-          
-        console.log('Facet state for path ' + path + ': ' + state);
-            var limit = resultRange.getLimit() || 0;
-              
-            var newOffset = limit ? (page - 1) * limit : null;
-              
-            resultRange.setOffset(newOffset);
-            
-            self.refresh();
-        };
-          
-        $scope.toggleSelected = function(path) {
-            $scope.onSelect({path: path});
-        };
-  
-        $scope.toggleTableLink = function(path) {
-            //$scope.emit('facete:toggleTableLink');
-        tableMod.togglePath(path);
-      
-        //$scope.$emit('')
-        // alert('yay' + JSON.stringify(tableMod.getPaths()));
-      
-        $scope.$emit('facete:refresh');
-      
-//        var columnDefs = tableMod.getColumnDefs();
-//        _(columnDefs).each(function(columnDef) {
-          
-//        });
-      
-//        tableMod.addColumnDef(null, new ns.ColumnDefPath(path));
-      //alert('yay ' + path);
-        };
-      
-  //  $scope.$on('facete:refresh', function() {
-//        $scope.refresh();
-  //  });
+
+
+    $scope.selectPage = function(pathHead, page) {
+        var pathHeadToFilter = $scope.facetTreeConfig.getFacetTreeState().getPathHeadToFilter();
+        var filter = pathHeadToFilter.get(pathHead);
+        if(!filter) {
+            filter = new jassa.facete.ListFilter(null, 10, 0);
+            pathHeadToFilter.put(pathHead, filter);
+        }
+        var newOffset = (page - 1) * filter.getLimit();
+        filter.setOffset(newOffset);
+        //console.log('newOffset: ' + newOffset);
+    };
+
 }])
 
 /**
  * The actual dependencies are:
  * - sparqlServiceFactory
  * - facetTreeConfig
- * - labelMap (maybe this should be part of the facetTreeConfig) 
+ * - labelMap (maybe this should be part of the facetTreeConfig)
  */
 .directive('facetTree', function() {
     return {
@@ -337,217 +427,288 @@ angular.module('ui.jassa.facet-tree', ['ui.jassa.template-list'])
 
 angular.module('ui.jassa.facet-typeahead', [])
 
+/**
+ * facet-typeahead
+ *
+ */
 .directive('facetTypeahead', ['$compile', '$q', '$parse', function($compile, $q, $parse) {
 
-    var FacetTypeAheadServiceAngular = Class.create({
-        initialize: function($scope, $q, configExpr, id) {
-            this.$scope = $scope;
-            this.$q = $q;
+    //var rdf = jassa.rdf;
+    var sponate = jassa.sponate;
+    var facete = jassa.facete;
 
-            this.configExpr = configExpr;
-            this.id = id;
-        },
-        
-        getSuggestions: function(filterString) {
-            var config = this.configExpr(this.$scope);
+    var parsePathSpec = function(pathSpec) {
+        var result = pathSpec instanceof facete.Path ? pathSpec : facete.Path.parse(pathSpec);
+        return result;
+    };
 
-            var sparqlService = config.sparqlService;
-            var fct = config.facetTreeConfig;
+    var makeListService = function(lsSpec, ftac) {
+        var result;
 
-            // Get the attributes from the config
-            var idToModelPathMapping = config.idToModelPathMapping;
-            
-            var modelPathMapping = idToModelPathMapping[this.id];
-
-            if(!modelPathMapping) {
-                console.log('Cannot retrieve model-path mapping for facet-typeahead directive with id ' + id);
-                throw 'Bailing out';
-            }
-            
-            var limit = modelPathMapping.limit || config.defaultLimit || 10;
-            var offset = modelPathMapping.offset || config.defaultOffset || 0;
-
-
-            var pathSpec = modelPathMapping.pathExpr(this.scope);
-            var path = Jassa.facete.PathUtils.parsePathSpec(pathSpec);
-            
-            // Hack - the facetService should only depend on FacetConfig
-            var tmp = fct.getFacetConfig();
-            
-            var cm = tmp.getConstraintManager();
-            var cmClone = cm.shallowClone();
-            
-            var facetConfig = new Jassa.facete.FacetConfig();
-            facetConfig.setConstraintManager(cmClone);
-            facetConfig.setBaseConcept(tmp.getBaseConcept());
-            facetConfig.setRootFacetNode(tmp.getRootFacetNode());
-            facetConfig.setLabelMap(tmp.getLabelMap());
-            
-            var facetTreeConfig = new Jassa.facete.FacetTreeConfig();
-            //facetTreeConfig.setFacetConfig(facetConfig);
-            // TODO HACK Use a setter instead
-            facetTreeConfig.facetConfig = facetConfig;
-
-            
-            // Compile constraints
-            var self = this;
-            
-            var constraints = _(idToModelPathMapping).map(function(item) {
-                var valStr = item.modelExpr(self.$scope);
-                if(!valStr || valStr.trim() === '') {
-                    return null;
-                }
-
-                var val = rdf.NodeFactory.createPlainLiteral(valStr);
-                var pathSpec = item.pathExpr(self.$scope);
-                var path = Jassa.facete.PathUtils.parsePathSpec(pathSpec);
-
-
-                var r = new Jassa.facete.ConstraintRegex(path, val);
-                return r;
-            });
-            
-            constraints = _(constraints).compact();
-            
-            _(constraints).each(function(constraint) {
-                cmClone.addConstraint(constraint);
-            });
-
-            
-            var facetValueService = new Jassa.facete.FacetValueService(sparqlService, facetTreeConfig);
-            var fetcher = facetValueService.createFacetValueFetcher(path, filterString);
-            
-            var p1 = fetcher.fetchData(offset, limit); //offset);
-            var p2 = fetcher.fetchCount();
-            
-            var p3 = jQuery.when.apply(null, [p1, p2]).pipe(function(data, count) {
-                var r = {
-                    offset: this.offset,
-                    count: count,
-                    data: data
-                };
-                
-                return r;
-            });
-            
-            
-            var p4 = p3.pipe(function(data) {
-                var r = _(data.data).map(function(item) {
-                   return item.displayLabel;
-                });
-                
-                return r;
-            });
-
-            var result = Jassa.sponate.angular.bridgePromise(p4, this.$q.defer(), this.$scope.$root);
-            return result;
+        if(!lsSpec) {
+            throw new Error('No specification for building a list service provided');
         }
-    });
+        else if(Object.prototype.toString.call(lsSpec) === '[object String]') {
+            var store = ftac.store;
 
+            result = store.getListService(lsSpec);
+            if(!result) {
+                throw new Error('No collection with name ' + lsSpec + ' found');
+            }
+        }
+        else if(lsSpec instanceof sponate.MappedConcept) {
+            var sparqlServiceA = ftac.sparqlService;
+            result = jassa.sponate.ListServiceUtils.createListServiceMappedConcept(sparqlServiceA, lsSpec);
+        }
+        else if(lsSpec instanceof sponate.MappedConceptSource) {
+            var mappedConcept = lsSpec.getMappedConcept();
+            var sparqlServiceB = lsSpec.getSparqlService();
+
+            result = jassa.sponate.ListServiceUtils.createListServiceMappedConcept(sparqlServiceB, mappedConcept);
+        }
+        else if(lsSpec instanceof service.ListService) {
+            result = lsSpec;
+        }
+        else {
+            throw new Error('Unsupported list service type', lsSpec);
+        }
+
+        return result;
+    };
+
+    var createConstraints = function(idToModelPathMapping, searchFn, selectionOnly) {
+
+        var result = [];
+        var keys = Object.keys(idToModelPathMapping);
+        keys.forEach(function(key) {
+            var item = idToModelPathMapping[key];
+            var scope = item.scope;
+            var r;
+
+            var val = item.modelExpr(scope);
+
+            var pathSpec = item.pathExpr(scope);
+            var path = parsePathSpec(pathSpec); //facete.PathUtils.
+
+            var valStr;
+            if(!selectionOnly && Object.prototype.toString.call(val) === '[object String]' && (valStr = val.trim()) !== '') {
+
+                if(searchFn) {
+                    var concept = searchFn(valStr);
+                    r = new jassa.facete.ConstraintConcept(path, concept);
+                } else {
+                    //throw new Error('No keyword search strategy specified');
+                    r = new jassa.facete.ConstraintRegex(path, valStr);
+                }
+            }
+            else if(val && val.id) {
+                var id = val.id;
+                var node = jassa.rdf.NodeFactory.createUri(id);
+                r = new jassa.facete.ConstraintEquals(path, node);
+            }
+            else {
+                r = null;
+            }
+
+            //console.log('Result constraint: ', r.createElementsAndExprs(config.facetConfig.getRootFacetNode()));
+
+            if(r) {
+                result.push(r);
+            }
+        });
+
+        return result;
+    };
+
+    var FacetTypeAheadServiceAngular = function($scope, $q, configExpr, id, listServiceExpr) {
+        this.$scope = $scope;
+        this.$q = $q;
+
+        this.configExpr = configExpr;
+        this.id = id;
+        this.listServiceExpr = listServiceExpr;
+    };
+
+    FacetTypeAheadServiceAngular.prototype.getSuggestions = function(filterString) {
+        var config = this.configExpr(this.$scope);
+
+        //var sparqlService = config.sparqlService;
+
+        // Get the attributes from the config
+        var idToModelPathMapping = config.idToModelPathMapping;
+
+        var modelPathMapping = idToModelPathMapping[this.id];
+
+        if(!modelPathMapping) {
+            throw new Error('Cannot retrieve model-path mapping for facet-typeahead directive with id ' + id);
+        }
+
+        //var limit = modelPathMapping.limit || config.defaultLimit || 10;
+        //var offset = modelPathMapping.offset || config.defaultOffset || 0;
+
+
+        var pathSpec = modelPathMapping.pathExpr(this.$scope);
+        var path = parsePathSpec(pathSpec);
+
+
+        var lsSpec = this.listServiceExpr(this.$scope);
+        var listService = makeListService(lsSpec, config);
+
+        // Clone the constraints just for this set of suggestions
+/*
+        var fc = config.facetConfig;
+        var cm = fc.getConstraintManager();
+        var cmClone = cm.shallowClone();
+
+
+        var facetConfig = new facete.FacetConfig();
+        facetConfig.setConstraintManager(cmClone);
+        facetConfig.setBaseConcept(fc.getBaseConcept());
+        facetConfig.setRootFacetNode(fc.getRootFacetNode());
+*/
+
+        var facetConfig = config.facetConfig;
+        var cmClone = facetConfig.getConstraintManager();
+
+        // Compile constraints
+        var constraints = createConstraints(idToModelPathMapping, config.search);
+
+        _(constraints).each(function(constraint) {
+            // Remove other constraints on the path
+            var paths = constraint.getDeclaredPaths();
+            paths.forEach(function(path) {
+                var cs = cmClone.getConstraintsByPath(path);
+                cs.forEach(function(c) {
+                    cmClone.removeConstraint(c);
+                });
+            });
+
+            cmClone.addConstraint(constraint);
+        });
+
+        //console.log('Constraints ', idToModelPathMapping, constraints);
+
+        var facetValueConceptService = new jassa.facete.FacetValueConceptServiceExact(facetConfig);
+
+        var result = facetValueConceptService.prepareConcept(path, false).then(function(concept) {
+            //console.log('Path ' + path);
+            //console.log('Concept: ' + concept);
+
+
+            var r = listService.fetchItems(concept, 10).then(function(items) {
+                var s = items.map(function(item) {
+                    return item.val;
+                });
+
+                return s;
+            });
+            return r;
+        });
+
+        return result;
+
+    };
 
 
     return {
         restrict: 'A',
         scope: true,
-        //require: ['ngModel', 'facetTypeaheadPath'], // TODO I want to require attributes on elem - not directives - seems require is only for the latter?
-        /*
-        scope: {
-            'facetTypeahead': '=',
-            ''
-        },
-        */
-
+        //require: 'ngModel',
         // We need to run this directive before the the ui-bootstrap's type-ahead directive!
         priority: 1001,
-        
+
         // Prevent angular calling other directives - we do it manually
         terminal: true,
-        
+
         compile: function(elem, attrs) {
-            
+
             if(!this.instanceId) {
                 this.instanceId = 0;
             }
-            
+
             var instanceId = 'facetTypeAhead-' + (this.instanceId++);
-            //console.log('INSTANCEID', instanceId);                
-            
+
             var modelExprStr = attrs['ngModel'];
             var configExprStr = attrs['facetTypeahead'];
             var pathExprStr = attrs['facetTypeaheadPath'];
-            
+            var listServiceExprStr = attrs['facetTypeaheadSuggestions'];
+            var labelAttr = attrs['facetTypeaheadLabel'];
+            var modelAttr = attrs['facetTypeaheadModel'];
+
+            labelAttr = labelAttr || 'id';
+            modelAttr = modelAttr || 'id';
+            // Add the URI-label directive
+
+            console.log('labelAttr', labelAttr);
+            console.log('modelAttr', modelAttr);
+
             // Remove the attribute to prevent endless loop in compilation
             elem.removeAttr('facet-typeahead');
             elem.removeAttr('facet-typeahead-path');
+            elem.removeAttr('facet-typeahead-suggestions');
+            elem.removeAttr('facet-typeahead-label');
+            elem.removeAttr('facet-typeahead-model');
 
-            var newAttrVal = 'item for item in facetTypeAheadService.getSuggestions($viewValue)';
-            //var newAttrVal = 'item for item in getSuggestions($viewValue);'
-            //newAttrVal = $sanitize(newAttrVal);
+
+            //var newAttrVal = 'item.id as item.displayLabel for item in facetTypeAheadService.getSuggestions($viewValue)';
+            var tmp = modelAttr ? '.' + modelAttr : '';
+            var newAttrVal = 'item as item' + tmp + ' for item in facetTypeAheadService.getSuggestions($viewValue)';
             elem.attr('typeahead', newAttrVal);
 
 
+            elem.attr('blurify', 'labelFn');
+
             return {
                 pre: function(scope, elem, attrs) {
-//                         var requiredAttrNames = ['ng-model', 'facet-typeahead', 'facet-typeahead-path']
-                    
-//                         var attrExprs = {};
-//                         _(requiredAttrNames).each(function(attrName) {
-//                             var exprStr = elem.attr(attrName);
-
-//                             attrExprs[attrName] = $parse(exprStr);
-//                         });
-
-                    // TODO Check if any of the required attributes were left undefined
-
-                                     
-//                     },
-                
-//                     post: function(scope, elem, attrs) {
-
-                    /*
-                    var modelExprStr = this.modelExprStr;
-                    var configExprStr = this.configExprStr;
-                    var pathExprStr = this.pathExprStr;
-                    */
-                    
 
                     var modelExpr = $parse(modelExprStr);
                     var pathExpr = $parse(pathExprStr);
                     var configExpr = $parse(configExprStr);
-                    
-                    // Note: We do not need to watch the config, because we retrieve the most
-                    // recent values when the suggestions are requested                        
-                    // However, we need to register/unregister the directive from the config object when this changes
+                    var listServiceExpr = $parse(listServiceExprStr);
 
-                    
+                    scope.labelFn = function(str) {
+                        var model = modelExpr(scope);
+                        var val = model ? model[labelAttr] : null;
+                        var r = val ? val : str;
+                        return r;
+                    };
+
+
+                    // Note: We do not need to watch the config, because we retrieve the most
+                    // recent values when the suggestions are requested
+                    // However, we need to register/unregister the directive from the config object when this changes
                     scope.$watch(configExprStr, function(newConfig, oldConfig) {
-                        
-                        if(!newConfig) {
-                            return;
-                        }
-                        
-                        if(!newConfig.idToModelPathMapping) {
-                            newConfig.idToModelPathMapping = {};
-                        }
-                        
-                        
-                        newConfig.idToModelPathMapping[instanceId] = {
-                            modelExpr: modelExpr,
-                            modelExprStr: modelExprStr,
-                            pathExprStr: pathExprStr,
-                            pathExpr: pathExpr
-                        };
-                        
-                        // TODO Unregister from old config
+
+                        // Unregister from old config
                         if(oldConfig && oldConfig != newConfig && oldConfig.modelToPathMapping) {
                             delete oldConfig.idToModelPathMapping[instanceId];
+                        }
+
+                        if(newConfig) {
+                            if(!newConfig.idToModelPathMapping) {
+                                newConfig.idToModelPathMapping = {};
+                            }
+
+                            newConfig.idToModelPathMapping[instanceId] = {
+                                modelExpr: modelExpr,
+                                modelExprStr: modelExprStr,
+                                pathExprStr: pathExprStr,
+                                pathExpr: pathExpr,
+                                scope: scope
+                            };
+
+
+                            newConfig.getConstraints = function(selectionOnly) {
+                                var result = createConstraints(newConfig.idToModelPathMapping, newConfig.search, selectionOnly);
+                                return result;
+                            };
                         }
                     });
 
 
-                    scope.facetTypeAheadService = new FacetTypeAheadServiceAngular(scope, $q, configExpr, instanceId);
+                    scope.facetTypeAheadService = new FacetTypeAheadServiceAngular(scope, $q, configExpr, instanceId, listServiceExpr);
                 },
-                
+
                 post: function(scope, elem, attr) {
                     // Continue processing any further directives
                     $compile(elem)(scope);
@@ -558,7 +719,6 @@ angular.module('ui.jassa.facet-typeahead', [])
 }])
 
 ;
-
 
 
 angular.module('ui.jassa.facet-value-list', [])
@@ -577,24 +737,81 @@ angular.module('ui.jassa.facet-value-list', [])
         currentPage: 1,
         maxSize: 5
     };
-    
-    //$scope.path = null;
-    
 
+    $scope.path = null;
     var facetValueService = null;
-    
-    var self = this;
 
-
-    var updateFacetTreeService = function() {
+    var updateFacetValueService = function() {
         var isConfigured = $scope.sparqlService && $scope.facetTreeConfig && $scope.path;
 
-        facetValueService = isConfigured ? new jassa.facete.FacetValueService($scope.sparqlService, $scope.facetTreeConfig) : null;
+        //facetValueService = isConfigured ? new jassa.facete.FacetValueService($scope.sparqlService, $scope.facetTreeConfig) : null;
+        if(isConfigured) {
+            var facetConfig = $scope.facetTreeConfig.getFacetConfig();
+            facetValueService = new facete.FacetValueService($scope.sparqlService, facetConfig, 5000000);
+        }
     };
-    
+
+    var refresh = function() {
+        var path = $scope.path;
+
+        if(!facetValueService || !path) {
+            $scope.totalItems = 0;
+            $scope.facetValues = [];
+            return;
+        }
+
+        facetValueService.prepareTableService($scope.path, true)
+            .then(function(ls) {
+
+                var filter = null;
+                var pageSize = 10;
+                var offset = ($scope.pagination.currentPage - 1) * pageSize;
+
+                var countPromise = ls.fetchCount(filter);
+                var dataPromise = ls.fetchItems(filter, pageSize, offset);
+
+                $q.when(countPromise).then(function(countInfo) {
+                    //console.log('countInfo: ', countInfo);
+
+                    $scope.pagination.totalItems = countInfo.count;
+                });
+
+                $q.when(dataPromise).then(function(entries) {
+                    var items = entries.map(function(entry) {
+                        var labelInfo = entry.val.labelInfo = {};
+                        labelInfo.displayLabel = '' + entry.key;
+                        //console.log('entry: ', entry);
+
+                        var path = $scope.path;
+                        entry.val.node = entry.key;
+                        entry.val.path = path;
+
+                        entry.val.tags = {};
+
+                        return entry.val;
+                    });
+                    var cm = $scope.facetTreeConfig.getFacetConfig().getConstraintManager();
+                    var cs = cm.getConstraintsByPath(path);
+                    var values = {};
+                    cs.forEach(function(c) {
+                        if(c.getName() === 'equals') {
+                            values[c.getValue()] = true;
+                        }
+                    });
+
+                    items.forEach(function(item) {
+                        var isConstrained = values['' + item.node];
+                        item.tags.isConstrainedEqual = isConstrained;
+                    });
+
+                    $scope.facetValues = items;
+                });
+            });
+    };
+
     var update = function() {
-        updateFacetTreeService();
-        self.refresh();
+        updateFacetValueService();
+        refresh();
     };
 
     $scope.ObjectUtils = jassa.util.ObjectUtils;
@@ -603,50 +820,22 @@ angular.module('ui.jassa.facet-value-list', [])
     $scope.$watch(watchList, function() {
         update();
     }, true);
-    
+
     $scope.$watch('sparqlService', function() {
         update();
     });
-    
+
 
 
     $scope.toggleConstraint = function(item) {
-        var constraintManager = facetValueService.getFacetTreeConfig().getFacetConfig().getConstraintManager();
-        
-        var constraint = new jassa.facete.ConstraintEquals(item.path, item.node);
+        var constraintManager = $scope.facetTreeConfig.getFacetConfig().getConstraintManager();
+
+        var path = $scope.path;
+        var node = item.node;
+        var constraint = new jassa.facete.ConstraintEquals(path, node);
 
         // TODO Integrate a toggle constraint method into the filterManager
         constraintManager.toggleConstraint(constraint);
-    };
-    
-    
-    
-    self.refresh = function() {
-        var path = $scope.path;
-        
-        if(!facetValueService || !path) {
-            $scope.totalItems = 0;
-            $scope.facetValues = [];
-            return;
-        }
-        
-        var fetcher = facetValueService.createFacetValueFetcher($scope.path, $scope.filterText);
-
-        var countPromise = fetcher.fetchCount();
-        
-        var pageSize = 10;
-        var offset = ($scope.pagination.currentPage - 1) * pageSize;
-        
-        var dataPromise = fetcher.fetchData(offset, pageSize);
-
-        jassa.sponate.angular.bridgePromise(countPromise, $q.defer(), $scope.$root, function(count) {
-            $scope.pagination.totalItems = count;
-        });
-        
-        jassa.sponate.angular.bridgePromise(dataPromise, $q.defer(), $scope.$root, function(items) {
-            $scope.facetValues = items;
-        });
-
     };
 
     $scope.filterTable = function(filterText) {
@@ -654,18 +843,18 @@ angular.module('ui.jassa.facet-value-list', [])
         update();
     };
 
-    
+
     /*
     $scope.$on('facete:facetSelected', function(ev, path) {
 
         $scope.currentPage = 1;
         $scope.path = path;
-        
+
         updateItems();
     });
-    
+
     $scope.$on('facete:constraintsChanged', function() {
-        updateItems(); 
+        updateItems();
     });
     */
 //  $scope.firstText = '<<';
@@ -679,7 +868,7 @@ angular.module('ui.jassa.facet-value-list', [])
  * The actual dependencies are:
  * - sparqlServiceFactory
  * - facetTreeConfig
- * - labelMap (maybe this should be part of the facetTreeConfig) 
+ * - labelMap (maybe this should be part of the facetTreeConfig)
  */
 .directive('facetValueList', function() {
     return {
@@ -703,6 +892,212 @@ angular.module('ui.jassa.facet-value-list', [])
 })
 
 ;
+
+angular.module('ui.jassa.jassa-list-browser', [])
+
+//.controller('JassaListBrowserCtrl', ['$scope', function($scope) {
+//
+//}])
+
+.directive('jassaListBrowser', function() {
+    return {
+        restrict: 'EA',
+        replace: true,
+        scope: {
+            listService: '=',
+            filter: '=',
+            limit: '=',
+            offset: '=',
+            totalItems: '=',
+            items: '=',
+            maxSize: '=',
+            langs: '=', // Extra attribute that is deep watched on changes for triggering refreshs
+            availableLangs: '=',
+            doFilter: '=',
+            searchModes: '=',
+            activeSearchMode: '=',
+            context: '=' // Extra data that can be passed in // TODO I would prefer access to the parent scope
+        },
+        templateUrl: 'template/jassa-list-browser/jassa-list-browser.html',
+        //controller: 'JassaListBrowserCtrl'
+    };
+})
+
+;
+
+angular.module('ui.jassa.jassa-media-list', [])
+
+.controller('JassaMediaListCtrl', ['$scope', '$q', '$timeout', function($scope, $q, $timeout) {
+    $scope.currentPage = 1;
+
+    // TODO Get rid of the $timeouts - not sure why $q.when alone breaks when we return results from cache
+
+    $scope.doRefresh = function() {
+        $q.when($scope.listService.fetchCount($scope.filter)).then(function(countInfo) {
+            $timeout(function() {
+                $scope.totalItems = countInfo.count;
+            });
+        });
+
+        $q.when($scope.listService.fetchItems($scope.filter, $scope.limit, $scope.offset)).then(function(items) {
+            $timeout(function() {
+                $scope.items = items.map(function(item) {
+                    return item.val;
+                });
+            });
+        });
+    };
+
+
+    $scope.$watch('offset', function() {
+        $scope.currentPage = Math.floor($scope.offset / $scope.limit) + 1;
+    });
+
+    $scope.$watch('currentPage', function() {
+        $scope.offset = ($scope.currentPage - 1) * $scope.limit;
+    });
+
+
+    $scope.$watch('[filter, limit, offset, refresh]', $scope.doRefresh, true);
+    $scope.$watch('listService', $scope.doRefresh);
+}])
+
+.directive('jassaMediaList', [function() {
+    return {
+        restrict: 'EA',
+        templateUrl: 'template/jassa-media-list/jassa-media-list.html',
+        transclude: true,
+        replace: true,
+        scope: {
+            listService: '=',
+            filter: '=',
+            limit: '=',
+            offset: '=',
+            totalItems: '=',
+            //currentPage: '=',
+            items: '=',
+            maxSize: '=',
+            refresh: '=', // Extra attribute that is deep watched on changes for triggering refreshs
+            context: '=' // Extra data that can be passed in // TODO I would prefer access to the parent scope
+        },
+        controller: 'JassaMediaListCtrl',
+        link: function(scope, element, attrs, ctrl, transcludeFn) {
+            transcludeFn(scope, function(clone, scope) {
+                var e = element.find('ng-transclude');
+                var p = e.parent();
+                e.remove();
+                p.append(clone);
+            });
+        }
+    };
+}])
+
+;
+
+angular.module('ui.jassa.lang-select', ['ui.sortable', 'ui.keypress', 'ngSanitize'])
+
+.controller('LangSelectCtrl', ['$scope', function($scope) {
+    $scope.newLang = '';
+    $scope.showLangInput = false;
+
+    var removeIntent = false;
+
+    $scope.sortConfig = {
+        placeholder: 'lang-sortable-placeholder',
+        receive: function(e, ui) { removeIntent = false; },
+        over: function(e, ui) { removeIntent = false; },
+        out: function(e, ui) { removeIntent = true; },
+        beforeStop: function(e, ui) {
+            if (removeIntent === true) {
+                var lang = ui.item.context.textContent;
+                if(lang) {
+                    lang = lang.trim();
+                    var i = $scope.langs.indexOf(lang);
+                    $scope.langs.splice(i, 1);
+                    ui.item.remove();
+                }
+            }
+        },
+        stop: function() {
+            if(!$scope.$$phase) {
+                $scope.$apply();
+            }
+        }
+    };
+
+    $scope.getLangSuggestions = function() {
+        var obj = $scope.availableLangs;
+
+        var result;
+        if(!obj) {
+            result = [];
+        }
+        else if(Array.isArray(obj)) {
+            result = obj;
+        }
+        else if(obj instanceof Function) {
+            result = obj();
+        }
+        else {
+            result = [];
+        }
+
+        return result;
+    };
+
+    $scope.confirmAddLang = function(lang) {
+
+        var i = $scope.langs.indexOf(lang);
+        if(i < 0) {
+            $scope.langs.push(lang);
+        }
+        $scope.showLangInput = false;
+        $scope.newLang = '';
+    };
+}])
+
+.directive('langSelect', function() {
+    return {
+        restrict: 'EA',
+        replace: true,
+        templateUrl: 'template/lang-select/lang-select.html',
+        scope: {
+            langs: '=',
+            availableLangs: '='
+        },
+        controller: 'LangSelectCtrl',
+    };
+})
+
+;
+
+
+angular.module('ui.jassa.list-search', [])
+
+.controller('ListSearchCtrl', ['$scope', function($scope) {
+    // Don't ask me why this assignment does not trigger a digest
+    // if performed inline in the directive...
+    $scope.setActiveSearchMode = function(searchMode) {
+        $scope.activeSearchMode = searchMode;
+    };
+}])
+
+.directive('listSearch', function() {
+    return {
+        restrict: 'EA',
+        scope: {
+            searchModes: '=',
+            activeSearchMode: '=',
+            ngModel: '=',
+            onSubmit: '&submit'
+        },
+        controller: 'ListSearchCtrl',
+        templateUrl: 'template/list-search/list-search.html'
+    };
+})
+
+;
+
 
 angular.module('ui.jassa.pointer-events-scroll-fix', [])
 
@@ -868,9 +1263,8 @@ angular.module('ui.jassa.sparql-grid', [])
     var sparql = jassa.sparql;
     var service = jassa.service;
     var util = jassa.util;
-    
     var sponate = jassa.sponate;
-
+    var facete = jassas.facete;
     
     var syncTableMod = function(sortInfo, tableMod) {
         
