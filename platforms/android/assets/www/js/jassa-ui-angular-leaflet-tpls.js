@@ -299,8 +299,9 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
  *
  */
 (function($) {
-    
-    
+
+// variable to hold previously selected feature on the map    
+var prevFeature;    
 $.widget('custom.ssbLeafletMap', {
 
     // TODO: Add _init method for backward compatibility
@@ -391,6 +392,39 @@ $.widget('custom.ssbLeafletMap', {
 			maxZoom: 18,
 			layers: [maplayer], // add multiple layers here [layer1,layer2...]
 		});
+		
+		this.map.locate({setView: true, maxZoom: 16});
+
+		var map = this.map;
+		function onLocationFound(e) {
+			console.log(e);
+			var radius = e.accuracy / 2;
+
+			var userIcon = L.icon({
+				iconUrl: 'img/user-icon.png',
+				shadowUrl: 'img/marker-shadow.png',
+				iconAnchor: [12, 41],
+			});
+			
+			var userLocation = L.marker(e.latlng);
+			userLocation.setIcon(userIcon);
+			userLocation.addTo(map);
+
+			L.circle(e.latlng, radius, {
+					color: '#f3e5f9',
+					fillColor: '#f0bed7',
+					fillOpacity: 0.3
+				}).addTo(map);
+			console.log ("addded");
+		}
+
+		this.map.on('locationfound', onLocationFound);
+		
+		function onLocationError(e) {
+			console.log(e.message);
+		}
+
+		this.map.on('locationerror', onLocationError);
 		
 		function onMapClick(e) {
 			/*popup
@@ -746,7 +780,7 @@ $.widget('custom.ssbLeafletMap', {
         //this.boxLayer.redraw();
         //this.featureLayer.redraw();
     },
-
+	
     addWkt: function(id, wktStr, attrs, visible) {
 
         //console.log('Added: ', id + ' --- ' + wktStr);
@@ -754,7 +788,42 @@ $.widget('custom.ssbLeafletMap', {
 		
         var feature = wktParser.read(wktStr).toObject();
 		feature.properties = attrs;
-		feature.bindPopup(feature.properties.shortLabel.displayLabel).openPopup();
+		feature.label = feature.properties.shortLabel.displayLabel;
+		//feature.bindPopup(feature.properties.shortLabel.displayLabel).openPopup();
+		
+		
+		var defaultIcon = L.icon({
+				iconUrl: 'img/marker-icon.png',
+				shadowUrl: 'img/marker-shadow.png',
+			});
+		var selectedIcon = L.icon({
+				iconUrl: 'img/marker-icon-selected.png',
+				shadowUrl: 'img/marker-shadow.png',
+			});
+
+		feature.setIcon(defaultIcon);
+		
+		feature.on("click", function(){
+			var label, uri;
+			
+			if(feature.label.length > 30)
+				label = feature.label.substring(0,29) + '...';
+			else
+				label = feature.label;
+			if(feature.properties.shortLabel.id.length > 37)
+				uri = feature.properties.shortLabel.id.substring(0,36) + '...';
+			else
+				uri = feature.properties.shortLabel.id;
+			
+			$("#bottom-drawer p").html('<span class="feature-label">' + label + '</span><br /><span class="feature-uri">' + uri + '</span>');
+			if(prevFeature) {
+				  prevFeature.setIcon(defaultIcon);
+			}
+			feature.setIcon(selectedIcon);
+			prevFeature = feature;
+		});
+		
+		
 		this.featureLayer.addLayer(feature);
 		
         //feature.geometry.transform(this.map.displayProjection, this.map.projection);

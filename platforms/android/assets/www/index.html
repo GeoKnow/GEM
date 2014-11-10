@@ -137,7 +137,6 @@
 		
         var sources = $.parseJSON(localStorage.sources);
 		$("#sources ul").html('');
-		console.log("S: " + sources);
 		$.each(sources, function(key, source){
 			var sparqlService = createSparqlService(source.endpoint, ['']); // second argument is default graph
 			var dataSource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '#CC0020');
@@ -210,16 +209,19 @@
     <div snap-drawer="right">
       <div id="sources">
 		  <h2>Sources</h2>
-		  <ul> 
-			<li>Facet tree</li>
-			<li>Facet 8</li>
-			<li>Facet 9</li>
-			<li>Facet 10</li>
-			<li>Facet 11</li>
-			<li>Facet 12</li>
-		  </ul>
+		  <ul></ul>
+	  </div>
+	  <div id="types">
+		  <h2>Types</h2>
+		  <ul></ul>
 	  </div>
     </div>
+	<div id="bottom-drawer">
+		<div id="resource-icon"><img src="img/point.png" /></div>
+		<div id="resource-info">
+			<p><a onclick="location.reload();">REFRESH</a></p>
+		</div>
+	</div>
     <!-- <div class="app"></div>
     <div id="header">
         <input ng-model="query"> {{query}}

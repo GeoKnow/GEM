@@ -3,15 +3,18 @@ $(function() {
 		   { 'name' : 'DBpedia', 'endpoint' : 'http://dbpedia.org/sparql' },
 		   { 'name' : 'Linked Geo Data', 'endpoint' : 'http://linkedgeodata.org/sparql' }
 		];
+	var types = [
+		   { 'uri' : 'http://dbpedia.org/ontology/Airport' },
+		   { 'uri' : 'http://linkedgeodata.org/ontology/Airport' }
+		];
 	localStorage.setItem("sources", JSON.stringify(sources));
-	//localStorage.sources = sources;
-	console.log("SOURCES: ");
-	console.log($.parseJSON(localStorage.sources));
+	localStorage.setItem("types", JSON.stringify(types));
 	if(!localStorage.sources){
 		sources = [
 		   { 'name' : 'Wiktionary', 'endpoint' : 'http://wiktionary.dbpedia.org/sparql' },
 		];
 	}
+	
 	else{
 		sources = localStorage.sources;
 		// Recreate saved source list
@@ -19,6 +22,22 @@ $(function() {
 		$("#sources ul").html('');
 		$.each($.parseJSON(localStorage.sources), function(key, source){
 			$("#sources ul").append('<li id="' + i + '">' + source.name + '<br />' + source.endpoint + '</li>');
+			i++;
+		});
+	}
+	
+	if(!localStorage.types){
+		types = [
+		   { 'uri' : 'http://dbpedia.org/ontology/Airport' },
+		];
+	}
+	else{
+		types = localStorage.types;
+		// Recreate saved source list
+		var i = 1;
+		$("#types ul").html('');
+		$.each($.parseJSON(localStorage.types), function(key, type){
+			$("#types ul").append('<li id="' + i + '">' + type.uri + '</li>');
 			i++;
 		});
 	}
