@@ -1,17 +1,15 @@
 $(function() {
 	var sources = [
-		   { 'name' : 'DBpedia', 'endpoint' : 'http://dbpedia.org/sparql' },
-		   { 'name' : 'Linked Geo Data', 'endpoint' : 'http://linkedgeodata.org/sparql' }
+			{ 'name' : 'Linked Geo Data', 'endpoint' : 'http://linkedgeodata.org/sparql', 'graph' : 'http://linkedgeodata.org','type' : 'http://linkedgeodata.org/ontology/Airport' },
+		    { 'name' : 'DBpedia', 'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql', 'graph' : 'http://dbpedia.org', 'type' : 'http://dbpedia.org/ontology/University' },
+		   
 		];
-	var types = [
-		   { 'uri' : 'http://dbpedia.org/ontology/Airport' },
-		   { 'uri' : 'http://linkedgeodata.org/ontology/Airport' }
-		];
+
 	localStorage.setItem("sources", JSON.stringify(sources));
-	localStorage.setItem("types", JSON.stringify(types));
+
 	if(!localStorage.sources){
 		sources = [
-		   { 'name' : 'Wiktionary', 'endpoint' : 'http://wiktionary.dbpedia.org/sparql' },
+		   { 'name' : 'DBpedia', 'endpoint' : 'http://dbpedia.org/sparql', 'graph' : 'http://dbpedia.org', 'type' : 'http://dbpedia.org/ontology/Airport' },
 		];
 	}
 	
@@ -21,26 +19,11 @@ $(function() {
 		var i = 1;
 		$("#sources ul").html('');
 		$.each($.parseJSON(localStorage.sources), function(key, source){
-			$("#sources ul").append('<li id="' + i + '">' + source.name + '<br />' + source.endpoint + '</li>');
+			$("#sources ul").append('<li id="' + i + '">' + source.name + '<br />' + source.endpoint + '<br />' + source.graph + '<br />' + source.type + '</li>');
 			i++;
 		});
 	}
-	
-	if(!localStorage.types){
-		types = [
-		   { 'uri' : 'http://dbpedia.org/ontology/Airport' },
-		];
-	}
-	else{
-		types = localStorage.types;
-		// Recreate saved source list
-		var i = 1;
-		$("#types ul").html('');
-		$.each($.parseJSON(localStorage.types), function(key, type){
-			$("#types ul").append('<li id="' + i + '">' + type.uri + '</li>');
-			i++;
-		});
-	}
+
 	
 	$( "#sources-title a" ).click(function() {
       $('#source-form').dialog({show:'fade',hide:'fade'});

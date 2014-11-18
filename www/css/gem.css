@@ -93,3 +93,14 @@ ul {
    -webkit-background-clip: text;
    -webkit-text-fill-color: transparent;
 }
+.snap-drawer-left a{
+	font-size: 12px;
+}
+.snap-drawer-left .alert-info, .snap-drawer-left .alert-success, .snap-drawer-left button, .snap-drawer-left input{
+	background-color: #fff;
+	border: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	-webkit-transition: none;
+	transition: none;
+}
