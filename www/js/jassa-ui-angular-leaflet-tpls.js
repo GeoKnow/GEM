@@ -434,6 +434,7 @@ $.widget('custom.ssbLeafletMap', {
 			if(!$("body").hasClass("snapjs-left") && !$("body").hasClass("snapjs-right")){
 				$(".ui-element").css("opacity","0.5");
 			}
+			$("#bottom-drawer").slideUp();
 		}
 
 		this.map.on('click', onMapClick);
@@ -446,6 +447,7 @@ $.widget('custom.ssbLeafletMap', {
 
 		function onUITouch(e) {
 			$(".ui-element").css("opacity","1");
+			$("#bottom-drawer").slideUp();
 		}
 
 		this.map.on('dragstart', function() {
@@ -453,6 +455,7 @@ $.widget('custom.ssbLeafletMap', {
 				$(".ui-element").css("opacity","0.18");
 				$(".ui-element-content").css("opacity","0");
 			}
+			$("#bottom-drawer").slideUp();
 		});
 
 		this.map.on('dragend', function() {
@@ -826,6 +829,7 @@ $.widget('custom.ssbLeafletMap', {
 			}
 			
 			$("#bottom-drawer p").html('<span class="feature-label">' + label + '</span><br /><span class="feature-uri">' + uri + '</span>');
+			$("#bottom-drawer").slideDown();
 			if(prevFeature) {
 				  prevFeature.setIcon(defaultIcon);
 			}

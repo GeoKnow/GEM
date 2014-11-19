@@ -82,6 +82,9 @@ h2 {
 	text-align: left;
 	padding-left: 10px;
 	line-height: 1em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 #resource-icon,
 #resource-info {
@@ -173,12 +176,44 @@ h2 {
 	font-size: 18px;
 	color: #595959;
 }
-.snap-drawer-right .source-endpoint {
+.snap-drawer-right .source-name-icon {
+	color: #B3B3B3;
+}
+.snap-drawer-right .source-endpoint-icon {
 	color: #FF7E8D;
 }
-.snap-drawer-right .source-graph {
+.snap-drawer-right .source-graph-icon {
 	color: #FFE374;
 }
-.snap-drawer-right .source-type {
+.snap-drawer-right .source-type-icon {
 	color: #83D5FF;
+}
+.snap-drawer-right p.source-name-value {
+	float: left;
+	width: 145px;
+}
+.snap-drawer-right #editor {
+	padding: 20px;
+}
+.snap-drawer-right #editor input {
+	width: 100%;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid #e3e3e3;
+	margin-bottom: 15px;
+	color: #B3B3B3;
+}
+.snap-drawer-right #editor input:focus {
+	color: #6C6C6C;
+}
+.snap-drawer-right a {
+	color: #6C6C6C;
+	font-size: 20px;
+}
+.snap-drawer-right a:hover,
+.snap-drawer-right a:focus,
+.snap-drawer-right a:active {
+	color: #6C6C6C;
+	text-decoration: none;
 }

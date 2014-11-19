@@ -434,6 +434,7 @@ $.widget('custom.ssbLeafletMap', {
 			if(!$("body").hasClass("snapjs-left") && !$("body").hasClass("snapjs-right")){
 				$(".ui-element").css("opacity","0.5");
 			}
+			$("#bottom-drawer").slideUp();
 		}
 
 		this.map.on('click', onMapClick);
@@ -446,6 +447,7 @@ $.widget('custom.ssbLeafletMap', {
 
 		function onUITouch(e) {
 			$(".ui-element").css("opacity","1");
+			$("#bottom-drawer").slideUp();
 		}
 
 		this.map.on('dragstart', function() {
@@ -453,6 +455,7 @@ $.widget('custom.ssbLeafletMap', {
 				$(".ui-element").css("opacity","0.18");
 				$(".ui-element-content").css("opacity","0");
 			}
+			$("#bottom-drawer").slideUp();
 		});
 
 		this.map.on('dragend', function() {
@@ -788,7 +791,10 @@ $.widget('custom.ssbLeafletMap', {
 		
         var feature = wktParser.read(wktStr).toObject();
 		feature.properties = attrs;
-		feature.label = feature.properties.shortLabel.displayLabel;
+		if(feature.properties.shortLabel)
+			feature.label = feature.properties.shortLabel.displayLabel;
+		else
+			feature.label = "Unknown";
 		//feature.bindPopup(feature.properties.shortLabel.displayLabel).openPopup();
 		
 		
@@ -813,9 +819,17 @@ $.widget('custom.ssbLeafletMap', {
 			/* if(feature.properties.shortLabel.id.length > 37)
 				uri = feature.properties.shortLabel.id.substring(0,36) + '...';
 			else */
+			if(feature.properties.shortLabel)
 				uri = feature.properties.shortLabel.id;
+			else {
+				if(feature.properties.val)
+					uri = feature.properties.val.id;
+				else
+					uri = "Unknown";
+			}
 			
 			$("#bottom-drawer p").html('<span class="feature-label">' + label + '</span><br /><span class="feature-uri">' + uri + '</span>');
+			$("#bottom-drawer").slideDown();
 			if(prevFeature) {
 				  prevFeature.setIcon(defaultIcon);
 			}

@@ -36,8 +36,6 @@ D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\andro
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\cordova_plugins.js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\css \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img \
-D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\index-bckp.html \
-D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\index-conflict.html \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\index.html \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\lib \
@@ -1397,7 +1395,7 @@ D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\andro
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\jassa-list \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\jassa-ui-angular-leaflet-tpls.js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\snap.js \
-D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\sourcemanager.js \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\sourcemanager \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\touchevents.js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\breadcrumb\breadcrumb.html \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\breadcrumb\breadcrumb.js \
@@ -1405,6 +1403,8 @@ D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\andro
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\facet-list\facet-list.js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\jassa-list\jassa-list.html \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\jassa-list\jassa-list.js \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\sourcemanager\sourcemanager-edit.html \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\sourcemanager\sourcemanager.js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\lib\angular-snap \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\lib\angular-ui \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\lib\leaflet.markercluster \

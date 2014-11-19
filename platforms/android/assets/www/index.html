@@ -61,14 +61,22 @@
 
 
     <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
-    <script src="js/sourcemanager.js"></script>
+    <script src="js/sourcemanager/sourcemanager.js"></script>
 
     <script src="js/jassa-list/jassa-list.js"></script>
     <script src="js/facet-list/facet-list.js"></script>
 
 
     <title>GEM - {{bar.value}}</title>
-
+	<script type="text/javascript">
+	$(function(){ 
+		$("#bottom-drawer").hide();
+		$("#bottom-drawer p").css("width",window.innerWidth-80);
+	});
+	$(window).resize(function () {
+		$("#bottom-drawer p").css("width",window.innerWidth-80);	
+	});	
+	</script>
     <script type="text/javascript">
     _.mixin(_.str.exports());
 
@@ -142,20 +150,6 @@
         ];
         */
 
-        $scope.dataSources = [];
-		var defaultConcept, defaultService;
-
-        var sources = $.parseJSON(localStorage.sources);
-        $("#sources ul").html('');
-        $.each(sources, function(key, source){
-			var concept = sparql.ConceptUtils.createTypeConcept(source.type);
-			if(!defaultConcept) defaultConcept = concept;
-            var sparqlService = createSparqlService(source.endpoint, source.graph);
-			if(!defaultService) defaultService = sparqlService;
-            var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
-            $scope.dataSources.push(dataSource);
-        });
-
         $scope.selectGeom = function(data) {
             alert(JSON.stringify(data));
             //console.log('Status', data);
@@ -174,8 +168,24 @@
         $scope.$watch('mapConfig', function(v) {
             console.log('Config changed: ' + JSON.stringify(v));
         }, true);
+		
+		$scope.dataSources = [];
+		var defaultConcept, defaultService;
 
-
+		$scope.updateMap = function(){
+			var sources = $.parseJSON(localStorage.sources);
+			$scope.dataSources = [];
+			$.each(sources, function(key, source){
+				var concept = sparql.ConceptUtils.createTypeConcept(source.type);
+				if(!defaultConcept) defaultConcept = concept;
+				var sparqlService = createSparqlService(source.endpoint, source.graph);
+				if(!defaultService) defaultService = sparqlService;
+				var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
+				$scope.dataSources.push(dataSource);
+			});
+		}
+		
+		$scope.updateMap();
         $scope.sparqlService = defaultService;
         $scope.facetTreeConfig = new facete.FacetTreeConfig();
 
@@ -244,11 +254,12 @@
       <div id="sources">
           <h2>Sources</h2>
           <ul></ul>
+		  <div id="editor"></div>
       </div>
     </div>
     <div id="bottom-drawer">
         <div id="resource-info">
-            <p><a onclick="location.reload();">REFRESH</a></p>
+            <p></p>
         </div>
     </div>
     <!-- <div class="app"></div>

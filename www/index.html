@@ -68,7 +68,15 @@
 
 
     <title>GEM - {{bar.value}}</title>
-
+	<script type="text/javascript">
+	$(function(){ 
+		$("#bottom-drawer").hide();
+		$("#bottom-drawer p").css("width",window.innerWidth-80);
+	});
+	$(window).resize(function () {
+		$("#bottom-drawer p").css("width",window.innerWidth-80);	
+	});	
+	</script>
     <script type="text/javascript">
     _.mixin(_.str.exports());
 
@@ -251,7 +259,7 @@
     </div>
     <div id="bottom-drawer">
         <div id="resource-info">
-            <p><a onclick="location.reload();">REFRESH</a></p>
+            <p></p>
         </div>
     </div>
     <!-- <div class="app"></div>
