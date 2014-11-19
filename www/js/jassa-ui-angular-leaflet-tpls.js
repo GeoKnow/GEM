@@ -788,7 +788,10 @@ $.widget('custom.ssbLeafletMap', {
 		
         var feature = wktParser.read(wktStr).toObject();
 		feature.properties = attrs;
-		feature.label = feature.properties.shortLabel.displayLabel;
+		if(feature.properties.shortLabel)
+			feature.label = feature.properties.shortLabel.displayLabel;
+		else
+			feature.label = "Unknown";
 		//feature.bindPopup(feature.properties.shortLabel.displayLabel).openPopup();
 		
 		
@@ -813,7 +816,14 @@ $.widget('custom.ssbLeafletMap', {
 			/* if(feature.properties.shortLabel.id.length > 37)
 				uri = feature.properties.shortLabel.id.substring(0,36) + '...';
 			else */
+			if(feature.properties.shortLabel)
 				uri = feature.properties.shortLabel.id;
+			else {
+				if(feature.properties.val)
+					uri = feature.properties.val.id;
+				else
+					uri = "Unknown";
+			}
 			
 			$("#bottom-drawer p").html('<span class="feature-label">' + label + '</span><br /><span class="feature-uri">' + uri + '</span>');
 			if(prevFeature) {

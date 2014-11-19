@@ -806,13 +806,13 @@ $.widget('custom.ssbLeafletMap', {
 		feature.on("click", function(){
 			var label, uri;
 			
-			if(feature.label.length > 30)
+			/* if(feature.label.length > 30)
 				label = feature.label.substring(0,29) + '...';
-			else
+			else */
 				label = feature.label;
-			if(feature.properties.shortLabel.id.length > 37)
+			/* if(feature.properties.shortLabel.id.length > 37)
 				uri = feature.properties.shortLabel.id.substring(0,36) + '...';
-			else
+			else */
 				uri = feature.properties.shortLabel.id;
 			
 			$("#bottom-drawer p").html('<span class="feature-label">' + label + '</span><br /><span class="feature-uri">' + uri + '</span>');

@@ -1,26 +1,4 @@
 <div>
-
-    <div style="width: 100%; text-align: center">
-        <span ng-show="loading.pageCount" class="glyphicon glyphicon-refresh"></span>
-        <pagination
-            ng-hide="loading.pageCount || numPages() <= 1"
-            ng-model="currentPage"
-            page="currentPage"
-            items-per-page="listFilter.limit"
-            total-items="totalItems"
-
-            class="pagination"
-            ng-class="paginationOptions.cssClass"
-            max-size="paginationOptions.maxSize"
-            boundary-links="paginationOptions.boundaryLinks"
-            rotate="paginationOptions.rotate"
-            first-text="&lt;&lt;"
-            previous-text="&lt;"
-            next-text="&gt;"
-            last-text="&gt;&gt;"
-        ></pagination>
-    </div>
-
     <ul ng-show="loading.data" class="list-group">
         <li class="list-group-item" style="text-align: center;">
             <span class="glyphicon glyphicon-refresh"></span>

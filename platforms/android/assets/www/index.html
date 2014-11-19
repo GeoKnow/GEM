@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="jassa.demo.map.ol.basic" ng-controller="AppCtrl">
+<html ng-app="jassa.demo.map.ol.basic" ng-controller="gemCtrl">
 
 <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -27,11 +27,13 @@
 
     <script src="bower_components/jscache/cache.js"></script>
 
+
     <!-- bower:js -->
-    <script src="bower_components/jquery/jquery.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/jassa/jassa.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
     <script src="bower_components/ng-grid/build/ng-grid.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
@@ -41,15 +43,17 @@
     <script src="bower_components/leaflet/dist/leaflet.js"></script>
     <script src="bower_components/leaflet/dist/leaflet-src.js"></script>
     <script src="bower_components/snapjs/snap.js"></script>
+    <script src="bower_components/angular-snap/angular-snap.js"></script>
     <script src="bower_components/bluebird/js/browser/bluebird.js"></script>
     <script src="bower_components/jquery-cookie/jquery.cookie.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
     <!-- endbower -->
 
-    <script src="bower_components/angular-snap/angular-snap.js"></script>
-
-    <script src="bower_components/underscore/underscore.js"></script>
     <script src="bower_components/underscore.string/lib/underscore.string.js"></script>
-    <script src="bower_components/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+
+
+    <script src="lib/angular-snap/angular-snap.js"></script>
+    <script src="lib/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
 
     <script src="lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script>
     <script src="lib/wicket/wicket.js"></script>
@@ -58,6 +62,9 @@
 
     <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
     <script src="js/sourcemanager.js"></script>
+
+    <script src="js/jassa-list/jassa-list.js"></script>
+    <script src="js/facet-list/facet-list.js"></script>
 
 
     <title>GEM - {{bar.value}}</title>
@@ -80,30 +87,22 @@
 
     var vocab = jassa.vocab;
 
-    angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap'])
+    angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list'])
 
-    .controller('AppCtrl', ['$scope', function($scope) {
+    .controller('gemCtrl', ['$scope', function($scope) {
         $scope.bar = {"value" : "Filter text here"};
 
+		// Different factories
         var geoMapFactoryVirt = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
         var geoMapFactoryAsWktVirt = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
         var geoMapFactoryWgs =  geo.GeoMapFactoryUtils.wgs84MapFactory;
 
         var createSparqlService = function(url, graphUris) {
-            var result = new service.SparqlServiceHttp(url, graphUris, {type: 'POST'});
-            result = new service.SparqlServiceCache(result);
-            result = new service.SparqlServiceVirtFix(result);
-            result = new service.SparqlServicePaginate(result, 1000);
+            var result = service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'})
+                .cache().virtFix().paginate(1000).pageExpand(100).create();
+
             return result;
         };
-
-        var sparqlServiceA = createSparqlService('http://dbpedia.org/sparql', ['http://dbpedia.org']);
-        var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
-        var sparqlServiceC = createSparqlService('http://localhost/data/geolink/sparql', ['http://geolink.aksw.org/']);
-
-        var conceptA = sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/Airport');
-        var conceptB = sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
-        var conceptC = sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
 
         var createMapDataSource = function(sparqlService, geoMapFactory, concept, fillColor) {
 
@@ -125,23 +124,37 @@
 
         var bounds = new geo.Bounds(7.0, 49.0, 9, 51.0);
 
+		
+		// Example with three different factories (should take into consideration for source manager implementation)
         /*
+		var sparqlServiceA = createSparqlService('http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql', ['http://dbpedia.org']);
+        var sparqlServiceB = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
+        var sparqlServiceC = createSparqlService('http://localhost/data/geolink/sparql', ['http://geolink.aksw.org/']);
+
+        var conceptA = sparql.ConceptUtils.createTypeConcept('http://dbpedia.org/ontology/University');
+        var conceptB = sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Airport');
+        var conceptC = sparql.ConceptUtils.createTypeConcept('http://www.linklion.org/ontology#Link');
+		
         $scope.dataSources = [
             createMapDataSource(sparqlServiceA, geoMapFactoryVirt, conceptA, '#CC0020'),
             //createMapDataSource(sparqlServiceB, geoMapFactoryWgs, conceptB, '#2000CC')
             //createMapDataSource(sparqlServiceC, geoMapFactoryAsWktVirt, conceptC, '#663300'),
         ];
         */
-		
-		$scope.dataSources = [];
-		
+
+        $scope.dataSources = [];
+		var defaultConcept, defaultService;
+
         var sources = $.parseJSON(localStorage.sources);
-		$("#sources ul").html('');
-		$.each(sources, function(key, source){
-			var sparqlService = createSparqlService(source.endpoint, ['']); // second argument is default graph
-			var dataSource = createMapDataSource(sparqlService, geoMapFactoryVirt, conceptA, '#CC0020');
-			$scope.dataSources.push(dataSource);
-		});
+        $("#sources ul").html('');
+        $.each(sources, function(key, source){
+			var concept = sparql.ConceptUtils.createTypeConcept(source.type);
+			if(!defaultConcept) defaultConcept = concept;
+            var sparqlService = createSparqlService(source.endpoint, source.graph);
+			if(!defaultService) defaultService = sparqlService;
+            var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
+            $scope.dataSources.push(dataSource);
+        });
 
         $scope.selectGeom = function(data) {
             alert(JSON.stringify(data));
@@ -163,10 +176,10 @@
         }, true);
 
 
-        $scope.sparqlService = sparqlServiceA;
+        $scope.sparqlService = defaultService;
         $scope.facetTreeConfig = new facete.FacetTreeConfig();
 
-        $scope.facetTreeConfig.getFacetConfig().setBaseConcept(conceptA);
+        $scope.facetTreeConfig.getFacetConfig().setBaseConcept(defaultConcept);
         $scope.selectedPath = new facete.Path();
         $scope.selectPath = function(path) {
             $scope.selectedPath = path;
@@ -179,21 +192,42 @@
             $scope.facetValueConceptService = new facete.FacetValueConceptServiceExact($scope.facetTreeConfig.getFacetConfig());
 
             $scope.facetValueConceptService.prepareConcept(new facete.Path()).then(function(concept) {
-                $scope.dataSources = [ createMapDataSource($scope.sparqlService, geoMapFactoryVirt, concept, '#CC0020') ];
+                $scope.dataSources = [ createMapDataSource($scope.sparqlService, geoMapFactoryWgs, concept, '#CC0020') ];
             });
         }, true);
+
+        $scope.path = null;
+
+
+        var concept = sparql.ConceptUtils.createTypeConcept(defaultConcept);
+        var query = new sparql.Query();
+        query.setQueryPattern(concept.getElement());
+        query.getProject().add(concept.getVar());
+
+        //alert(query);
+        $scope.listService = new service.ListServiceSparqlQuery($scope.sparqlService, query, concept.getVar());
+
+        $scope.paginationOptions = {cssClass: 'pagination-sm', maxSize: 3 };
     }]);
     </script>
 
 </head>
 
 <body>
-    <div snap-drawer="left" style="font-size: 50%">
-        <facet-tree
+    <div snap-drawer="left">
+<!--         <jassa-list list-service="listService" pagination-options="{cssClass: 'pagination-sm', maxSize: 5 }"> -->
+<!--             <li ng-repeat="item in items"> -->
+<!--             {{item.id}} -->
+<!--             </li> -->
+<!--         </jassa-list> -->
+
+        <facet-list
             sparql-service="sparqlService"
             facet-tree-config="facetTreeConfig"
+            path="path"
             select="selectPath(path)"
-        ></facet-tree>
+            pagination-options="paginationOptions"
+        ></facet-list>
 
         <facet-value-list
             sparql-service="sparqlService"
@@ -208,20 +242,15 @@
     </div>
     <div snap-drawer="right">
       <div id="sources">
-		  <h2>Sources</h2>
-		  <ul></ul>
-	  </div>
-	  <div id="types">
-		  <h2>Types</h2>
-		  <ul></ul>
-	  </div>
+          <h2>Sources</h2>
+          <ul></ul>
+      </div>
     </div>
-	<div id="bottom-drawer">
-		<div id="resource-icon"><img src="img/point.png" /></div>
-		<div id="resource-info">
-			<p><a onclick="location.reload();">REFRESH</a></p>
-		</div>
-	</div>
+    <div id="bottom-drawer">
+        <div id="resource-info">
+            <p><a onclick="location.reload();">REFRESH</a></p>
+        </div>
+    </div>
     <!-- <div class="app"></div>
     <div id="header">
         <input ng-model="query"> {{query}}
