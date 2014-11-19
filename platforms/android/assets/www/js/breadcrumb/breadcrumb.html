@@ -1,0 +1,13 @@
+<ol class="list-inline">
+    <li>
+        <button class="btn btn-primary" ng-disabled="path.isEmpty()" ng-click="setPath(0)">
+            <span class="glyphicon glyphicon-home"></span>
+        </button>
+    </li>
+
+    <li ng-repeat="step in path.getSteps()">
+        <button class="btn btn-primary" ng-disabled="$last" ng-click="setPath($index + 1)">
+            {{step.getPropertyName()}}
+        </button>
+    </li>
+</ol>
