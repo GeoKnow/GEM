@@ -71,8 +71,6 @@ $(function() {
 		sources.splice(selectedSourceId, 1);
 		localStorage.setItem("sources", JSON.stringify(sources));	
 		loadSources(sources);
-		var scopeMap = angular.element($('#map')).scope();
-		scopeMap.clearItems();
 		var scopeGem = angular.element($('html')).scope();
 		scopeGem.updateMap();
     });

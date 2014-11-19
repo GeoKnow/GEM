@@ -166,6 +166,7 @@
 
 		$scope.updateMap = function(){
 			var sources = $.parseJSON(localStorage.sources);
+			$scope.dataSources = [];
 			$.each(sources, function(key, source){
 				var concept = sparql.ConceptUtils.createTypeConcept(source.type);
 				if(!defaultConcept) defaultConcept = concept;
