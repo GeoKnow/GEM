@@ -172,7 +172,7 @@
 		$scope.dataSources = [];
 		var defaultConcept, defaultService;
 
-		$scope.updateMap = function(){
+		$scope.updateDataSources = function(){
 			var sources = $.parseJSON(localStorage.sources);
 			$scope.dataSources = [];
 			$.each(sources, function(key, source){
@@ -185,7 +185,7 @@
 			});
 		}
 		
-		$scope.updateMap();
+		$scope.updateDataSources();
         $scope.sparqlService = defaultService;
         $scope.facetTreeConfig = new facete.FacetTreeConfig();
 

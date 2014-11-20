@@ -46,11 +46,14 @@ $(function() {
 				var sourceEndpoint = $(this).parent().siblings().find(".source-endpoint .source-endpoint-value" ).text();
 				var sourceGraph = $(this).parent().siblings().find(".source-graph .source-graph-value" ).text();
 				var sourceType = $(this).parent().siblings().find(".source-type .source-type-value" ).text();
+				$("#sources h2").html("Edit source");
 			}
-			else selectedSourceId = $.parseJSON(localStorage.sources).length;
+			else{
+				selectedSourceId = $.parseJSON(localStorage.sources).length;
+				$("#sources h2").html("Add source");
+			}
 		}
 		
-		$("#sources h2").html("Edit source");
 		$("#sources ul").html('');
 		
 		// Need to use a callback function to populate the form fields, as load() is asynchronous
@@ -72,7 +75,7 @@ $(function() {
 		localStorage.setItem("sources", JSON.stringify(sources));	
 		loadSources(sources);
 		var scopeGem = angular.element($('html')).scope();
-		scopeGem.updateMap();
+		scopeGem.updateDataSources();
     });
 	
 	$("#sources #editor").on("click", "a.finish-editing", function() {		
@@ -98,6 +101,6 @@ $(function() {
 		localStorage.setItem("sources", JSON.stringify(sources));	
 		loadSources(sources);
 		var scope = angular.element($('html')).scope();
-		scope.updateMap();		
+		scope.updateDataSources();		
     });
 });
