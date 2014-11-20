@@ -54,6 +54,7 @@
 
     <script src="lib/angular-snap/angular-snap.js"></script>
     <script src="lib/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+	<script src="js/orientation.js"></script>
 
     <script src="lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script>
     <script src="lib/wicket/wicket.js"></script>
@@ -172,7 +173,7 @@
 		$scope.dataSources = [];
 		var defaultConcept, defaultService;
 
-		$scope.updateMap = function(){
+		$scope.updateDataSources = function(){
 			var sources = $.parseJSON(localStorage.sources);
 			$scope.dataSources = [];
 			$.each(sources, function(key, source){
@@ -185,7 +186,8 @@
 			});
 		}
 		
-		$scope.updateMap();
+		$scope.updateDataSources();
+		
         $scope.sparqlService = defaultService;
         $scope.facetTreeConfig = new facete.FacetTreeConfig();
 

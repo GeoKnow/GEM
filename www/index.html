@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="bower_components/ng-grid/ng-grid.css" />
     <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css" />
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="lib/leaflet-compass/leaflet-compass.css" />
     <!-- endbower -->
 
 
@@ -54,6 +55,8 @@
 
     <script src="lib/angular-snap/angular-snap.js"></script>
     <script src="lib/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+	<script src="lib/leaflet-compass/leaflet-compass.js"></script>
+	<script src="js/orientation.js"></script>
 
     <script src="lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script>
     <script src="lib/wicket/wicket.js"></script>
@@ -186,6 +189,7 @@
 		}
 		
 		$scope.updateDataSources();
+		
         $scope.sparqlService = defaultService;
         $scope.facetTreeConfig = new facete.FacetTreeConfig();
 

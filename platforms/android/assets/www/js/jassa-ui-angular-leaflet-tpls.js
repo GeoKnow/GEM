@@ -393,6 +393,8 @@ $.widget('custom.ssbLeafletMap', {
 			layers: [maplayer], // add multiple layers here [layer1,layer2...]
 		});
 		
+		this.map.addControl(new L.Control.Compass());
+		
 		this.map.locate({setView: true, maxZoom: 16});
 
 		var map = this.map;

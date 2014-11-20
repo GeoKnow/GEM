@@ -1375,7 +1375,6 @@ D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\andro
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\delete-icon.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\edit-icon.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\logo.png \
-D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\logox.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-icon-selected.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-icon.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-shadow.png \
@@ -1394,6 +1393,7 @@ D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\andro
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\index.js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\jassa-list \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\jassa-ui-angular-leaflet-tpls.js \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\orientation.js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\snap.js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\sourcemanager \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\touchevents.js \
