@@ -406,7 +406,7 @@ $.widget('custom.ssbLeafletMap', {
 		
 		$('#filter').on('click', function(){
 			var scope = angular.element($('html')).scope();
-			scope.filterClicked("University of Belgrade Faculty of Economics");
+			scope.filterClicked($("#search").val());
 			console.log(scope.dataSources);
 		});
 		
