@@ -6,5 +6,5 @@ var searchBar = angular.module('jassa.demo.map.ol.basic', ['snap']);
 
 
 searchBar.controller('AppCtrl', ['$scope', function($scope) {
-		$scope.bar = {"value" : "Filter text here"};
+		$scope.bar = {"value" : "FilterX text hereZ"};
 }]);

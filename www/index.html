@@ -22,7 +22,6 @@
     <link rel="stylesheet" href="bower_components/ng-grid/ng-grid.css" />
     <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css" />
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
-	<link rel="stylesheet" href="lib/leaflet-compass/leaflet-compass.css" />
     <!-- endbower -->
 
 
@@ -55,7 +54,6 @@
 
     <script src="lib/angular-snap/angular-snap.js"></script>
     <script src="lib/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
-	<script src="lib/leaflet-compass/leaflet-compass.js"></script>
 	<script src="js/orientation.js"></script>
 
     <script src="lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script>
@@ -97,6 +95,30 @@
     var geo = jassa.geo;
 
     var vocab = jassa.vocab;
+	
+	var DataSourceFilter = jassa.ext.Class.create({
+		initialize: function(delegate, filterFn) {
+			this.delegate = delegate;
+			this.filter = this.filterFn || function() { return true; };
+		},
+		fetchData: function(concept) {
+			var self = this;
+			return this.delegate.fetchData(concept).then(function(items) {
+				return items.filter(self.filterFn);
+			});
+		},
+		setFilter: function(filterFn) {
+			this.filter = filterFn;
+		}
+	});
+
+	var DataSourceFilterUtils = {
+		createFilteredDataSource: function(ds, text) {
+			return new DataSourceFilter(ds, function(item) {
+				return item.labelInfo.displayLabel.indexOf(text) >= 0;
+			});
+		}
+	};
 
     angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list'])
 
@@ -173,6 +195,16 @@
         }, true);
 		
 		$scope.dataSources = [];
+		
+		
+		$scope.filterClicked = function(text) {
+			var rawDataSources = $scope.dataSources;
+			$scope.dataSources = []; // clear datasources
+			for(i in rawDataSources) {
+				$scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(rawDataSources[i], text));
+			}
+		};
+		
 		var defaultConcept, defaultService;
 
 		$scope.updateDataSources = function(){
@@ -273,7 +305,9 @@
     <div snap-content snap-options="opts">
         <div id="search-box" class="ui-element">
             <div class="ui-element-content">
-                <input ng-model="bar.value" />
+                <input ng-model="bar.value" id="search" />
+				<img src="img/compass.png" id="compass" />
+				<a href="#" id="filter"><span class="glyphicon glyphicon-search"></span></a>
             </div>
         </div>
         <snap-dragger="left">

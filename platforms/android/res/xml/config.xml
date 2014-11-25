@@ -16,4 +16,5 @@
     <access origin="*" />
     <preference name="SplashScreen" value="splash" />
     <preference name="SplashScreenDelay" value="5000" />
+    <preference name="fullscreen" value="true" />
 </widget>

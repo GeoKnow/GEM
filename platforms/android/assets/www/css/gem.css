@@ -32,9 +32,13 @@ body {
 	background-color: white;
 	opacity: 0.5;
 }
+#compass {
+	float:right;
+	margin: 2px 1px 0;
+}
 #search-box input {
 	border: none;
-	width: 100%;
+	width: 90%;
 	padding: 5px;
 	box-sizing: border-box;
 }
@@ -131,7 +135,7 @@ h2 {
 }
 .snap-drawer-left .alert-info .input-group-btn .glyphicon-circle-arrow-right:before {
 	content: "\25CF";
-	color: #00aaef;
+	color: #ff589e;
 }
 .snap-drawer-left .alert-info {
 	width: 100%;
@@ -144,6 +148,16 @@ h2 {
 .snap-drawer-left .alert-info   ul.list-group li {
 	width: 100%;
 	border-bottom: 1px solid #e3e3e3;
+}
+.snap-drawer-left .pagination a {
+	border:none;
+	color: #ff589e;
+	border-radius: 3px;
+}
+.snap-drawer-left .pagination > .active > a,
+.snap-drawer-left .pagination > .active > a:hover {
+	background-color: #ff589e;
+	border-color: #ff589e;
 }
 .snap-drawer-left .frame {
 	border: none;
@@ -216,4 +230,11 @@ h2 {
 .snap-drawer-right a:active {
 	color: #6C6C6C;
 	text-decoration: none;
+}
+#map .label-primary {
+	background-color: #FFFFFF;
+	color: rgb(255, 48, 119);
+	font-weight: normal;
+	border-radius: 5px;
+	box-shadow: 0px 0px 1px 1px #d0d0d0;
 }

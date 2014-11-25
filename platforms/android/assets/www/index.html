@@ -95,6 +95,37 @@
     var geo = jassa.geo;
 
     var vocab = jassa.vocab;
+	
+	var DataSourceFilter = jassa.ext.Class.create({
+		initialize: function(delegate, filterFn) {
+			this.delegate = delegate;
+			this.filter = filterFn || function() { return true; };
+		},
+		fetchData: function(concept) {
+			var self = this;
+			return this.delegate.fetchData(concept).then(function(items) {
+				return items.filter(self.filterFn);
+			});
+		},
+		setFilter: function(filterFn) {
+			this.filter = filterFn;
+		}
+	});
+
+	var DataSourceFilterUtils = {
+		createFilteredDataSource: function(ds, text) {
+			return new DataSourceFilter(ds, function(item) {
+				return item.labelInfo.displayLabel.indexOf(text) >= 0;
+			});
+		}
+	};
+
+	var filterClicked = function(text) {
+		datasources = []; // clear datasources
+		rawDatasources.foreach(rawDs, function() {
+			datasources.push(DataSourceFilterUtils.createFiltereDataSources(rawDs, text));
+		});
+	};
 
     angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list'])
 
@@ -271,7 +302,8 @@
     <div snap-content snap-options="opts">
         <div id="search-box" class="ui-element">
             <div class="ui-element-content">
-                <input ng-model="bar.value" />
+                <input ng-model="bar.value" id="search" />
+				<img src="img/compass.png" id="compass" />
             </div>
         </div>
         <snap-dragger="left">

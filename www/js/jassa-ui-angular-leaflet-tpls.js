@@ -380,7 +380,10 @@ $.widget('custom.ssbLeafletMap', {
                 ]
         }; */
 
-		var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawn.i66cpk3g/{z}/{x}/{y}.png', {
+		//var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawn.i66cpk3g/{z}/{x}/{y}.png', {
+		var maplayer = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
+		// var maplayer = L.tileLayer('http://tiles.lyrk.org/ls/{z}/{x}/{y}?apikey=87be57815cf747a58ec5d84d8e64ccfa', {
+		//var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawnum.kab31la4/{z}/{x}/{y}@2x.png', {
 			detectRetina: true,	
 		});
 
@@ -393,11 +396,20 @@ $.widget('custom.ssbLeafletMap', {
 			layers: [maplayer], // add multiple layers here [layer1,layer2...]
 		});
 		
-		this.map.addControl(new L.Control.Compass());
-		
 		this.map.locate({setView: true, maxZoom: 16});
-
-		var map = this.map;
+		
+		var map = this.map;		
+		
+		$('#compass').on('click', function(){
+			map.locate({setView: true, maxZoom: 16})
+		});
+		
+		$('#filter').on('click', function(){
+			var scope = angular.element($('html')).scope();
+			scope.filterClicked("University of Belgrade Faculty of Economics");
+			console.log(scope.dataSources);
+		});
+		
 		function onLocationFound(e) {
 			console.log(e);
 			var radius = e.accuracy / 2;
