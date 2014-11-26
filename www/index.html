@@ -115,7 +115,7 @@
 	var DataSourceFilterUtils = {
 		createFilteredDataSource: function(ds, text) {
 			return new DataSourceFilter(ds, function(item) {
-				return item.labelInfo.displayLabel.indexOf(text) >= 0;
+				return item.shortLabel.displayLabel.indexOf(text) >= 0;
 			});
 		}
 	};
