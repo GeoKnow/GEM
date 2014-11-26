@@ -99,7 +99,7 @@
 	var DataSourceFilter = jassa.ext.Class.create({
 		initialize: function(delegate, filterFn) {
 			this.delegate = delegate;
-			this.filter = this.filterFn || function() { return true; };
+			this.filterFn = filterFn || function() { return true; };
 		},
 		fetchData: function(concept) {
 			var self = this;
