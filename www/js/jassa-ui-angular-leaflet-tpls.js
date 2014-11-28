@@ -9,6 +9,8 @@ angular.module("ui.jassa.leaflet", ["ui.jassa.leaflet.tpls", "ui.jassa.leaflet.j
 angular.module("ui.jassa.leaflet.tpls", []);
 //TODO Move to some better place
 
+var currentResults;
+
 angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
 .controller('JassaMapLeafletCtrl', ['$scope', '$q', function($scope, $q) {
@@ -16,7 +18,6 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
     $scope.loadingSources = [];
     
     $scope.items = [];
-
     
     /**
      * Checks whether the item is a box or a generic object
@@ -157,7 +158,8 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
 		bounds = new geo.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);
 		//console.log("NEW BOUNDS OBJECT: " + JSON.stringify(bounds));
-        var promise = fetchData(dataSources, bounds);
+        var promise = fetchData(dataSources, bounds).then(function(data) { console.log(data); } );;
+		
 
         // Nothing to to with the promise as the scope has already been updated
 //        jassa.sponate.angular.bridgePromise(promise, $q.defer(), $scope, function(items) {
@@ -301,7 +303,7 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 (function($) {
 
 // variable to hold previously selected feature on the map    
-var prevFeature;    
+var prevFeature; 
 $.widget('custom.ssbLeafletMap', {
 
     // TODO: Add _init method for backward compatibility
@@ -402,12 +404,10 @@ $.widget('custom.ssbLeafletMap', {
 		
 		$('#compass').on('click', function(){
 			map.locate({setView: true, maxZoom: 16})
-		});
-		
-		$('#filter').on('click', function(){
 			var scope = angular.element($('html')).scope();
-			scope.filterClicked($("#search").val());
-			console.log(scope.dataSources);
+			if(!scope.$root.$$phase) {
+				scope.$apply();
+			}
 		});
 		
 		function onLocationFound(e) {
@@ -449,6 +449,9 @@ $.widget('custom.ssbLeafletMap', {
 				$(".ui-element").css("opacity","0.5");
 			}
 			$("#bottom-drawer").slideUp();
+			$('#search-box').height("inherit");
+			$('#search-box #results').html('');
+			$('#search-box #results').css('display','none');
 		}
 
 		this.map.on('click', onMapClick);
@@ -462,6 +465,11 @@ $.widget('custom.ssbLeafletMap', {
 		function onUITouch(e) {
 			$(".ui-element").css("opacity","1");
 			$("#bottom-drawer").slideUp();
+			if(e.target.id != "search") {
+				$('#search-box').height("inherit");
+				$('#search-box #results').html('');
+				$('#search-box #results').css('display','none');
+			}
 		}
 
 		this.map.on('dragstart', function() {

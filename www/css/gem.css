@@ -42,6 +42,14 @@ body {
 	padding: 5px;
 	box-sizing: border-box;
 }
+#search-box .glyphicon{
+	font-size: 20px;
+	float: right;
+	margin: 4px 10px 0 0;
+}
+#search-box #results{
+	display: none;
+}
 #drawer-left {
 	background-image: url('../img/slider_left.png');
 	left: -1px;

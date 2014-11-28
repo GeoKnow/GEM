@@ -63,6 +63,7 @@
 
     <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
     <script src="js/sourcemanager/sourcemanager.js"></script>
+	<script src="js/search.js"></script>
 
     <script src="js/jassa-list/jassa-list.js"></script>
     <script src="js/facet-list/facet-list.js"></script>
@@ -115,7 +116,8 @@
 	var DataSourceFilterUtils = {
 		createFilteredDataSource: function(ds, text) {
 			return new DataSourceFilter(ds, function(item) {
-				return item.shortLabel.displayLabel.indexOf(text) >= 0;
+				// case insensitive filtering
+				return item.shortLabel.displayLabel.toLowerCase().indexOf(text.toLowerCase()) >= 0;
 			});
 		}
 	};
@@ -123,7 +125,6 @@
     angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list'])
 
     .controller('gemCtrl', ['$scope', function($scope) {
-        $scope.bar = {"value" : "Filter text here"};
 
 		// Different factories
         var geoMapFactoryVirt = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
@@ -196,18 +197,10 @@
 		
 		$scope.dataSources = [];
 		
-		
-		$scope.filterClicked = function(text) {
-			var rawDataSources = $scope.dataSources;
-			$scope.dataSources = []; // clear datasources
-			for(i in rawDataSources) {
-				$scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(rawDataSources[i], text));
-			}
-		};
-		
 		var defaultConcept, defaultService;
 
 		$scope.updateDataSources = function(){
+			console.log("Should update!");
 			var sources = $.parseJSON(localStorage.sources);
 			$scope.dataSources = [];
 			$.each(sources, function(key, source){
@@ -221,6 +214,22 @@
 		}
 		
 		$scope.updateDataSources();
+		
+		$scope.rawDataSources = $scope.dataSources; // keep track of non-filtered data sources
+		$scope.filterClicked = function(text) {
+			if(text){ // Show filtered
+				var tempDataSources = $scope.rawDataSources; // always apply filter to all of the resources within current bounds
+				$scope.dataSources = []; // clear datasources
+				for(i in tempDataSources) {
+					$scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(tempDataSources[i], text));
+				}
+			}
+			else { // Show raw
+				console.log("Back to old");
+				$scope.dataSources = [];
+				$scope.dataSources = $scope.rawDataSources;
+			}
+		};
 		
         $scope.sparqlService = defaultService;
         $scope.facetTreeConfig = new facete.FacetTreeConfig();
@@ -305,10 +314,12 @@
     <div snap-content snap-options="opts">
         <div id="search-box" class="ui-element">
             <div class="ui-element-content">
-                <input ng-model="bar.value" id="search" />
+                <input ng-model="bar.value" id="search" placeholder="Filter" />
 				<img src="img/compass.png" id="compass" />
 				<a href="#" id="filter"><span class="glyphicon glyphicon-search"></span></a>
             </div>
+			<ul id="results">
+			</ul>
         </div>
         <snap-dragger="left">
         <div id="drawer-left" class="drawer ui-element" snap-toggle="left">

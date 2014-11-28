@@ -74,8 +74,8 @@ $(function() {
 		sources.splice(selectedSourceId, 1);
 		localStorage.setItem("sources", JSON.stringify(sources));	
 		loadSources(sources);
-		var scopeGem = angular.element($('html')).scope();
-		scopeGem.updateDataSources();
+		var scope = angular.element($('html')).scope();
+		scope.updateDataSources();
     });
 	
 	$("#sources #editor").on("click", "a.finish-editing", function() {		
