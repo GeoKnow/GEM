@@ -116,7 +116,8 @@
 	var DataSourceFilterUtils = {
 		createFilteredDataSource: function(ds, text) {
 			return new DataSourceFilter(ds, function(item) {
-				return item.shortLabel.displayLabel.indexOf(text) >= 0;
+				// case insensitive filtering
+				return item.shortLabel.displayLabel.toLowerCase().indexOf(text.toLowerCase()) >= 0;
 			});
 		}
 	};
@@ -217,7 +218,7 @@
 		$scope.rawDataSources = $scope.dataSources; // keep track of non-filtered data sources
 		$scope.filterClicked = function(text) {
 			if(text){ // Show filtered
-				var tempDataSources = $scope.dataSources;
+				var tempDataSources = $scope.rawDataSources; // always apply filter to all of the resources within current bounds
 				$scope.dataSources = []; // clear datasources
 				for(i in tempDataSources) {
 					$scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(tempDataSources[i], text));
@@ -313,9 +314,9 @@
     <div snap-content snap-options="opts">
         <div id="search-box" class="ui-element">
             <div class="ui-element-content">
-                <input ng-model="bar.value" id="search" placeholder="Filter" />
-				<img src="img/compass.png" id="compass" />
-				<a href="#" id="filter"><span class="glyphicon glyphicon-search"></span></a>
+                <img src="img/compass.png" id="compass" />
+				<div id="search-box-input"><input ng-model="bar.value" id="search" placeholder="Filter" /></div>	
+				<!--<a href="#" id="filter"><span class="glyphicon glyphicon-search"></span></a>-->
             </div>
 			<ul id="results">
 			</ul>

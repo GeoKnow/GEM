@@ -19,8 +19,9 @@ body {
 }
 #search-box {
 	width: 90%;
+	max-height: 90%;
+	overflow-y: auto;
 	margin: 0 auto;
-	padding: 5px;
 	top: 10px;
 	left: 0;
 	right: 0;
@@ -34,13 +35,19 @@ body {
 }
 #compass {
 	float:right;
-	margin: 2px 1px 0;
+	margin: 7px 5px 0;
+}
+#search-box-input {
+	overflow: hidden;
 }
 #search-box input {
 	border: none;
-	width: 90%;
+	width: 100%;
 	padding: 5px;
-	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+	margin: 5px 0 5px 5px;
 }
 #search-box .glyphicon{
 	font-size: 20px;
@@ -49,6 +56,12 @@ body {
 }
 #search-box #results{
 	display: none;
+	padding-left: 0;
+}
+#search-box #results li{
+	padding: 10px;
+	border-bottom: 1px solid #e3e3e3;
+	width: 100%;
 }
 #drawer-left {
 	background-image: url('../img/slider_left.png');

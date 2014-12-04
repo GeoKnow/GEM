@@ -10,6 +10,8 @@ angular.module("ui.jassa.leaflet.tpls", []);
 //TODO Move to some better place
 
 var currentResults;
+var screenItems;
+var featureLayer;
 
 angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
@@ -44,6 +46,7 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         _($scope.items).each(function(item) {
             addItem(item);
         });
+		screenItems = $scope.items;
     });
     
     
@@ -146,9 +149,8 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         jassa.util.ArrayUtils.clear($scope.items);
 
         var dataSources = $scope.sources;
-        //var bounds = jassa.geo.leaflet.MapUtils.getExtent($scope.map);
+
 		var tempbounds = $scope.map.getBounds();
-		//console.log("TEMP BOUNDS OBJECT: " + JSON.stringify(tempbounds));
 		
 		var bounds = {};
 		bounds.left = tempbounds._southWest.lng;
@@ -157,8 +159,8 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 		bounds.top = tempbounds._northEast.lat;
 
 		bounds = new geo.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);
-		//console.log("NEW BOUNDS OBJECT: " + JSON.stringify(bounds));
-        var promise = fetchData(dataSources, bounds).then(function(data) { console.log(data); } );;
+
+        var promise = fetchData(dataSources, bounds);
 		
 
         // Nothing to to with the promise as the scope has already been updated
@@ -400,7 +402,7 @@ $.widget('custom.ssbLeafletMap', {
 		
 		this.map.locate({setView: true, maxZoom: 16});
 		
-		var map = this.map;		
+		map = this.map;		
 		
 		$('#compass').on('click', function(){
 			map.locate({setView: true, maxZoom: 16})
@@ -411,7 +413,6 @@ $.widget('custom.ssbLeafletMap', {
 		});
 		
 		function onLocationFound(e) {
-			console.log(e);
 			var radius = e.accuracy / 2;
 
 			var userIcon = L.icon({
@@ -429,7 +430,6 @@ $.widget('custom.ssbLeafletMap', {
 					fillColor: '#f0bed7',
 					fillOpacity: 0.3
 				}).addTo(map);
-			console.log ("addded");
 		}
 
 		this.map.on('locationfound', onLocationFound);
@@ -465,7 +465,7 @@ $.widget('custom.ssbLeafletMap', {
 		function onUITouch(e) {
 			$(".ui-element").css("opacity","1");
 			$("#bottom-drawer").slideUp();
-			if(e.target.id != "search") {
+			if(e.target.id != "search" && (e.target.parentNode.parentNode.id != "results" && e.target.localName != "li")) {
 				$('#search-box').height("inherit");
 				$('#search-box #results').html('');
 				$('#search-box #results').css('display','none');
@@ -478,6 +478,9 @@ $.widget('custom.ssbLeafletMap', {
 				$(".ui-element-content").css("opacity","0");
 			}
 			$("#bottom-drawer").slideUp();
+			$('#search-box').height("inherit");
+			$('#search-box #results').html('');
+			$('#search-box #results').css('display','none');
 		});
 
 		this.map.on('dragend', function() {
@@ -603,8 +606,9 @@ $.widget('custom.ssbLeafletMap', {
         
 
         // // The layer for the actual features        
-        this.featureLayer = new L.MarkerClusterGroup();
-		this.featureLayer.addTo(this.map);
+        featureLayer = new L.MarkerClusterGroup();
+		featureLayer.addTo(this.map);
+		
             // projection: new leaflet.Projection('EPSG:4326'),
             // visibility: true,
             // displayInLayerSwitcher: true,
@@ -619,7 +623,7 @@ $.widget('custom.ssbLeafletMap', {
         
         
         // //var mapnikLayer = new leaflet.Layer.OSM.Local('Mapnik');
-        // this.map.addLayers([mapnikLayer, this.boxLayer, this.featureLayer]); //, this.vectorLayer]); //, this.markerLayer]);
+        // this.map.addLayers([mapnikLayer, this.boxLayer, featureLayer]); //, this.vectorLayer]); //, this.markerLayer]);
 
 
         /*
@@ -692,7 +696,7 @@ $.widget('custom.ssbLeafletMap', {
         
         
         
-        // this.selectFeatureController = new leaflet.Control.SelectFeature([this.boxLayer, this.featureLayer], {
+        // this.selectFeatureController = new leaflet.Control.SelectFeature([this.boxLayer, featureLayer], {
 
             // onUnselect: function(feature) {
                 // var data = feature.attributes;
@@ -792,7 +796,7 @@ $.widget('custom.ssbLeafletMap', {
     },
 
     getFeatureLayer: function() {
-        return this.featureLayer;
+        return featureLayer;
     },
 
     
@@ -803,7 +807,7 @@ $.widget('custom.ssbLeafletMap', {
      */
     redraw: function() {
         //this.boxLayer.redraw();
-        //this.featureLayer.redraw();
+        //featureLayer.redraw();
     },
 	
     addWkt: function(id, wktStr, attrs, visible) {
@@ -860,7 +864,7 @@ $.widget('custom.ssbLeafletMap', {
 		});
 		
 		
-		this.featureLayer.addLayer(feature);
+		featureLayer.addLayer(feature);
 		
         //feature.geometry.transform(this.map.displayProjection, this.map.projection);
         //var geometry = feature.geometry; 
@@ -902,7 +906,7 @@ $.widget('custom.ssbLeafletMap', {
         //var feature = new leaflet.Feature.Vector(geometry, attrs);
         //this.idToFeature[id] = feature;
         
-        //this.featureLayer.addFeatures([feature]);
+        //featureLayer.addFeatures([feature]);
         
         //return result;
     },
@@ -933,7 +937,7 @@ $.widget('custom.ssbLeafletMap', {
         
         if(visible) {
             /////this.markerLayer.addMarker(feature.marker);
-            this.featureLayer.addFeatures([feature]);
+            featureLayer.addFeatures([feature]);
         }
     },
     
@@ -945,10 +949,10 @@ $.widget('custom.ssbLeafletMap', {
         
         if(value) {
             /////this.markerLayer.addMarker(feature.marker);
-            this.featureLayer.addFeatures([feature]);
+            featureLayer.addFeatures([feature]);
         } else {
             /////this.markerLayer.removeMarker(feature.marker);
-            this.featureLayer.removeFeatures([feature]);
+            featureLayer.removeFeatures([feature]);
         }
     },
     
@@ -972,10 +976,10 @@ $.widget('custom.ssbLeafletMap', {
     
     clearItems: function() {
         //this.removeItems(_.keys(this.idToFeature.entries));
-        this.featureLayer.clearLayers();
+        featureLayer.clearLayers();
         //this.removeBoxes(_(this.idToBox).keys());
         
-        //this.featureLayer.destroyFeatures();
+        //featureLayer.destroyFeatures();
         //this.boxLayer.destroyFeatures();
     },
 
@@ -984,7 +988,7 @@ $.widget('custom.ssbLeafletMap', {
         var feature = this.idToFeature[id];
         if(feature) {
             //self.markerLayer.removeMarker(feature.marker);
-            this.featureLayer.removeFeatures([feature]);
+            featureLayer.removeFeatures([feature]);
             delete this.idToFeature[id];
         } else {
             console.log('[WARN] Id ' + id + ' requested for deletion, but not found in the ' + _.keys(this.idToFeature).length + ' available ones: ', this.idToFeature);

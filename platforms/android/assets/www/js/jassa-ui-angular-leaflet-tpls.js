@@ -159,7 +159,7 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 		bounds = new geo.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);
 		//console.log("NEW BOUNDS OBJECT: " + JSON.stringify(bounds));
         var promise = fetchData(dataSources, bounds);
-		currentResults = promise;
+		
 
         // Nothing to to with the promise as the scope has already been updated
 //        jassa.sponate.angular.bridgePromise(promise, $q.defer(), $scope, function(items) {
