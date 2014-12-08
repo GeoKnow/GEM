@@ -19,8 +19,9 @@ body {
 }
 #search-box {
 	width: 90%;
+	max-height: 90%;
+	overflow-y: auto;
 	margin: 0 auto;
-	padding: 5px;
 	top: 10px;
 	left: 0;
 	right: 0;
@@ -32,9 +33,12 @@ body {
 	background-color: white;
 	opacity: 0.5;
 }
+#search-box #results-container {
+	
+}
 #compass {
 	float:right;
-	margin: 2px 1px 0;
+	margin: 7px 5px 0;
 }
 #search-box-input {
 	overflow: hidden;
@@ -46,6 +50,7 @@ body {
 	-webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+	margin: 5px 0 5px 5px;
 }
 #search-box .glyphicon{
 	font-size: 20px;
@@ -54,6 +59,12 @@ body {
 }
 #search-box #results{
 	display: none;
+	padding-left: 0;
+}
+#search-box #results li{
+	padding: 10px;
+	border-bottom: 1px solid #e3e3e3;
+	width: 100%;
 }
 #drawer-left {
 	background-image: url('../img/slider_left.png');
@@ -88,12 +99,13 @@ h2 {
 	bottom: 0;
 	position: absolute;	
 	width: 100%;
-	height: 60px;
+	height: 80%;
 	padding-top: 14px;
 	background-color: white;
 	box-shadow: inset 0px 0px 1px 1px #d0d0d0;
 	z-index: 3;
 	padding-left: 70px;
+	overflow-y: hidden;
 }
 #bottom-drawer p{
 	text-align: left;
@@ -107,9 +119,12 @@ h2 {
 #resource-info {
 	float: left;
 }
-.feature-label {
+a.feature-label,
+a.feature-label:hover,
+a.feature-label:visited {
 	font-size: 16px;
 	color: #15adff;
+	text-decoration: none;
 }
 .feature-uri {
 	font-size: 12px;

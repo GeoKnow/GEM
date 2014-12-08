@@ -490,6 +490,13 @@ $.widget('custom.ssbLeafletMap', {
 			}
 		});
 		
+		$("#bottom-drawer").on("click", "a.feature-label", function() {
+			$("#bottom-drawer").css('display', 'block');
+			$("#bottom-drawer").css('height', '80%');
+			$("#bottom-drawer").css('bottom', '-70%');
+			$("#bottom-drawer").animate({'bottom': '0px'}, 200);
+		});
+		
         /*
          * Renderer init (needed for outlines of labels)
          */
@@ -854,8 +861,10 @@ $.widget('custom.ssbLeafletMap', {
 					uri = "Unknown";
 			}
 			
-			$("#bottom-drawer p").html('<span class="feature-label">' + label + '</span><br /><span class="feature-uri">' + uri + '</span>');
-			$("#bottom-drawer").slideDown();
+			$("#bottom-drawer p").html('<a class="feature-label">' + label + '</a><br /><span class="feature-uri">' + uri + '</span>');
+			$("#bottom-drawer").css('display', 'block');
+			$("#bottom-drawer").css('height', '60px');
+			$("#bottom-drawer").animate({'bottom': '0px'}, 200);
 			if(prevFeature) {
 				  prevFeature.setIcon(defaultIcon);
 			}

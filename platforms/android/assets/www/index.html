@@ -72,7 +72,7 @@
     <title>GEM - {{bar.value}}</title>
 	<script type="text/javascript">
 	$(function(){ 
-		$("#bottom-drawer").hide();
+		$("#bottom-drawer").css("bottom","-80%");
 		$("#bottom-drawer p").css("width",window.innerWidth-80);
 	});
 	$(window).resize(function () {
@@ -200,7 +200,6 @@
 		var defaultConcept, defaultService;
 
 		$scope.updateDataSources = function(){
-			console.log("Should update!");
 			var sources = $.parseJSON(localStorage.sources);
 			$scope.dataSources = [];
 			$.each(sources, function(key, source){
@@ -223,11 +222,12 @@
 				for(i in tempDataSources) {
 					$scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(tempDataSources[i], text));
 				}
+				$('#search').attr("placeholder", 'Leave empty and press Enter to clear filter');
 			}
 			else { // Show raw
-				console.log("Back to old");
 				$scope.dataSources = [];
 				$scope.dataSources = $scope.rawDataSources;
+				$('#search').attr("placeholder", 'Type, then press Enter to apply filter');
 			}
 		};
 		
@@ -313,13 +313,17 @@
     </div>-->
     <div snap-content snap-options="opts">
         <div id="search-box" class="ui-element">
+			<div>
             <div class="ui-element-content">
                 <img src="img/compass.png" id="compass" />
-				<div id="search-box-input"><input ng-model="bar.value" id="search" placeholder="Filter" /></div>	
+				<div id="search-box-input"><input ng-model="bar.value" id="search" placeholder="Type, then press Enter to filter" /></div>	
 				<!--<a href="#" id="filter"><span class="glyphicon glyphicon-search"></span></a>-->
             </div>
-			<ul id="results">
-			</ul>
+			<div id="results-container">
+				<ul id="results">
+				</ul>
+			</div>
+			</div>
         </div>
         <snap-dragger="left">
         <div id="drawer-left" class="drawer ui-element" snap-toggle="left">
