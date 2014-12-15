@@ -12,6 +12,7 @@ angular.module("ui.jassa.leaflet.tpls", []);
 var currentResults;
 var screenItems;
 var featureLayer;
+var selectedFeature;
 
 angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
@@ -448,7 +449,10 @@ $.widget('custom.ssbLeafletMap', {
 			if(!$("body").hasClass("snapjs-left") && !$("body").hasClass("snapjs-right")){
 				$(".ui-element").css("opacity","0.5");
 			}
-			$("#bottom-drawer").slideUp();
+			$("#bottom-drawer").slideUp(function(){
+				$("#bottom-drawer").removeClass('expanded preview');
+				 $('#details').html('');
+			});
 			$('#search-box').height("inherit");
 			$('#search-box #results').html('');
 			$('#search-box #results').css('display','none');
@@ -464,7 +468,10 @@ $.widget('custom.ssbLeafletMap', {
 
 		function onUITouch(e) {
 			$(".ui-element").css("opacity","1");
-			$("#bottom-drawer").slideUp();
+			$("#bottom-drawer").slideUp(function(){
+				$("#bottom-drawer").removeClass('expanded preview');
+				$('#details').html('');
+			});
 			if(e.target.id != "search" && (e.target.parentNode.parentNode.id != "results" && e.target.localName != "li")) {
 				$('#search-box').height("inherit");
 				$('#search-box #results').html('');
@@ -491,10 +498,19 @@ $.widget('custom.ssbLeafletMap', {
 		});
 		
 		$("#bottom-drawer").on("click", "a.feature-label", function() {
-			$("#bottom-drawer").css('display', 'block');
-			$("#bottom-drawer").css('height', '80%');
-			$("#bottom-drawer").css('bottom', '-70%');
+			$("#bottom-drawer").removeClass('preview');
+			$("#bottom-drawer").addClass('expanded');
 			$("#bottom-drawer").animate({'bottom': '0px'}, 200);
+			var resource = encodeURIComponent('<' + selectedFeature.properties.shortLabel.id + '>');
+			var endpoint = 'http://dbpedia.org/sparql';
+			var query = endpoint + '?query=SELECT%20*%20WHERE%20%7B%0AOPTIONAL%20%7B%20' + resource + '%20%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2Fdepiction%3E%20%3Fimage.%20%7D%0AOPTIONAL%20%7B%20' + resource + '%20%3Chttp%3A%2F%2Fdbpedia.org%2Fontology%2Fabstract%3E%20%3Fdbpabstract.%20FILTER(langMatches(lang(%3Fdbpabstract)%2C%20%22EN%22))%7D%0AOPTIONAL%20%7B%20' + resource + '%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23rdfs%3Acomment%3E%20%3Fcomment.%20FILTER(langMatches(lang(%3Fcomment)%2C%20%22EN%22))%7D%0A%7D';
+			console.log(query);
+			$.getJSON(query, function(data) {
+			  $(data.results.bindings).each(function(key, val){	
+				$('#details').append('<div class="property"><div class="content"><h4>dbpedia-owl:abstract</h4><div class="abstract">' + val.dbpabstract.value + '</div></div></div>');
+				$('#details').append('<div class="property"><div class="content"><img src="' + val.image.value + '" /></div></div>');
+			  });			  
+			});		
 		});
 		
         /*
@@ -823,6 +839,7 @@ $.widget('custom.ssbLeafletMap', {
         var wktParser = new Wkt.Wkt();
 		
         var feature = wktParser.read(wktStr).toObject();
+		
 		feature.properties = attrs;
 		if(feature.properties.shortLabel)
 			feature.label = feature.properties.shortLabel.displayLabel;
@@ -844,7 +861,7 @@ $.widget('custom.ssbLeafletMap', {
 		
 		feature.on("click", function(){
 			var label, uri;
-			
+			selectedFeature = feature;
 			/* if(feature.label.length > 30)
 				label = feature.label.substring(0,29) + '...';
 			else */
@@ -862,8 +879,8 @@ $.widget('custom.ssbLeafletMap', {
 			}
 			
 			$("#bottom-drawer p").html('<a class="feature-label">' + label + '</a><br /><span class="feature-uri">' + uri + '</span>');
-			$("#bottom-drawer").css('display', 'block');
-			$("#bottom-drawer").css('height', '60px');
+			$("#bottom-drawer").css('display','block');
+			$("#bottom-drawer").addClass("preview");
 			$("#bottom-drawer").animate({'bottom': '0px'}, 200);
 			if(prevFeature) {
 				  prevFeature.setIcon(defaultIcon);
