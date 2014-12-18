@@ -5,7 +5,8 @@ body {
 	height: 100%;
 	width: 100%;
 	position: absolute;
-	box-shadow: 
+	border-left: 1px solid #e3e3e3;
+	border-right: 1px solid #e3e3e3;
 }
 #map:before {
 	content: "";
@@ -135,8 +136,8 @@ h2 {
 	margin: 0 auto 10px auto;
 
 }
-#details {
-
+#loader {
+	margin: 0 auto;
 }
 #details  .property {
 	padding: 5px 0;

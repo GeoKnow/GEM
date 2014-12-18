@@ -1375,6 +1375,7 @@ D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\andro
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\compass.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\delete-icon.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\edit-icon.png \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\loader.gif \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\logo.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-icon-selected.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-icon.png \

@@ -501,16 +501,65 @@ $.widget('custom.ssbLeafletMap', {
 			$("#bottom-drawer").removeClass('preview');
 			$("#bottom-drawer").addClass('expanded');
 			$("#bottom-drawer").animate({'bottom': '0px'}, 200);
-			var resource = encodeURIComponent('<' + selectedFeature.properties.shortLabel.id + '>');
+			var resource = selectedFeature.properties.shortLabel.id;
 			var endpoint = 'http://dbpedia.org/sparql';
-			var query = endpoint + '?query=SELECT%20*%20WHERE%20%7B%0AOPTIONAL%20%7B%20' + resource + '%20%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2Fdepiction%3E%20%3Fimage.%20%7D%0AOPTIONAL%20%7B%20' + resource + '%20%3Chttp%3A%2F%2Fdbpedia.org%2Fontology%2Fabstract%3E%20%3Fdbpabstract.%20FILTER(langMatches(lang(%3Fdbpabstract)%2C%20%22EN%22))%7D%0AOPTIONAL%20%7B%20' + resource + '%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23rdfs%3Acomment%3E%20%3Fcomment.%20FILTER(langMatches(lang(%3Fcomment)%2C%20%22EN%22))%7D%0A%7D';
+			
+			/* This is only temporary; will be replaced by user provided input */
+			// WARNING: will work for up to 10 properties (see $.getJSON() below)
+			var properties = [];
+			properties[0] = {uri : 'http://dbpedia.org/ontology/abstract', filter: true, type: 'text'};
+			properties[1] = {uri : 'http://xmlns.com/foaf/0.1/depiction', filter: false, type: 'image'};
+			properties[2] = {uri : 'http://www.w3.org/2000/01/rdf-schema#comment', filter: true, type: 'text'};
+			
+			var optionalquery = '';
+			
+			for(i = 0; i < properties.length; i++){
+				//OPTIONAL { '   resource   ' <http://xmlns.com/foaf/0.1/depiction> ?image. FILTER(langMatches(lang(?abstract), "EN"))}
+				var filter = '';
+				if(properties[i].filter) filter = ' FILTER(langMatches(lang(?o' + i + '), "EN"))';
+				optionalquery += ' OPTIONAL { <' + resource + '> <' + properties[i].uri + '> ?o' + i + '.' + filter + '}';
+			}
+			console.log(optionalquery);
+			optionalquery = encodeURIComponent(optionalquery);
+			
+			$("#loader").css('display', 'block');
+			var query = endpoint + '?query=SELECT%20*%20WHERE%20%7B%20' + optionalquery + '%7D';
 			console.log(query);
 			$.getJSON(query, function(data) {
-			  $(data.results.bindings).each(function(key, val){	
-				$('#details').append('<div class="property"><div class="content"><h4>dbpedia-owl:abstract</h4><div class="abstract">' + val.dbpabstract.value + '</div></div></div>');
-				$('#details').append('<div class="property"><div class="content"><img src="' + val.image.value + '" /></div></div>');
-			  });			  
-			});		
+				$("#loader").css('display', 'none');
+				var result = data.results.bindings[0];
+				console.log(result);
+				$.each(result, function(key, val){
+					// WARNING: will work for up to 10 properties
+					var j = key[key.length-1];
+					if(properties[j].type == 'image')
+						$('#details').append('<div class="property"><div class="content"><img src="' + val.value + '" /></div></div>');
+					else {
+						// Get only property label
+						property = properties[j].uri.split("#");
+						if(!property[1]) {
+							property = properties[j].uri.split("/");
+							property = property[property.length-1];
+						}
+						else property = property[1];
+						
+						if(properties[j].type == 'text')
+							$('#details').append('<div class="property"><div class="content"><h4>' + property + '</h4><div class="abstract">' + val.value + '</div></div></div>');
+						if(properties[j].type == 'numeric')
+							// do something for numbers
+							console.log("Numbers!");
+					}
+				});					
+			})
+			.done(function() {
+				console.log( "second success" );
+			})
+			.fail(function() {
+				console.log( "error" );
+			})
+			.always(function() {
+				console.log( "complete" );
+			});			
 		});
 		
         /*
@@ -861,6 +910,7 @@ $.widget('custom.ssbLeafletMap', {
 		
 		feature.on("click", function(){
 			var label, uri;
+			$('#details').html('');
 			selectedFeature = feature;
 			/* if(feature.label.length > 30)
 				label = feature.label.substring(0,29) + '...';
