@@ -79,7 +79,7 @@
 		//$("#bottom-drawer p").css("width",window.innerWidth-80);	
 	});	
 	</script>
-    <script type="text/javascript">
+    <script type="text/javascript">		
     _.mixin(_.str.exports());
 
     $ = jQuery || $;
@@ -96,6 +96,12 @@
     var geo = jassa.geo;
 
     var vocab = jassa.vocab;
+	
+	// temporary (used at first start or when the source list is empty)
+	var sources = [
+					{ 'name' : 'Linked Geo Data', 'endpoint' : 'http://linkedgeodata.org/sparql', 'graph' : 'http://linkedgeodata.org','type' : 'http://linkedgeodata.org/ontology/Airport' },
+					{ 'name' : 'DBpedia', 'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql', 'graph' : 'http://dbpedia.org', 'type' : 'http://dbpedia.org/ontology/University' },	   
+				];
 	
 	var DataSourceFilter = jassa.ext.Class.create({
 		initialize: function(delegate, filterFn) {
@@ -199,8 +205,10 @@
 		
 		var defaultConcept, defaultService;
 
-		$scope.updateDataSources = function(){
-			var sources = $.parseJSON(localStorage.sources);
+		$scope.updateDataSources = function(){		
+			if(localStorage.sources && localStorage.sources.length > 2){
+				sources = $.parseJSON(localStorage.sources);
+			}
 			$scope.dataSources = [];
 			$.each(sources, function(key, source){
 				var concept = sparql.ConceptUtils.createTypeConcept(source.type);
@@ -210,11 +218,17 @@
 				var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
 				$scope.dataSources.push(dataSource);
 			});
+			$scope.rawDataSources = $scope.dataSources;
 		}
 		
 		$scope.updateDataSources();
 		
+		$(function() {
+			refresh();
+		});
+		
 		$scope.rawDataSources = $scope.dataSources; // keep track of non-filtered data sources
+		
 		$scope.filterClicked = function(text) {
 			if(text){ // Show filtered
 				var tempDataSources = $scope.rawDataSources; // always apply filter to all of the resources within current bounds
@@ -222,7 +236,9 @@
 				for(i in tempDataSources) {
 					$scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(tempDataSources[i], text));
 				}
-				$('#search').attr("placeholder", 'Leave empty and press Enter to clear filter');
+				//$('#search').attr("placeholder", 'Leave empty and press Enter to clear filter');
+				$('#search').css("display", 'none');
+				$('#clear').css("display", 'block');
 			}
 			else { // Show raw
 				$scope.dataSources = [];
@@ -231,6 +247,7 @@
 			}
 		};
 		
+		// TODO: Select default data source for facet tree
         $scope.sparqlService = defaultService;
         $scope.facetTreeConfig = new facete.FacetTreeConfig();
 
@@ -241,7 +258,6 @@
         };
 
         $scope.facetTreeConfig.getFacetTreeState().getPathExpansions().add(new facete.Path());
-
 
         $scope.$watch('facetTreeConfig.getFacetConfig().getConstraintManager();', function() {
             $scope.facetValueConceptService = new facete.FacetValueConceptServiceExact($scope.facetTreeConfig.getFacetConfig());
@@ -318,7 +334,10 @@
 			<div>
             <div class="ui-element-content">
                 <img src="img/compass.png" id="compass" />
-				<div id="search-box-input"><input ng-model="bar.value" id="search" placeholder="Type, then press Enter to filter" /></div>	
+				<div id="search-box-input">
+					<input ng-model="bar.value" id="search" placeholder="Filter" />
+					<div id="clear"><a href="#"><span class="glyphicon glyphicon-remove"></span><div id="clear-text"></div></a></div>
+				</div>
 				<!--<a href="#" id="filter"><span class="glyphicon glyphicon-search"></span></a>-->
             </div>
 			<div id="results-container">

@@ -26,12 +26,7 @@ $(function() {
 		$("#sources #editor").html('<a href="#" class="add-source"><span class="glyphicon glyphicon-plus"></span>&nbsp; Add source</a>');
 	};
 	
-	// temporary (used at first start or when the source list is empty)
-	var sources = [
-			{ 'name' : 'Linked Geo Data', 'endpoint' : 'http://linkedgeodata.org/sparql', 'graph' : 'http://linkedgeodata.org','type' : 'http://linkedgeodata.org/ontology/Airport' },
-		    { 'name' : 'DBpedia', 'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql', 'graph' : 'http://dbpedia.org', 'type' : 'http://dbpedia.org/ontology/University' },	   
-		];
-
+	
 	if(!localStorage.sources || localStorage.sources.length == 2) loadSources(sources);
 	else loadSources($.parseJSON(localStorage.sources));
 	
@@ -76,6 +71,7 @@ $(function() {
 		loadSources(sources);
 		var scope = angular.element($('html')).scope();
 		scope.updateDataSources();
+		refresh();
     });
 	
 	$("#sources #editor").on("click", "a.finish-editing", function() {		
@@ -101,6 +97,11 @@ $(function() {
 		localStorage.setItem("sources", JSON.stringify(sources));	
 		loadSources(sources);
 		var scope = angular.element($('html')).scope();
-		scope.updateDataSources();		
+		scope.updateDataSources();
+		refresh();
+    });
+	
+	$("#sources #editor").on("click", "a.cancel-editing", function() {				
+		loadSources($.parseJSON(localStorage.sources));
     });
 });

@@ -13,6 +13,7 @@ var currentResults;
 var screenItems;
 var featureLayer;
 var selectedFeature;
+var refresh;
 
 angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
@@ -145,11 +146,13 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         return result;
     };
 
-    var refresh = function() {
+    refresh = function() {
         
         jassa.util.ArrayUtils.clear($scope.items);
 
-        var dataSources = $scope.sources;
+		var indexScope = angular.element($('html')).scope();
+		
+        var dataSources = indexScope.dataSources;
 
 		var tempbounds = $scope.map.getBounds();
 		
@@ -397,7 +400,7 @@ $.widget('custom.ssbLeafletMap', {
 			center: new L.LatLng(44.8167, 20.4667),
 			zoom: 13,
 			zoomControl:false,
-			maxZoom: 18,
+			maxZoom: 17,
 			layers: [maplayer], // add multiple layers here [layer1,layer2...]
 		});
 		
