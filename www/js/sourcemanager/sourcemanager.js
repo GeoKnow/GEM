@@ -10,9 +10,15 @@ $(function() {
 			var i = 0;
 			$("#sources ul").html('');
 			$.each($.parseJSON(localStorage.sources), function(key, source){
-				$("#sources ul").append('<li id="' + i + '"><span class="source-name"><p class="source-name-value">'
-										+ source.name + '</p><a href="#" class="delete-source"><img src="img/delete-icon.png" style= "float: right; margin-right: 20px; margin-left: 10px; margin-top: -5px;" /></a>'
-										+ '<a href="#" class="edit-source"><img src="img/edit-icon.png" style= "float: right; margin-right: 10px; margin-left: 10px; margin-top: -5px;" /></a></span>'
+				var status = ' class="inactive"';
+				if(source.active){
+					status = "";
+				}
+				$("#sources ul").append('<li id="' + i + '"' + status + '><span class="source-name"><p class="source-name-value"><a href="#" class="toggleactive">'
+										//+ source.name + '</a></p><a href="#" class="delete-source"><img src="img/delete-icon.png" style= "float: right; margin-right: 20px; margin-left: 10px; margin-top: -5px;" /></a>'
+										+ source.name + '</a></p><a href="#" class="delete-source"><span class="glyphicon glyphicon-remove"></span></a>'
+										//+ '<a href="#" class="edit-source"><img src="img/edit-icon.png" style= "float: right; margin-right: 10px; margin-left: 10px; margin-top: -5px;" /></a></span>'
+										+ '<a href="#" class="edit-source"><span class="glyphicon glyphicon-pencil"></span></a></span>'
 										+ '<br /><div style="margin-top: 3px; clear: both;">'
 										+ '<span class="source-endpoint"><span class="source-endpoint-icon">&#x25cf; </span><span class="source-endpoint-value">'
 										+ source.endpoint + '</span></span><br />'
@@ -80,6 +86,7 @@ $(function() {
 		source.endpoint = '';
 		source.graph = '';
 		source.type = '';
+		source.active = true;
 		if(localStorage.sources && localStorage.sources.length > 2){
 			sources = $.parseJSON(localStorage.sources);
 			if(selectedSourceId < sources.length)
@@ -103,5 +110,29 @@ $(function() {
 	
 	$("#sources #editor").on("click", "a.cancel-editing", function() {				
 		loadSources($.parseJSON(localStorage.sources));
+    });
+	
+	$("#sources ul").on("click", "li a.toggleactive", function() {
+		var sources = {};
+		selectedSourceId = $(this).parent().parent().parent().attr('id');
+
+		sources = $.parseJSON(localStorage.sources);
+		if(sources[selectedSourceId].active){
+			sources[selectedSourceId].active = false;
+			$("#sources ul li#" + selectedSourceId).addClass('inactive');
+		}
+		else{
+			sources[selectedSourceId].active = true;
+			$("#sources ul li#" + selectedSourceId).removeClass('inactive');
+		}
+		
+		localStorage.setItem("sources", JSON.stringify(sources));	
+
+		var scope = angular.element($('html')).scope();
+		scope.updateDataSources();
+		console.log(scope.dataSources);
+		refresh();
+		
+		
     });
 });

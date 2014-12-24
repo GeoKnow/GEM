@@ -164,7 +164,12 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
 		bounds = new geo.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);
 
-        var promise = fetchData(dataSources, bounds);
+		//
+		if(dataSources.length)
+			var promise = fetchData(dataSources, bounds);
+		else
+			// need to force map to clear when there are no data sources active
+			map.fireEvent('moveend');
 		
 
         // Nothing to to with the promise as the scope has already been updated

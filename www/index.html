@@ -99,8 +99,9 @@
 	
 	// temporary (used at first start or when the source list is empty)
 	var sources = [
-					{ 'name' : 'Linked Geo Data', 'endpoint' : 'http://linkedgeodata.org/sparql', 'graph' : 'http://linkedgeodata.org','type' : 'http://linkedgeodata.org/ontology/Airport' },
-					{ 'name' : 'DBpedia', 'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql', 'graph' : 'http://dbpedia.org', 'type' : 'http://dbpedia.org/ontology/University' },	   
+					{ 'name' : 'Linked Geo Data', 'endpoint' : 'http://linkedgeodata.org/sparql', 'graph' : 'http://linkedgeodata.org','type' : 'http://linkedgeodata.org/ontology/Airport', 'active' : true},
+					{ 'name' : 'DBpedia', 'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql', 'graph' : 'http://dbpedia.org', 'type' : 'http://dbpedia.org/ontology/University', 'active' : true },
+					{ 'name' : 'DBpedia Airports', 'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql', 'graph' : 'http://dbpedia.org', 'type' : 'http://dbpedia.org/ontology/Airport', 'active' : false },					
 				];
 	
 	var DataSourceFilter = jassa.ext.Class.create({
@@ -204,24 +205,28 @@
 		$scope.dataSources = [];
 		
 		var defaultConcept, defaultService;
-
+		
+		var firstLoad = true;
 		$scope.updateDataSources = function(){		
-			if(localStorage.sources && localStorage.sources.length > 2){
+			if(localStorage.sources && !firstLoad){
 				sources = $.parseJSON(localStorage.sources);
 			}
 			$scope.dataSources = [];
 			$.each(sources, function(key, source){
-				var concept = sparql.ConceptUtils.createTypeConcept(source.type);
-				if(!defaultConcept) defaultConcept = concept;
-				var sparqlService = createSparqlService(source.endpoint, source.graph);
-				if(!defaultService) defaultService = sparqlService;
-				var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
-				$scope.dataSources.push(dataSource);
+				if(source.active){
+					var concept = sparql.ConceptUtils.createTypeConcept(source.type);
+					if(!defaultConcept) defaultConcept = concept;
+					var sparqlService = createSparqlService(source.endpoint, source.graph);
+					if(!defaultService) defaultService = sparqlService;
+					var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
+					$scope.dataSources.push(dataSource);
+				}
 			});
 			$scope.rawDataSources = $scope.dataSources;
 		}
 		
 		$scope.updateDataSources();
+		firstLoad = false;
 		
 		$(function() {
 			refresh();
@@ -262,9 +267,9 @@
         $scope.$watch('facetTreeConfig.getFacetConfig().getConstraintManager();', function() {
             $scope.facetValueConceptService = new facete.FacetValueConceptServiceExact($scope.facetTreeConfig.getFacetConfig());
 
-            $scope.facetValueConceptService.prepareConcept(new facete.Path()).then(function(concept) {
-                $scope.dataSources = [ createMapDataSource($scope.sparqlService, geoMapFactoryWgs, concept, '#CC0020') ];
-            });
+            $scope.facetValueConceptService.prepareConcept(new facete.Path());//.then(function(concept) {
+                //$scope.dataSources = [ createMapDataSource($scope.sparqlService, geoMapFactoryWgs, concept, '#CC0020') ];
+            //});
         }, true);
 
         $scope.path = null;

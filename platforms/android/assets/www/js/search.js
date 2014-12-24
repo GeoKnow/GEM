@@ -1,6 +1,5 @@
 $(function() {
 	var scope = angular.element($('html')).scope();
-	console.log("Whaaat: ");console.log(angular);
 	
 	$('#search').keydown(function(event) {
         if (event.keyCode == 13) {
@@ -8,7 +7,16 @@ $(function() {
         }
     });
 	
+	$('#clear').on('click', function() {
+        applyFilter('');
+		$('#search').css("display", 'block');
+		$('#search').val('');
+		$('#search').attr('placeholder', 'Filter');
+		$('#clear').css("display", 'none');
+    });
+	
 	$('#search').on('click', function(){
+		$('#search').attr('placeholder', 'Select from list or type, then press Enter to filter');
 		$('#search-box #results').css('display','block');
 		$('#search-box #results').html('');
 		
@@ -37,6 +45,8 @@ $(function() {
 		$('#search-box').height("inherit");
 		$('#search-box #results').html('');
 		$('#search-box #results').css('display','none');
+		
+		$('#clear-text').html("Clear filter: " + text);
 
 		// have to sleep for a short while before calling fitBounds(),
 		// since the items watcher calls clearItems(), rendering featureLayer empty

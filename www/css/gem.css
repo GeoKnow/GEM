@@ -280,6 +280,9 @@ a.feature-label:visited {
 	font-size: 18px;
 	color: #595959;
 }
+.snap-drawer-right .source-name a {
+	font-size: 18px;
+}
 .snap-drawer-right .source-name-icon {
 	color: #B3B3B3;
 }
@@ -291,6 +294,13 @@ a.feature-label:visited {
 }
 .snap-drawer-right .source-type-icon {
 	color: #83D5FF;
+}
+.snap-drawer-right li.inactive,
+.snap-drawer-right li.inactive .source-name a,
+.snap-drawer-right li.inactive .source-endpoint-icon,
+.snap-drawer-right li.inactive .source-graph-icon, 
+.snap-drawer-right li.inactive .source-type-icon {
+	color: #d0d0d0;
 }
 .snap-drawer-right p.source-name-value {
 	float: left;
@@ -318,6 +328,16 @@ a.feature-label:visited {
 .snap-drawer-right a {
 	color: #6C6C6C;
 	font-size: 20px;
+}
+.snap-drawer-right .source-name a .glyphicon{
+	font-size: 29px;
+	float: right;
+	margin-right: 18px;
+	margin-top: -7px;
+}
+.snap-drawer-right .source-name a.edit-source .glyphicon{
+	font-size: 24px;
+	margin-top: -6px;
 }
 .snap-drawer-right a:hover,
 .snap-drawer-right a:focus,
