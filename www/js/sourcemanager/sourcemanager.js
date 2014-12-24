@@ -10,22 +10,29 @@ $(function() {
 			var i = 0;
 			$("#sources ul").html('');
 			$.each($.parseJSON(localStorage.sources), function(key, source){
-				var status = ' class="inactive"';
-				if(source.active){
-					status = "";
+				var sourceStatus = "";
+				var treeText = 'Load facets';
+				var treeStatus = ' inactive';
+				if(!source.active){
+					sourceStatus = ' class="inactive"';
+					treeStatus += " disabled";
 				}
-				$("#sources ul").append('<li id="' + i + '"' + status + '><span class="source-name"><p class="source-name-value"><a href="#" class="toggleactive">'
+				if(source.facets){
+					treeText = "Facets loaded";
+					treeStatus = "";
+				}
+				$("#sources ul").append('<li id="' + i + '"' + sourceStatus + '><span class="source-name"><p class="source-name-value"><a href="#" class="toggleactive">'
 										//+ source.name + '</a></p><a href="#" class="delete-source"><img src="img/delete-icon.png" style= "float: right; margin-right: 20px; margin-left: 10px; margin-top: -5px;" /></a>'
 										+ source.name + '</a></p><a href="#" class="delete-source"><span class="glyphicon glyphicon-remove"></span></a>'
 										//+ '<a href="#" class="edit-source"><img src="img/edit-icon.png" style= "float: right; margin-right: 10px; margin-left: 10px; margin-top: -5px;" /></a></span>'
 										+ '<a href="#" class="edit-source"><span class="glyphicon glyphicon-pencil"></span></a></span>'
-										+ '<br /><div style="margin-top: 3px; clear: both;">'
+										+ '<br /><div class="sourcedata">'
 										+ '<span class="source-endpoint"><span class="source-endpoint-icon">&#x25cf; </span><span class="source-endpoint-value">'
 										+ source.endpoint + '</span></span><br />'
 										+ '<span class="source-graph"><span class="source-graph-icon">&#x25cf; </span><span class="source-graph-value">'
 										+ source.graph + '</span></span><br />'
 										+ '<span class="source-type"><span class="source-type-icon">&#x25cf; </span><span class="source-type-value">'
-										+ source.type + '</span></span></div></li>');
+										+ source.type + '</span></span></div><a href="#" class="loadtree' + treeStatus +'"><span class="glyphicon glyphicon-align-left"></span><span class="toggleload">' + treeText + '</span></a></li>');
 				i++;
 			});
 		}
@@ -120,10 +127,12 @@ $(function() {
 		if(sources[selectedSourceId].active){
 			sources[selectedSourceId].active = false;
 			$("#sources ul li#" + selectedSourceId).addClass('inactive');
+			$("#sources ul li#" + selectedSourceId + " a.loadtree").addClass('disabled');
 		}
 		else{
 			sources[selectedSourceId].active = true;
 			$("#sources ul li#" + selectedSourceId).removeClass('inactive');
+			$("#sources ul li#" + selectedSourceId + " a.loadtree").removeClass('disabled');
 		}
 		
 		localStorage.setItem("sources", JSON.stringify(sources));	
@@ -134,5 +143,26 @@ $(function() {
 		refresh();
 		
 		
+    });
+	
+	$("#sources ul").on("click", "li a.loadtree", function() {
+		var sources = {};
+		selectedSourceId = $(this).parent().attr('id');
+		
+		sources = $.parseJSON(localStorage.sources);
+		
+		$.each(sources, function(key, source){
+			source.facets = false;
+		});
+		
+		sources[selectedSourceId].facets = true;
+		
+		var scope = angular.element($('html')).scope();
+		var service = createSparqlService(sources[selectedSourceId].endpoint, sources[selectedSourceId].graph);
+		var concept = sparql.ConceptUtils.createTypeConcept(sources[selectedSourceId].type);
+		scope.updateFacetTree(service, concept);
+		
+		localStorage.setItem("sources", JSON.stringify(sources));	
+		loadSources(sources);
     });
 });

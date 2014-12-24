@@ -264,7 +264,7 @@ a.feature-label:visited {
 }
 .snap-drawer-right ul  li{
 	border-bottom: 1px solid #e3e3e3;
-	padding: 20px 0 20px 18px;
+	padding: 20px 0 0 18px;
 	width: 100%;
 	white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
 	white-space: -pre-wrap;      /* Opera 4-6 */
@@ -339,11 +339,40 @@ a.feature-label:visited {
 	font-size: 24px;
 	margin-top: -6px;
 }
+.snap-drawer-right .sourcedata {
+	margin: 3px 0 25px;
+	clear: both;
+}
 .snap-drawer-right a:hover,
 .snap-drawer-right a:focus,
 .snap-drawer-right a:active {
 	color: #6C6C6C;
 	text-decoration: none;
+}
+.snap-drawer-right a.loadtree{
+	font-size: 13px;
+	margin-left: 43px;
+	background-color: rgb(255, 65, 137);
+	color: white;
+	padding: 8px 10px 4px 10px;
+	width: 126px;
+	display: block;
+	text-align: center;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-topright: 5px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+.snap-drawer-right a.loadtree.inactive{
+	background-color: #aaaaaa;
+}
+.snap-drawer-right a.loadtree.inactive.disabled{
+	background-color: #EAEAEA;;
+}
+.snap-drawer-right a .glyphicon{
+	margin-right: 10px;
 }
 #map .label-primary {
 	background-color: #FFFFFF;
