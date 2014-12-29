@@ -20,8 +20,9 @@ $(function() {
 		$('#search-box #results').css('display','block');
 		$('#search-box #results').html('');
 		
-		$.each(screenItems, function(key, source){
-			$('#search-box #results').append('<li><a href="#">' + source.shortLabel.displayLabel + '</a></li>');
+		$.each(screenItems, function(key, feature){
+			if(feature.shortLabel) // skip features without labels
+				$('#search-box #results').append('<li><a href="#">' + feature.shortLabel.displayLabel + '</a></li>');
 		});
 
 	});
@@ -53,6 +54,6 @@ $(function() {
 		setTimeout(function(){
 			map.fitBounds(featureLayer.getBounds());
 			$(".ui-element").css("opacity","0.5");
-		}, 500);
+		}, 2000);
 	}
 });

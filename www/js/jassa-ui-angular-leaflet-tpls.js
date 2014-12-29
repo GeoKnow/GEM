@@ -56,6 +56,10 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
     var fetchDataFromSourceCore = function(dataSource, bounds) {
         
         var p = dataSource.fetchData(bounds);
+		
+		// ugly, but working :)
+		var endpoint = dataSource.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
+		var graph = dataSource.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
         
         var result = $q.when(p).then(function(items) {
 
@@ -66,6 +70,11 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 //            _(items).each(function(item) {
 //                item.config = dataSource;
 //            });
+
+			_(items).each(function(item) {
+				item.graph = graph;
+				item.endpoint = endpoint;
+			});
 
             return items;
         });
@@ -480,7 +489,11 @@ $.widget('custom.ssbLeafletMap', {
 				$("#bottom-drawer").removeClass('expanded preview');
 				$('#details').html('');
 			});
-			if(e.target.id != "search" && (e.target.parentNode.parentNode.id != "results" && e.target.localName != "li")) {
+
+			var id = '';
+			if(e.target.id) id = e.target.id;
+			else if(e.target.parentNode.parentNode) id = e.target.parentNode.parentNode.id;
+			if(id != "search" && (id != "results" && e.target.localName != "li")) {
 				$('#search-box').height("inherit");
 				$('#search-box #results').html('');
 				$('#search-box #results').css('display','none');
@@ -510,7 +523,12 @@ $.widget('custom.ssbLeafletMap', {
 			$("#bottom-drawer").addClass('expanded');
 			$("#bottom-drawer").animate({'bottom': '0px'}, 200);
 			var resource = selectedFeature.properties.shortLabel.id;
-			var endpoint = 'http://dbpedia.org/sparql';
+			var graph = encodeURIComponent(selectedFeature.properties.graph);
+			var endpoint = '';
+			if(graph == "http%3A%2F%2Fdbpedia.org")
+				endpoint = 'http://dbpedia.org/sparql';
+			else
+				endpoint = selectedFeature.properties.endpoint;	
 			
 			/* This is only temporary; will be replaced by user provided input */
 			// WARNING: will work for up to 10 properties (see $.getJSON() below)
@@ -518,56 +536,71 @@ $.widget('custom.ssbLeafletMap', {
 			properties[0] = {uri : 'http://dbpedia.org/ontology/abstract', filter: true, type: 'text'};
 			properties[1] = {uri : 'http://xmlns.com/foaf/0.1/depiction', filter: false, type: 'image'};
 			properties[2] = {uri : 'http://www.w3.org/2000/01/rdf-schema#comment', filter: true, type: 'text'};
+			properties[3] = {uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', filter: false, type: 'url'};
 			
-			var optionalquery = '';
+			
 			
 			for(i = 0; i < properties.length; i++){
 				//OPTIONAL { '   resource   ' <http://xmlns.com/foaf/0.1/depiction> ?image. FILTER(langMatches(lang(?abstract), "EN"))}
 				var filter = '';
+				var optionalquery = '';
+				var orderby = ' ORDER BY';
 				if(properties[i].filter) filter = ' FILTER(langMatches(lang(?o' + i + '), "EN"))';
 				optionalquery += ' OPTIONAL { <' + resource + '> <' + properties[i].uri + '> ?o' + i + '.' + filter + '}';
-			}
-			console.log(optionalquery);
-			optionalquery = encodeURIComponent(optionalquery);
+				orderby += ' ?o' + i;
 			
-			$("#loader").css('display', 'block');
-			var query = endpoint + '?query=SELECT%20*%20WHERE%20%7B%20' + optionalquery + '%7D';
-			console.log(query);
-			$.getJSON(query, function(data) {
-				$("#loader").css('display', 'none');
-				var result = data.results.bindings[0];
-				console.log(result);
-				$.each(result, function(key, val){
-					// WARNING: will work for up to 10 properties
-					var j = key[key.length-1];
-					if(properties[j].type == 'image')
-						$('#details').append('<div class="property"><div class="content"><img src="' + val.value + '" /></div></div>');
-					else {
-						// Get only property label
-						property = properties[j].uri.split("#");
-						if(!property[1]) {
-							property = properties[j].uri.split("/");
-							property = property[property.length-1];
-						}
-						else property = property[1];
-						
-						if(properties[j].type == 'text')
-							$('#details').append('<div class="property"><div class="content"><h4>' + property + '</h4><div class="abstract">' + val.value + '</div></div></div>');
-						if(properties[j].type == 'numeric')
-							// do something for numbers
-							console.log("Numbers!");
-					}
-				});					
-			})
-			.done(function() {
-				console.log( "second success" );
-			})
-			.fail(function() {
-				console.log( "error" );
-			})
-			.always(function() {
-				console.log( "complete" );
-			});			
+				console.log(optionalquery);
+				optionalquery = encodeURIComponent(optionalquery);
+				orderby = encodeURIComponent(orderby);
+				
+				$("#loader").css('display', 'block');
+				var query = endpoint + '?query=SELECT%20*%20FROM%20%3C' + graph + '%3E%20WHERE%20%7B%20' + optionalquery + '%7D' + orderby;
+				$.getJSON(query, function(data) {
+					$("#loader").css('display', 'none');
+					var printedLabel = false;
+					for(c = 0; c < data.results.bindings.length; c++){
+						var result = data.results.bindings[c];
+						var property = '';
+						console.log(result);
+						$.each(result, function(key, val){
+							// WARNING: will work for up to 10 properties
+							var j = key[key.length-1];
+							if(properties[j].type == 'image')
+								$('#details').append('<div class="property"><div class="content"><img src="' + val.value + '" /></div></div>');
+							else {
+								if(!printedLabel){
+									// Get only property label
+									property = properties[j].uri.split("#");
+									if(!property[1]) {
+										property = properties[j].uri.split("/");
+										property = property[property.length-1];
+									}
+									else property = property[1];
+									
+									property = '<h4>' + property + '</h4>';
+									printedLabel = true;
+								}
+								if(properties[j].type == 'text')
+									$('#details').append('<div class="property"><div class="content">' + property + '<div class="textual">' + val.value + '</div></div></div>');
+								if(properties[j].type == 'url')
+									$('#details').append('<div class="property"><div class="content">' + property + '<div class="url">' + val.value + '</div></div></div>');
+								if(properties[j].type == 'numeric')
+									// do something for numbers
+									console.log("Numbers!");
+							}
+						});
+					}				
+				})
+				.done(function() {
+					console.log( "second success" );
+				})
+				.fail(function() {
+					console.log( "error" );
+				})
+				.always(function() {
+					console.log( "complete" );
+				});	
+			}			
 		});
 		
         /*

@@ -32,7 +32,7 @@ $(function() {
 										+ '<span class="source-graph"><span class="source-graph-icon">&#x25cf; </span><span class="source-graph-value">'
 										+ source.graph + '</span></span><br />'
 										+ '<span class="source-type"><span class="source-type-icon">&#x25cf; </span><span class="source-type-value">'
-										+ source.type + '</span></span></div><a href="#" class="loadtree' + treeStatus +'"><span class="glyphicon glyphicon-align-left"></span><span class="toggleload">' + treeText + '</span></a></li>');
+										+ source.type + '</span></span></div><a href="#" class="loadtree' + treeStatus +'"><span class="glyphicon glyphicon-th-large"></span><span class="toggleload"></span></a></li>');
 				i++;
 			});
 		}

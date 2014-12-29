@@ -100,25 +100,25 @@
 	// temporary (used at first start or when the source list is empty)
 	var sources = [
 					{
-					  'name' : 'Linked Geo Data',
+					  'name' : 'LGD Bars',
  					  'endpoint' : 'http://linkedgeodata.org/sparql',
 					  'graph' : 'http://linkedgeodata.org',
-					  'type' : 'http://linkedgeodata.org/ontology/Airport',
+					  'type' : 'http://linkedgeodata.org/ontology/Bar',
 					  'active' : true,
 					  'facets' : true
 					},
 					{
-					  'name' : 'DBPD University',
+					  'name' : 'DBP Universities',
 					  'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
 					  'graph' : 'http://dbpedia.org',
 					  'type' : 'http://dbpedia.org/ontology/University',
-					  'active' : true,
+					  'active' : false,
 					  'facets' : false
 					},
-					{ 'name' : 'DBPD Airport',
+					{ 'name' : 'DBP Architecture',
 					  'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
 					  'graph' : 'http://dbpedia.org',
-					  'type' : 'http://dbpedia.org/ontology/Airport',
+					  'type' : 'http://dbpedia.org/ontology/ArchitecturalStructure',
 					  'active' : false,
 					  'facets' : false
 					}					

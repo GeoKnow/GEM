@@ -99,9 +99,37 @@
 	
 	// temporary (used at first start or when the source list is empty)
 	var sources = [
-					{ 'name' : 'Linked Geo Data', 'endpoint' : 'http://linkedgeodata.org/sparql', 'graph' : 'http://linkedgeodata.org','type' : 'http://linkedgeodata.org/ontology/Airport' },
-					{ 'name' : 'DBpedia', 'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql', 'graph' : 'http://dbpedia.org', 'type' : 'http://dbpedia.org/ontology/University' },	   
+					{
+					  'name' : 'LGD Bars',
+ 					  'endpoint' : 'http://linkedgeodata.org/sparql',
+					  'graph' : 'http://linkedgeodata.org',
+					  'type' : 'http://linkedgeodata.org/ontology/Bar',
+					  'active' : true,
+					  'facets' : true
+					},
+					{
+					  'name' : 'DBP Universities',
+					  'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
+					  'graph' : 'http://dbpedia.org',
+					  'type' : 'http://dbpedia.org/ontology/University',
+					  'active' : false,
+					  'facets' : false
+					},
+					{ 'name' : 'DBP Architecture',
+					  'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
+					  'graph' : 'http://dbpedia.org',
+					  'type' : 'http://dbpedia.org/ontology/ArchitecturalStructure',
+					  'active' : false,
+					  'facets' : false
+					}					
 				];
+	
+	var createSparqlService = function(url, graphUris) {
+		var result = service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'})
+			.cache().virtFix().paginate(1000).pageExpand(100).create();
+
+		return result;
+	};
 	
 	var DataSourceFilter = jassa.ext.Class.create({
 		initialize: function(delegate, filterFn) {
@@ -136,13 +164,6 @@
         var geoMapFactoryVirt = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
         var geoMapFactoryAsWktVirt = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
         var geoMapFactoryWgs =  geo.GeoMapFactoryUtils.wgs84MapFactory;
-
-        var createSparqlService = function(url, graphUris) {
-            var result = service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'})
-                .cache().virtFix().paginate(1000).pageExpand(100).create();
-
-            return result;
-        };
 
         var createMapDataSource = function(sparqlService, geoMapFactory, concept, fillColor) {
 
@@ -204,24 +225,32 @@
 		$scope.dataSources = [];
 		
 		var defaultConcept, defaultService;
-
+		firstLoad = true;
 		$scope.updateDataSources = function(){		
-			if(localStorage.sources && localStorage.sources.length > 2){ // && localStorage.sources.length > 2  // to reset the sources
+			if(localStorage.sources && localStorage.sources.length > 2){
+				sources = $.parseJSON(localStorage.sources);
+			}
+			else if(!firstLoad){
 				sources = $.parseJSON(localStorage.sources);
 			}
 			$scope.dataSources = [];
 			$.each(sources, function(key, source){
-				var concept = sparql.ConceptUtils.createTypeConcept(source.type);
-				if(!defaultConcept) defaultConcept = concept;
-				var sparqlService = createSparqlService(source.endpoint, source.graph);
-				if(!defaultService) defaultService = sparqlService;
-				var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
-				$scope.dataSources.push(dataSource);
+				if(source.active){
+					var concept = sparql.ConceptUtils.createTypeConcept(source.type);
+					var sparqlService = createSparqlService(source.endpoint, source.graph);
+					if(source.facets){
+						defaultConcept = concept;
+						defaultService = sparqlService;
+					}
+					var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
+					$scope.dataSources.push(dataSource);
+				}
 			});
 			$scope.rawDataSources = $scope.dataSources;
 		}
 		
 		$scope.updateDataSources();
+		firstLoad = false;
 		
 		$(function() {
 			refresh();
@@ -247,38 +276,44 @@
 			}
 		};
 		
+
+		
 		// TODO: Select default data source for facet tree
-        $scope.sparqlService = defaultService;
-        $scope.facetTreeConfig = new facete.FacetTreeConfig();
+		$scope.updateFacetTree = function(defaultService, defaultConcept){
+			$scope.sparqlService = defaultService;
+			$scope.facetTreeConfig = new facete.FacetTreeConfig();
 
-        $scope.facetTreeConfig.getFacetConfig().setBaseConcept(defaultConcept);
-        $scope.selectedPath = new facete.Path();
-        $scope.selectPath = function(path) {
-            $scope.selectedPath = path;
-        };
+			$scope.facetTreeConfig.getFacetConfig().setBaseConcept(defaultConcept);
+			$scope.selectedPath = new facete.Path();
+			$scope.selectPath = function(path) {
+				$scope.selectedPath = path;
+			};
 
-        $scope.facetTreeConfig.getFacetTreeState().getPathExpansions().add(new facete.Path());
+			$scope.facetTreeConfig.getFacetTreeState().getPathExpansions().add(new facete.Path());
 
-        $scope.$watch('facetTreeConfig.getFacetConfig().getConstraintManager();', function() {
-            $scope.facetValueConceptService = new facete.FacetValueConceptServiceExact($scope.facetTreeConfig.getFacetConfig());
+			$scope.$watch('facetTreeConfig.getFacetConfig().getConstraintManager();', function() {
+				$scope.facetValueConceptService = new facete.FacetValueConceptServiceExact($scope.facetTreeConfig.getFacetConfig());
 
-            $scope.facetValueConceptService.prepareConcept(new facete.Path()).then(function(concept) {
-                $scope.dataSources = [ createMapDataSource($scope.sparqlService, geoMapFactoryWgs, concept, '#CC0020') ];
-            });
-        }, true);
+				$scope.facetValueConceptService.prepareConcept(new facete.Path());//.then(function(concept) {
+					//$scope.dataSources = [ createMapDataSource($scope.sparqlService, geoMapFactoryWgs, concept, '#CC0020') ];
+				//});
+			}, true);
 
-        $scope.path = null;
+			$scope.path = null;
 
 
-        var concept = sparql.ConceptUtils.createTypeConcept(defaultConcept);
-        var query = new sparql.Query();
-        query.setQueryPattern(concept.getElement());
-        query.getProject().add(concept.getVar());
+			var concept = sparql.ConceptUtils.createTypeConcept(defaultConcept);
+			var query = new sparql.Query();
+			query.setQueryPattern(concept.getElement());
+			query.getProject().add(concept.getVar());
 
-        //alert(query);
-        $scope.listService = new service.ListServiceSparqlQuery($scope.sparqlService, query, concept.getVar());
+			//alert(query);
+			$scope.listService = new service.ListServiceSparqlQuery($scope.sparqlService, query, concept.getVar());
 
-        $scope.paginationOptions = {cssClass: 'pagination-sm', maxSize: 3 };
+			$scope.paginationOptions = {cssClass: 'pagination-sm', maxSize: 3 };
+		}
+		
+		$scope.updateFacetTree(defaultService, defaultConcept);
     }]);
     </script>
 
