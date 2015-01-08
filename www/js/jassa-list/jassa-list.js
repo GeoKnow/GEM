@@ -47,8 +47,8 @@ angular.module('ui.jassa.jassa-list', [])
     $scope.doRefresh = function() {
         var listFilter = $scope.listFilter;
 
-        listService = $scope.listService;
-        if(_.isFunction(listService)) {
+        var listService = $scope.listService;
+        if(angular.isFunction(listService)) {
             listService = listService();
         }
 
@@ -90,7 +90,7 @@ angular.module('ui.jassa.jassa-list', [])
             : Math.ceil($scope.totalItems / limit);
 
         result = Math.max(result, 1);
-        console.log('Num pages: ' + result);
+        //console.log('Num pages: ' + result);
         return result;
     };
 
@@ -113,6 +113,7 @@ angular.module('ui.jassa.jassa-list', [])
         templateUrl: 'js/jassa-list/jassa-list.html',
         transclude: true,
         //replace: true,
+        //scope: true,
         scope: {
             listService: '=',
             listFilter: '=?', // Any object with the fields {concept, offset, limit}. No need for jassa.service.ListFilter.
@@ -130,6 +131,21 @@ angular.module('ui.jassa.jassa-list', [])
         },
         controller: 'JassaListCtrl',
         link: function(scope, element, attrs, ctrl, transcludeFn) {
+            //console.log('My scope: ', scope);
+            //var childScope = scope.$new();
+//            transcludeFn(childScope, function(clone, scope) {
+//                var e = element.find('ng-transclude');
+//                var p = e.parent();
+//                e.remove();
+//                p.append(clone);
+//            });
+
+
+            //transcludeFn(scope, function(clone, scope) {
+//                element.append(clone);
+//            });
+
+
             transcludeFn(scope, function(clone, scope) {
                 var e = element.find('ng-transclude');
                 var p = e.parent();

@@ -1,5 +1,5 @@
 <div>
-	<H2>Facets</H2>
+    <H2>Facets</H2>
     <breadcrumb></breadcrumb>
 
     <!-- <div class="input-group">
@@ -19,14 +19,17 @@
         <i ng-show="filterString.length > 0"><span ng-show="loading.data || loading.pageCount">Filtering by</span><span ng-hide="loading.data || loading.pageCount">Filtered by </span> '{{filterString}}'</i>
     </div>
 
+    <button ng-show="facetValuePath" class="btn btn-primary" role="button" ng-click="facetValuePath = null">Back</button>
+
     <div class="alert alert-info" role="alert" style="margin: 0px; padding: 0px">
         <jassa-list list-service="listService" list-filter="listFilter" list-class="'list-group'" loading="loading" pagination-options="paginationOptions">
             <li ng-show="!items.length" class="list-group-item" style="text-align: center">No results</li>
-            <li ng-repeat="item in items" class="input-group">
-                <button style="margin-bottom: -1px; text-align: left"class="btn btn-default form-control" type="button">{{item.labelInfo.displayLabel || $parent.$parent.NodeUtils.toPrettyString(item.property)}} <i style="font-size: smaller;">{{item.valueCountInfo.hasMoreItems ? '...' : '' + item.valueCountInfo.count}}</i></button>
-                <span class="input-group-btn">
-                    <button style="" class="btn btn-default" type="button"><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
-                </span>
+            <li ng-repeat="item in items" class="btn-group" role="group">
+                <button ng-show="$parent.$parent.facetValuePath==null" style="margin-bottom: -1px; text-align: left;" class="btn btn-default" type="button" ng-click="$parent.$parent.showFacetValues(item.property)">{{item.labelInfo.displayLabel || $parent.$parent.NodeUtils.toPrettyString(item.property)}} <i style="font-size: smaller;">{{item.valueCountInfo.hasMoreItems ? '...' : '' + item.valueCountInfo.count}}</i></button>
+                <button ng-show="$parent.$parent.facetValuePath!=null" ng-class="item.isConstrained ? 'btn-primary' : 'btn-default'" style="margin-bottom: -1px; text-align: left;" class="btn" type="button" ng-click="$parent.$parent.toggleConstraint(item.node)">{{$parent.$parent.NodeUtils.toPrettyString(item.node)}} <i style="font-size: smaller;">{{item.countInfo.hasMoreItems ? '...' : '' + item.countInfo.count}}</i></button>
+<!--                 <span class="input-group-btn"> -->
+                <button style="width: 25px; text-align: right;" class="btn btn-default" type="button"><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
+<!--                 </span> -->
             </li>
         </jassa-list>
     </div>
