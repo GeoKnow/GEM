@@ -58,8 +58,18 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         var p = dataSource.fetchData(bounds);
 		
 		// ugly, but working :)
-		var endpoint = dataSource.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
-		var graph = dataSource.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
+		if(dataSource.listServiceBbox){
+			var endpoint = dataSource.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
+			var graph = dataSource.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
+			var concept = dataSource.listServiceBbox.listService.listService.concept.element.triples[0].object.uri;
+			var id = 0;
+		}
+		
+		sources = $.parseJSON(localStorage.sources);
+		
+		for(i = 0; i < sources.length; i++){
+			if(sources[i].type == concept) id = i;
+		}
         
         var result = $q.when(p).then(function(items) {
 
@@ -70,11 +80,13 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 //            _(items).each(function(item) {
 //                item.config = dataSource;
 //            });
-
-			_(items).each(function(item) {
-				item.graph = graph;
-				item.endpoint = endpoint;
-			});
+			if(dataSource.listServiceBbox){
+				_(items).each(function(item) {
+					item.graph = graph;
+					item.endpoint = endpoint;
+					item.dataSourceId = id;
+				});
+			}
 
             return items;
         });
@@ -403,9 +415,9 @@ $.widget('custom.ssbLeafletMap', {
         }; */
 
 		//var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawn.i66cpk3g/{z}/{x}/{y}.png', {
-		var maplayer = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
+		// var maplayer = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
 		// var maplayer = L.tileLayer('http://tiles.lyrk.org/ls/{z}/{x}/{y}?apikey=87be57815cf747a58ec5d84d8e64ccfa', {
-		//var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawnum.kab31la4/{z}/{x}/{y}@2x.png', {
+		var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawnum.kab31la4/{z}/{x}/{y}@2x.png', {
 			detectRetina: true,	
 		});
 
@@ -418,12 +430,14 @@ $.widget('custom.ssbLeafletMap', {
 			layers: [maplayer], // add multiple layers here [layer1,layer2...]
 		});
 		
-		this.map.locate({setView: true, maxZoom: 16});
+		//this.map.locate({setView: true, maxZoom: 16});
 		
 		map = this.map;		
 		
 		$('#compass').on('click', function(){
-			map.locate({setView: true, maxZoom: 16})
+			$(this).effect( "pulsate", {times:15}, 10000);
+			map.locate({setView: true, maxZoom: 16});
+			
 			var scope = angular.element($('html')).scope();
 			if(!scope.$root.$$phase) {
 				scope.$apply();
@@ -431,8 +445,8 @@ $.widget('custom.ssbLeafletMap', {
 		});
 		
 		function onLocationFound(e) {
+			$('#compass').stop(true).css('opacity',1);
 			var radius = e.accuracy / 2;
-
 			var userIcon = L.icon({
 				iconUrl: 'img/user-icon.png',
 				shadowUrl: 'img/marker-shadow.png',
@@ -566,7 +580,7 @@ $.widget('custom.ssbLeafletMap', {
 							// WARNING: will work for up to 10 properties
 							var j = key[key.length-1];
 							if(properties[j].type == 'image')
-								$('#details').append('<div class="property"><div class="content"><img src="' + val.value + '" /></div></div>');
+								$('#details').append('<div class="property img"><div class="content"><img src="' + val.value + '" /></div></div>');
 							else {
 								if(!printedLabel){
 									// Get only property label
@@ -581,9 +595,9 @@ $.widget('custom.ssbLeafletMap', {
 									printedLabel = true;
 								}
 								if(properties[j].type == 'text')
-									$('#details').append('<div class="property"><div class="content">' + property + '<div class="textual">' + val.value + '</div></div></div>');
+									$('#details').append('<div class="property textual"><div class="content">' + property + '' + val.value + '</div></div>');
 								if(properties[j].type == 'url')
-									$('#details').append('<div class="property"><div class="content">' + property + '<div class="url">' + val.value + '</div></div></div>');
+									$('#details').append('<div class="property url"><div class="content">' + property + '' + val.value + '</div></div>');
 								if(properties[j].type == 'numeric')
 									// do something for numbers
 									console.log("Numbers!");
@@ -719,7 +733,17 @@ $.widget('custom.ssbLeafletMap', {
         
 
         // // The layer for the actual features        
-        featureLayer = new L.MarkerClusterGroup();
+        featureLayer = new L.MarkerClusterGroup({
+			iconCreateFunction: function(cluster) {
+				if(cluster.getChildCount() < 10)
+					return new L.DivIcon({ html: '<div class="cluster small"><p>' + cluster.getChildCount() + '</p></div>' });
+				if(cluster.getChildCount() >= 10 && cluster.getChildCount() < 40)
+					return new L.DivIcon({ html: '<div class="cluster medium"><p>' + cluster.getChildCount() + '</p></div>' });
+				if(cluster.getChildCount() >= 40)
+					return new L.DivIcon({ html: '<div class="cluster large"><p>' + cluster.getChildCount() + '</p></div>' });
+
+			}
+		});
 		featureLayer.addTo(this.map);
 		
             // projection: new leaflet.Projection('EPSG:4326'),
@@ -937,10 +961,12 @@ $.widget('custom.ssbLeafletMap', {
 			feature.label = "Unknown";
 		//feature.bindPopup(feature.properties.shortLabel.displayLabel).openPopup();
 		
+		var id = feature.properties.dataSourceId;
 		
 		var defaultIcon = L.icon({
 				iconUrl: 'img/marker-icon.png',
 				shadowUrl: 'img/marker-shadow.png',
+				className: 'icon-' + id,
 			});
 		var selectedIcon = L.icon({
 				iconUrl: 'img/marker-icon-selected.png',

@@ -1373,12 +1373,16 @@ D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\andro
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\css\gem.css \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\css\index.css \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\css\snap.css \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\cluster-large.png \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\cluster-medium.png \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\cluster-small.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\compass.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\delete-icon.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\edit-icon.png \
-D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\img-bckgrnd.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\loader.gif \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\logo.png \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-icon-0.png \
+D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-icon-1.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-icon-selected.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-icon.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\marker-shadow.png \
@@ -1388,8 +1392,6 @@ D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\andro
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\slider_right.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\slider_right_icon.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\user-icon.png \
-D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\user-icon1.png \
-D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\img\user-icon2.png \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\breadcrumb \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\controllers.js \
 D:\Seafile\Workspace\IMP\Projects\Active\GeoKnow\Development\GEM\platforms\android\assets\www\js\controllers_jassa.js \
