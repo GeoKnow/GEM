@@ -64,8 +64,9 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 			var concept = dataSource.delegate.listServiceBbox.listService.listService.concept.element.triples[0].object.uri;
 			var id = 0;
 		}
-		
-		sources = $.parseJSON(localStorage.sources);
+		if(localStorage.sources && localStorage.sources.length > 2){
+			sources = $.parseJSON(localStorage.sources);
+		}
 		
 		for(i = 0; i < sources.length; i++){
 			if(sources[i].type == concept) id = i;

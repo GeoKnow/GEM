@@ -277,7 +277,7 @@
         };
 
 
-        updateRawDataSources();
+        //updateRawDataSources();
 
         $scope.$watch(function() {
             return util.ObjectUtils.hashCode($scope.facetTreeConfig);
@@ -296,8 +296,11 @@
         }, function() {
             updateDataSources();
         });
-
-        firstLoad = false;
+		
+		$scope.$watch(function () { return localStorage.sources; }, function(){
+			updateRawDataSources();
+			console.log("UPDATED LOCAL STORAGE!");
+		},true);
 
         $(function() {
             refresh();
