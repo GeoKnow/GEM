@@ -65,7 +65,7 @@ angular.module('ui.jassa.breadcrumb', [])
  * - facetTreeConfig
  * - labelMap (maybe this should be part of the facetTreeConfig)
  */
-.directive('facetList', function() {
+.directive('breadcrumb', function() {
     return {
         restrict: 'EA',
         replace: true,
@@ -78,7 +78,7 @@ angular.module('ui.jassa.breadcrumb', [])
             //pluginContext: '=', //plugin context
             onSelect: '&select'
         },
-        controller: 'FacetListCtrl',
+        controller: 'BreadcrumbCtrl',
         compile: function(elm, attrs) {
             return function link(scope, elm, attrs, controller) {
             };

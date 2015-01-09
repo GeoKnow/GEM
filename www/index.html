@@ -63,10 +63,11 @@
     <script src="js/sourcemanager/sourcemanager.js"></script>
     <script src="js/search.js"></script>
 
+    <script src="js/breadcrumb/breadcrumb.js"></script>
     <script src="js/jassa-list/jassa-list.js"></script>
     <script src="js/facet-list/facet-list.js"></script>
 
-	<script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+    <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
 
     <title>GEM - {{bar.value}}</title>
     <script type="text/javascript">
@@ -91,6 +92,7 @@
     var service = jassa.service;
     var sponate = jassa.sponate;
     var facete = jassa.facete;
+    var util = jassa.util;
 
     var geo = jassa.geo;
 
@@ -150,14 +152,19 @@
         createFilteredDataSource: function(ds, text) {
             return new DataSourceFilter(ds, function(item) {
                 // case insensitive filtering
-                return item.shortLabel.displayLabel.toLowerCase().indexOf(text.toLowerCase()) >= 0;
+                return !text ? item : item.shortLabel.displayLabel.toLowerCase().indexOf(text.toLowerCase()) >= 0;
             });
         }
     };
 
-    angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list'])
+    angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list', 'ui.jassa.breadcrumb'])
 
     .controller('gemCtrl', ['$scope', function($scope) {
+
+        //$scope.ObjectUtils = util.ObjectUtils;
+
+        $scope.facetTreeConfig = new facete.FacetTreeConfig();
+
 
         // Different factories
         var geoMapFactoryVirt = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.w3.org/2003/01/geo/wgs84_pos#geometry', 'bif:st_intersects', 'bif:st_geomFromText');
@@ -225,14 +232,17 @@
 
         var defaultConcept = sparql.ConceptUtils.createSubjectConcept(), defaultService;
         firstLoad = true;
-        $scope.updateDataSources = function(){
+
+
+        var updateRawDataSources = function(){
             if(localStorage.sources && localStorage.sources.length > 2){
                 sources = $.parseJSON(localStorage.sources);
             }
             else if(!firstLoad){
                 sources = $.parseJSON(localStorage.sources);
             }
-            $scope.dataSources = [];
+
+            var dataSources = [];
             $.each(sources, function(key, source){
                 if(source.active){
                     var baseConcept = sparql.ConceptUtils.createTypeConcept(source.type);
@@ -240,7 +250,7 @@
                     var facetConfig = $scope.facetTreeConfig.getFacetConfig();
                     facetConfig.setBaseConcept(baseConcept);
 
-                    var concept = facete.FacetUtils.createConceptResources(facetConfig); //, null, false);
+                    var concept = facete.FacetUtils.createConceptResources(facetConfig, new facete.Path()); //, null, false);
 
 
                     var sparqlService = createSparqlService(source.endpoint, source.graph);
@@ -249,35 +259,65 @@
                         defaultService = sparqlService;
                     }
                     var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
-                    $scope.dataSources.push(dataSource);
+                    dataSources.push(dataSource);
                 }
             });
-            $scope.rawDataSources = $scope.dataSources;
+            $scope.rawDataSources = dataSources;
         }
 
-        $scope.updateDataSources();
+        $scope.filterText = null;
+
+        var updateDataSources = function() {
+            $scope.dataSources = $scope.rawDataSources.map(function(rawDataSource) {
+                var r = DataSourceFilterUtils.createFilteredDataSource(rawDataSource, $scope.filterText);
+                return r;
+            });
+        };
+
+
+        updateRawDataSources();
+
+        $scope.$watch(function() {
+            return util.ObjectUtils.hashCode($scope.facetTreeConfig);
+        }, function() {
+            updateRawDataSources();
+        });
+
+        $scope.$watchCollection(function() {
+            return $scope.rawDataSources;
+        }, function() {
+            updateDataSources();
+        });
+
+        $scope.$watch(function() {
+            return $scope.filterText;
+        }, function() {
+            updateDataSources();
+        });
+
         firstLoad = false;
 
         $(function() {
             refresh();
         });
 
-        $scope.rawDataSources = $scope.dataSources; // keep track of non-filtered data sources
+        //$scope.rawDataSources = $scope.dataSources; // keep track of non-filtered data sources
 
         $scope.filterClicked = function(text) {
+            $scope.filterText = text ? text : null;
+
             if(text){ // Show filtered
-                var tempDataSources = $scope.rawDataSources; // always apply filter to all of the resources within current bounds
-                $scope.dataSources = []; // clear datasources
-                for(i in tempDataSources) {
-                    $scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(tempDataSources[i], text));
-                }
+//                 var rawDataSources = $scope.rawDataSources; // always apply filter to all of the resources within current bounds
+//                 $scope.dataSources = []; // clear datasources
+//                 for(i in tempDataSources) {
+//                     $scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(rawDataSources[i], text));
+//                 }
                 //$('#search').attr("placeholder", 'Leave empty and press Enter to clear filter');
                 $('#search').css("display", 'none');
                 $('#clear').css("display", 'block');
             }
             else { // Show raw
-                $scope.dataSources = [];
-                $scope.dataSources = $scope.rawDataSources;
+//                 $scope.dataSources = $scope.rawDataSources;
                 $('#search').attr("placeholder", 'Type, then press Enter to apply filter');
             }
         };
@@ -287,7 +327,6 @@
         // TODO: Select default data source for facet tree
         $scope.updateFacetTree = function(defaultService, defaultConcept){
             $scope.sparqlService = defaultService;
-            $scope.facetTreeConfig = new facete.FacetTreeConfig();
 
             $scope.facetTreeConfig.getFacetConfig().setBaseConcept(defaultConcept);
             $scope.selectedPath = new facete.Path();

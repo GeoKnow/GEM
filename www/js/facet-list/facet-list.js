@@ -28,6 +28,13 @@ angular.module('ui.jassa.facet-list', [])
         //alert(newValue);
     });
 
+    $scope.descendFacet = function(property) {
+        var pathHead = $scope.pathHead;
+
+        var newStep = new jassa.facete.Step(property.getUri(), pathHead.isInverse());
+        var newPath = pathHead.getPath().copyAppendStep(newStep);
+        $scope.pathHead = new jassa.facete.PathHead(newPath, pathHead.isInverse());
+    };
 
     $scope.showFacetValues = function(property) {
         //alert(JSON.stringify(property));
@@ -144,7 +151,7 @@ angular.module('ui.jassa.facet-list', [])
 //        }
 //    }, true);
 
-    $scope.$watch('[ObjectUtils.hashCode(facetTreeConfig), path, facetValuePath]', function() {
+    $scope.$watch('[ObjectUtils.hashCode(facetTreeConfig), pathHead, facetValuePath]', function() {
         update();
     }, true);
 

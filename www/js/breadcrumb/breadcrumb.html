@@ -5,6 +5,7 @@
         </button>
     </li>
 
+<!-- .slice(-offset) -->
     <li ng-repeat="step in path.getSteps()">
         <button class="btn btn-primary" ng-disabled="$last" ng-click="setPath($index + 1)">
             {{step.getPropertyName()}}
