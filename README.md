@@ -1,6 +1,6 @@
 GEM
 ===
-GEM (Geospatial-semantic Exploration on the Move) is a mobile spatial-semantic visualization and exploration tool that relies on [Mappify](https://github.com/GeoKnow/Mappify) and its components ([Jassa](https://github.com/GeoKnow/Jassa), [Facete](https://github.com/GeoKnow/Facete)) to offer a rich mobile experience while exploiting all strengths of Linked Data and further rise above the common mobile geospatial visualization limitations by relying on open, crowd-sourced and semantically linked information found in publicly available sources, such as the LOD Cloud. This information is loaded and filtered according to user’s needs, on demand, in order to prevent maps from overpopulating. 
+**GEM (Geospatial-semantic Exploration on the Move)** is a mobile spatial-semantic visualization and exploration tool that relies on [Mappify](https://github.com/GeoKnow/Mappify) and its components ([Jassa](https://github.com/GeoKnow/Jassa), [Facete](https://github.com/GeoKnow/Facete)) to offer a rich mobile experience while exploiting all strengths of Linked Data and further rise above the common mobile geospatial visualization limitations by relying on open, crowd-sourced and semantically linked information found in publicly available sources, such as the LOD Cloud. This information is loaded and filtered according to user’s needs, on demand, in order to prevent maps from overpopulating. 
 
 How to deploy
 ---
