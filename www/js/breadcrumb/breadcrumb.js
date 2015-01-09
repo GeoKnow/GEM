@@ -9,7 +9,7 @@ angular.module('ui.jassa.breadcrumb', [])
 .controller('BreadcrumbCtrl', ['$rootScope', '$scope', '$q', '$timeout', function($rootScope, $scope, $q, $timeout) {
 
     var update = function() {
-        updateFacetTreeService();
+        //updateFacetTreeService();
         self.refresh();
     };
 
