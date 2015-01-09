@@ -58,10 +58,10 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         var p = dataSource.fetchData(bounds);
 		
 		// ugly, but working :)
-		if(dataSource.listServiceBbox){
-			var endpoint = dataSource.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
-			var graph = dataSource.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
-			var concept = dataSource.listServiceBbox.listService.listService.concept.element.triples[0].object.uri;
+		if(dataSource.delegate.listServiceBbox){
+			var endpoint = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
+			var graph = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
+			var concept = dataSource.delegate.listServiceBbox.listService.listService.concept.element.triples[0].object.uri;
 			var id = 0;
 		}
 		
@@ -80,7 +80,7 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 //            _(items).each(function(item) {
 //                item.config = dataSource;
 //            });
-			if(dataSource.listServiceBbox){
+			if(dataSource.delegate.listServiceBbox){
 				_(items).each(function(item) {
 					item.graph = graph;
 					item.endpoint = endpoint;

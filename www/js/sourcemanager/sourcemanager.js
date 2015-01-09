@@ -83,7 +83,7 @@ $(function() {
 		localStorage.setItem("sources", JSON.stringify(sources));	
 		loadSources(sources);
 		var scope = angular.element($('html')).scope();
-		scope.updateDataSources();
+		updateRawDataSources();
 		refresh();
     });
 	
@@ -111,7 +111,7 @@ $(function() {
 		localStorage.setItem("sources", JSON.stringify(sources));	
 		loadSources(sources);
 		var scope = angular.element($('html')).scope();
-		scope.updateDataSources();
+		updateRawDataSources();
 		refresh();
     });
 	
@@ -138,7 +138,7 @@ $(function() {
 		localStorage.setItem("sources", JSON.stringify(sources));	
 
 		var scope = angular.element($('html')).scope();
-		scope.updateDataSources();
+		updateRawDataSources();
 		console.log(scope.dataSources);
 		refresh();
 		

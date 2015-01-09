@@ -156,6 +156,8 @@
             });
         }
     };
+	
+	var updateRawDataSources;
 
     angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list', 'ui.jassa.breadcrumb'])
 
@@ -234,7 +236,7 @@
         firstLoad = true;
 
 
-        var updateRawDataSources = function(){
+        updateRawDataSources = function(){
             if(localStorage.sources && localStorage.sources.length > 2){
                 sources = $.parseJSON(localStorage.sources);
             }
