@@ -322,11 +322,10 @@
         }, function() {
             updateDataSources();
         });
-
-        $scope.$watch(function () { return localStorage.sources; }, function(){
-            updateRawDataSources();
-            console.log("UPDATED LOCAL STORAGE!");
-        },true);
+		
+		$scope.$watch(function () { return localStorage.sources; }, function(){
+			updateRawDataSources();
+		},true);
 
         $(function() {
             refresh();
