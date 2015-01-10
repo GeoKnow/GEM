@@ -319,12 +319,31 @@ a.feature-label:visited {
     border: none;
     background: none;
 }
-.snap-drawer-left .alert-info .input-group-btn {
-    float: left;
+.snap-drawer-left .btn-group > .btn {
+	float: left;
 }
-.snap-drawer-left .alert-info .input-group-btn .glyphicon-circle-arrow-right:before {
+.snap-drawer-left .btn-group .counter {
+	font-size: smaller;
+	float:right;
+	margin: 7px 5px 0 0;
+	color: #aaa;
+}
+.snap-drawer-left .alert-info .btn .glyphicon-circle-arrow-right:before {
     content: "\25CF";
     color: #ff589e;
+}
+.snap-drawer-left .btn-warning,
+.snap-drawer-left .btn-warning:hover,
+.snap-drawer-left .ng-isolate-scope .btn-primary,
+.snap-drawer-left .ng-isolate-scope .btn-primary:hover  {
+	background: none;
+	color: #6c6c6c;
+}
+.snap-drawer .btn-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 194px;
+	padding-right: 0;
 }
 .snap-drawer-left .alert-info {
     width: 100%;
