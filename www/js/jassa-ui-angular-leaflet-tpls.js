@@ -56,7 +56,7 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
     var fetchDataFromSourceCore = function(dataSource, bounds) {
 
         var p = dataSource.fetchData(bounds);
-        var result = $q.when(p).then(function(items) {
+        var result = p.then(function(items) {
             items = _(items).compact();
             return items;
         });
@@ -64,48 +64,48 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         return result;
     };
 
-    var fetchDataFromSourceCoreUgly = function(dataSource, bounds) {
-
-        var p = dataSource.fetchData(bounds);
-
-        // ugly, but working :)
-        if(dataSource.delegate.listServiceBbox){
-            var endpoint = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
-            var graph = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
-            var concept = dataSource.delegate.listServiceBbox.listService.listService.concept.element.triples[0].object.uri;
-            var id = 0;
-        }
-        if(localStorage.sources && localStorage.sources.length > 2){
-            sources = $.parseJSON(localStorage.sources);
-        }
-
-        for(i = 0; i < sources.length; i++){
-            if(sources[i].type == concept) id = i;
-        }
-
-
-        var result = $q.when(p).then(function(items) {
-
-            items = _(items).compact();
-
-            // Commented out because this is the application's decision
-            // Add the dataSource as the config
-//            _(items).each(function(item) {
-//                item.config = dataSource;
-//            });
-            if(dataSource.delegate.listServiceBbox){
-                _(items).each(function(item) {
-                    item.graph = graph;
-                    item.endpoint = endpoint;
-                    item.dataSourceId = id;
-                });
-            }
-
-            return items;
-        });
-
-        return result;
-    };
+//    var fetchDataFromSourceCoreUgly = function(dataSource, bounds) {
+//
+//        var p = dataSource.fetchData(bounds);
+//
+//        // ugly, but working :)
+//        if(dataSource.delegate.listServiceBbox){
+//            var endpoint = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
+//            var graph = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
+//            var concept = dataSource.delegate.listServiceBbox.listService.listService.concept.element.triples[0].object.uri;
+//            var id = 0;
+//        }
+//        if(localStorage.sources && localStorage.sources.length > 2){
+//            sources = $.parseJSON(localStorage.sources);
+//        }
+//
+//        for(i = 0; i < sources.length; i++){
+//            if(sources[i].type == concept) id = i;
+//        }
+//
+//
+//        var result = $q.when(p).then(function(items) {
+//
+//            items = _(items).compact();
+//
+//            // Commented out because this is the application's decision
+//            // Add the dataSource as the config
+////            _(items).each(function(item) {
+////                item.config = dataSource;
+////            });
+//            if(dataSource.delegate.listServiceBbox){
+//                _(items).each(function(item) {
+//                    item.graph = graph;
+//                    item.endpoint = endpoint;
+//                    item.dataSourceId = id;
+//                });
+//            }
+//
+//            return items;
+//        });
+//
+//        return result;
+//    };
 
     var fetchDataFromSource = function(dataSourceId, dataSource, bounds) {
         // Check if we are already loading from this data source
@@ -115,9 +115,9 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
         // If there is a prior state, cancel it
         if(state) {
-            if(state.promise && state.promise.abort) {
-                state.promise.abort();
-            }
+//            if(state.promise && state.promise.abort) {
+//                state.promise.abort();
+//            }
         } else {
             state = {
                 id: dataSourceId,
@@ -145,9 +145,9 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
             jassa.util.ArrayUtils.addAll($scope.items, items);
 
-            if(!$scope.$$phase && !$scope.$root.$$phase) {
-                $scope.$apply();
-            }
+//            if(!$scope.$$phase && !$scope.$root.$$phase) {
+//                $scope.$apply();
+//            }
 
             return items;
         });
@@ -161,21 +161,16 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
     var fetchData = function(dataSources, bounds, progressionCallback) {
 
-        var promises = [];
-        //for(var i = 0; i < dataSources.length; ++i) {
-        _(dataSources).each(function(dataSource, i) {
-            var promise = fetchDataFromSource('' + i, dataSource, bounds);
-            promises.push(promise);
-        });
-
-        //var promises = _(dataSources).map(function(dataSource) {
-        //    fetchDataFromSource
-        //});
-
-        var result = jQuery.when.apply(window, promises).pipe(function() {
-            var r = _(arguments).flatten(true);
+        var promises = dataSources.map(function(dataSource, i) {
+            var r = fetchDataFromSource('' + i, dataSource, bounds);
             return r;
         });
+
+        var result = jassa.util.PromiseUtils.all(promises);
+//        , function() {
+//            var r = _(arguments).flatten(true);
+//            return r;
+//        });
 
         return result;
     };
@@ -199,22 +194,33 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         return $scope.sources;
     }, function() {
         $scope.dataSources = $scope.sources.map(function(source) {
-            var fetchDataFn = jassa.util.PromiseUtils.lastRequest(function(bounds) {
-                var r = source.fetchData(bounds);
-                //r.cancellable();
-                console.log('isCancellable? ' + r.isCancellable());
-                return r;
-            });
-
             return {
-                fetchData: fetchDataFn,
-                destroy: function() {
-                    if(fetchDataFn.deferred) {
-                        fetchDataFn.deferred.cancel();
-                    }
-                }
-            };
+                fetchData: function(bounds) {
+                    return source.fetchData(bounds);
+                },
+                destroy: function() {}
+            }
         });
+
+        if(false) {
+            $scope.dataSources = $scope.sources.map(function(source) {
+                var fetchDataFn = jassa.util.PromiseUtils.lastRequest(function(bounds) {
+                    var r = source.fetchData(bounds);
+                    //r.cancellable();
+                    console.log('isCancellable? ' + r.isCancellable());
+                    return r;
+                });
+
+                return {
+                    fetchData: fetchDataFn,
+                    destroy: function() {
+                        if(fetchDataFn.deferred) {
+                            fetchDataFn.deferred.cancel();
+                        }
+                    }
+                };
+            });
+        }
     });
 
 
@@ -239,11 +245,15 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         bounds = new geo.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);
 
         //
-        if(dataSources)//.length)
-            var promise = fetchData(dataSources, bounds);
-        else
+        //if(dataSources)//.length)
+
+        if(dataSources != null) {
+            fetchData(dataSources, bounds);
+        }
+
+        //else
             // need to force map to clear when there are no data sources active
-            map.fireEvent('moveend');
+            //map.fireEvent('moveend');
 
 
         // Nothing to to with the promise as the scope has already been updated
@@ -1204,7 +1214,7 @@ $.widget('custom.ssbLeafletMap', {
     },
 
     addBox : function(id, bounds) {
-
+return;
         var self = this;
 
         var existingBox = this.idToBox[id];
