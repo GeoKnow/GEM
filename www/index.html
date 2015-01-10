@@ -291,6 +291,7 @@
             $scope.rawDataSources = dataSources;
         }
 
+
         $scope.filterText = null;
 
         var updateDataSources = function() {
@@ -300,8 +301,6 @@
             });
         };
 
-
-        //updateRawDataSources();
 
         $scope.$watch(function() {
             return util.ObjectUtils.hashCode($scope.facetTreeConfig);
@@ -390,7 +389,12 @@
             $scope.paginationOptions = {cssClass: 'pagination-sm', maxSize: 3 };
         }
 
-        $scope.updateFacetTree(defaultService, defaultConcept);
+        $scope.$watch(function() {
+            return defaultService;
+        }, function() {
+            $scope.updateFacetTree(defaultService, defaultConcept);
+        });
+
     }]);
     </script>
 
