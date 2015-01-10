@@ -25,7 +25,7 @@
     <a class="toggle-constraints" ng-show="showConstraints" href="#" ng-click="showConstraints=!showConstraints">Constraints <span class="glyphicon glyphicon-align-justify"></span></a>
     <a class="toggle-constraints" ng-show="!showConstraints" href="#" ng-click="showConstraints=!showConstraints">Facets <span class="glyphicon glyphicon-th-large"></span></a>
 
-    <div class="facets" ng-show="!showConstraints" class="alert alert-info" role="alert" style="margin: 0px; padding: 0px">
+    <div ng-show="!showConstraints" class="facets alert alert-info" role="alert" style="margin: 0px; padding: 0px">
 
         <jassa-list list-service="listService" list-filter="listFilter" list-class="'list-group'" loading="loading" pagination-options="paginationOptions">
             <li ng-show="!items.length" class="list-group-item" style="text-align: center">No results</li>
