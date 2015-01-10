@@ -20,7 +20,7 @@
     </div>
 
 
-    <button ng-show="!showConstraints && facetValuePath" class="btn btn-primary" class="btn-back" role="button" ng-click="facetValuePath = null"><span class="glyphicon glyphicon-chevron-left"></span> Back</button>
+    <button ng-show="!showConstraints && facetValuePath" class="btn btn-primary btn-back" role="button" ng-click="facetValuePath = null"><span class="glyphicon glyphicon-chevron-left"></span> Back</button>
 
     <a class="toggle-constraints" ng-show="!showConstraints" href="#" ng-click="showConstraints=!showConstraints">Constraints <span class="glyphicon glyphicon-align-justify"></span></a>
     <a class="toggle-constraints" ng-show="showConstraints" href="#" ng-click="showConstraints=!showConstraints">Facets <span class="glyphicon glyphicon-th-large"></span></a>
@@ -30,13 +30,13 @@
         <jassa-list list-service="listService" list-filter="listFilter" list-class="'list-group'" loading="loading" pagination-options="paginationOptions">
             <li ng-show="!items.length" class="list-group-item" style="text-align: center">No results</li>
             <li ng-repeat="item in items" class="btn-group" role="group">
-                <!--                 <span class="input-group-btn"> -->
-                <button style="width: 25px; float:left;" class="btn btn-default" type="button" ng-click="$parent.$parent.descendFacet(item.property)"><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
-<!--                 </span> -->
-                <button ng-show="$parent.$parent.facetValuePath==null" style="margin-bottom: -1px; text-align: left;" class="btn btn-default btn-label" type="button" ng-click="$parent.$parent.showFacetValues(item.property)">{{item.labelInfo.displayLabel || $parent.$parent.NodeUtils.toPrettyString(item.property)}}</button>
-                 <div ng-show="$parent.$parent.facetValuePath==null" class="counter">{{item.countInfo.hasMoreItems ? '...' : '' + item.countInfo.count}}</div>
+                <button ng-show="$parent.$parent.facetValuePath==null" style="margin-bottom: -1px; text-align: left;" class="btn btn-default btn-label" type="button" ng-click="$parent.$parent.showFacetValues(item.property)"><span class="glyphicon glyphicon-circle-arrow-right"></span>{{item.labelInfo.displayLabel || $parent.$parent.NodeUtils.toPrettyString(item.property)}}</button>
+				<div ng-show="$parent.$parent.facetValuePath==null" class="counter">{{item.countInfo.hasMoreItems ? '...' : '' + item.countInfo.count}}</div>
                 <button ng-show="$parent.$parent.facetValuePath!=null" ng-class="item.isConstrainedEqual ? 'btn-primary' : 'btn-default'" style="margin-bottom: -1px; text-align: left;" class="btn btn-label" type="button" ng-click="$parent.$parent.toggleConstraint(item.node)">{{$parent.$parent.NodeUtils.toPrettyString(item.node)}}</button>
                 <div ng-show="$parent.$parent.facetValuePath!=null" class="counter">{{item.valueCountInfo.hasMoreItems ? '...' : '' + item.valueCountInfo.count}}</div>
+				<!--                 <span class="input-group-btn"> -->
+                <button style="width: 25px; float:right;" class="btn btn-default" type="button" ng-click="$parent.$parent.descendFacet(item.property)"><span class="glyphicon glyphicon-chevron-down"></span></button>
+<!--                 </span> -->
             </li>
         </jassa-list>
     </div>

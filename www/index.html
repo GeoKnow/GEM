@@ -69,6 +69,20 @@
     <script src="js/facet-list/facet-list.js"></script>
 
     <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+    
+	<script type="text/javascript">
+		angular.module("template/pagination/pagination.html", []).run(["$templateCache", function($templateCache) {
+		  $templateCache.put("template/pagination/pagination.html",
+			"<ul class=\"pagination\">\n" +
+			"  <li ng-if=\"boundaryLinks\" ng-class=\"{disabled: noPrevious()}\"><a href ng-click=\"selectPage(1)\">{{getText('first')}}sss</a></li>\n" +
+			"  <li ng-if=\"directionLinks\" ng-class=\"{disabled: noPrevious()}\"><a href ng-click=\"selectPage(page - 1)\">{{getText('previous')}}</a></li>\n" +
+			"  <li ng-repeat=\"page in pages track by $index\" ng-class=\"{active: page.active}\"><a href ng-click=\"selectPage(page.number)\">{{page.text}}</a></li>\n" +
+			"  <li ng-if=\"directionLinks\" ng-class=\"{disabled: noNext()}\"><a href ng-click=\"selectPage(page + 1)\">{{getText('next')}}</a></li>\n" +
+			"  <li ng-if=\"boundaryLinks\" ng-class=\"{disabled: noNext()}\"><a href ng-click=\"selectPage(totalPages)\">{{getText('last')}}</a></li>\n" +
+			"</ul>");
+		}]);
+	</script>
+	
 
     <title>GEM - {{bar.value}}</title>
     <script type="text/javascript">
