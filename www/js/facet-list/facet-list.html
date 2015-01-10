@@ -16,7 +16,7 @@
             </div>
         </form>
 
-        <span ng-show="filterString.length > 0" style="margin: 5px 0 0 10px;"><span ng-show="loading.data || loading.pageCount">Filtering by</span><span ng-hide="loading.data || loading.pageCount">Filtered by </span> '{{filterString}}'</span>
+        <div ng-show="filterString.length > 0" style="margin: 5px 0 0 10px; color: #aaa;"><span ng-show="loading.data || loading.pageCount">Filtering by</span><span ng-hide="loading.data || loading.pageCount">Filtered by </span> '{{filterString}}'</div>
     </div>
 
     <button ng-show="facetValuePath" class="btn btn-primary" id="btn-back" role="button" ng-click="facetValuePath = null"><span class="glyphicon glyphicon-chevron-left"></span> Back</button>
