@@ -62,7 +62,7 @@
     <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
     <script src="js/sourcemanager/sourcemanager.js"></script>
     <script src="js/search.js"></script>
-	<script src="js/toggle-constraints.js"></script>
+<!--     <script src="js/toggle-constraints.js"></script> -->
 
     <script src="js/breadcrumb/breadcrumb.js"></script>
     <script src="js/jassa-list/jassa-list.js"></script>
@@ -262,7 +262,7 @@
             }
 
             var dataSources = [];
-			var id = 0;
+            var id = 0;
             $.each(sources, function(key, source){
                 if(source.active){
                     var baseConcept = sparql.ConceptUtils.createTypeConcept(source.type);
@@ -289,7 +289,7 @@
                     var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020', moreAttrs);
                     dataSources.push(dataSource);
                 }
-				id++;
+                id++;
             });
             $scope.rawDataSources = dataSources;
         }
@@ -411,19 +411,13 @@
 <!--             </li> -->
 <!--         </jassa-list> -->
 
-		<facet-list
-			sparql-service="sparqlService"
-			facet-tree-config="facetTreeConfig"
-			path="path"
-			select="selectPath(path)"
-			pagination-options="paginationOptions"
-		></facet-list>
-		<div id="constraints">
-			<constraint-list
-				sparql-service="sparqlService"
-				facet-tree-config="facetTreeConfig"
-			></constraint-list>
-		</div>
+        <facet-list
+            sparql-service="sparqlService"
+            facet-tree-config="facetTreeConfig"
+            path="path"
+            select="selectPath(path)"
+            pagination-options="paginationOptions"
+        ></facet-list>
     </div>
     <div snap-drawer="right">
       <div id="sources">

@@ -193,16 +193,17 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
     $scope.$watchCollection(function() {
         return $scope.sources;
     }, function() {
-        $scope.dataSources = $scope.sources.map(function(source) {
-            return {
-                fetchData: function(bounds) {
-                    return source.fetchData(bounds);
-                },
-                destroy: function() {}
-            }
-        });
-
         if(false) {
+            $scope.dataSources = $scope.sources.map(function(source) {
+                return {
+                    fetchData: function(bounds) {
+                        return source.fetchData(bounds);
+                    },
+                    destroy: function() {}
+                }
+            });
+        }
+        else {
             $scope.dataSources = $scope.sources.map(function(source) {
                 var fetchDataFn = jassa.util.PromiseUtils.lastRequest(function(bounds) {
                     var r = source.fetchData(bounds);

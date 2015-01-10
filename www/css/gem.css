@@ -288,31 +288,31 @@ a.feature-label:visited {
 }
 .snap-drawers .snap-drawer-left,
 .snap-drawers .snap-drawer-right {
-	width: 266px;
+    width: 266px;
 }
 .snap-drawer-left h2 {
-	background-color: #E91E63;
-	padding: 15px 20px 20px 20px;
-	margin: 0;
-	color: white;
-	border-top: 10px solid #C2185B;
+    background-color: #E91E63;
+    padding: 15px 20px 20px 20px;
+    margin: 0;
+    color: white;
+    border-top: 10px solid #C2185B;
 }
 .snap-drawer-right h2 {
-	background-color: #03A9F4;
-	padding: 15px 20px 20px 20px;
-	margin: 0;
-	color: white;
-	border-top: 10px solid #0287D0;
-	border-bottom: 5px solid rgb(234, 234, 234);
+    background-color: #03A9F4;
+    padding: 15px 20px 20px 20px;
+    margin: 0;
+    color: white;
+    border-top: 10px solid #0287D0;
+    border-bottom: 5px solid rgb(234, 234, 234);
 }
 .snap-drawer .list-inline {
-	/*border-bottom: 1px solid #FFCAE0;*/
-	border-bottom: 1px solid #DDDDDD;
-	padding: 9px 0;
-	background-color: rgb(234, 234, 234);
+    /*border-bottom: 1px solid #FFCAE0;*/
+    border-bottom: 1px solid #DDDDDD;
+    padding: 9px 0;
+    background-color: rgb(234, 234, 234);
 }
 .snap-drawer-left .input-group {
-	/*border-bottom: 1px solid #FFE38C;*/
+    /*border-bottom: 1px solid #FFE38C;*/
 }
 .snap-drawer-left a{
     font-size: 12px;
@@ -327,33 +327,33 @@ a.feature-label:visited {
     transition: none;
     color: #6c6c6c;
 }
-.snap-drawer-left #constraints {
-	display: none;
-	padding-left: 15px;
+.snap-drawer-left .constraints {
+    display: none;
+    padding-left: 15px;
 }
-.snap-drawer-left #constraints ul {
-	padding-left: 15px;
-	list-style-type: disc;
+.snap-drawer-left .constraints ul {
+    padding-left: 15px;
+    list-style-type: disc;
 }
-.snap-drawer-left #constraints ul a,
-.snap-drawer-left #constraints ul a:hover,
-.snap-drawer-left #constraints ul a:visited {
-	font-size: 14px;
-	text-decoration: none;
-	color: #ff589e;
+.snap-drawer-left .constraints ul a,
+.snap-drawer-left .constraints ul a:hover,
+.snap-drawer-left .constraints ul a:visited {
+    font-size: 14px;
+    text-decoration: none;
+    color: #ff589e;
 }
-.snap-drawer-left a#toggle-constraints,
-.snap-drawer-left a#toggle-constraints:hover,
-.snap-drawer-left a#toggle-constraints:visited {
-	font-size: 14px;
-	color: #6c6c6c;
-	float: right;
-	margin: 6px 5px;
-	text-decoration: none;
+.snap-drawer-left a.toggle-constraints,
+.snap-drawer-left a.toggle-constraints:hover,
+.snap-drawer-left a.toggle-constraints:visited {
+    font-size: 14px;
+    color: #6c6c6c;
+    float: right;
+    margin: 6px 5px;
+    text-decoration: none;
 }
 .snap-drawer-left .glyphicon-align-justify,
 .snap-drawer-left .glyphicon-th-large {
-	margin: 0 5px;
+    margin: 0 5px;
 }
 .snap-drawer-left .alert-info,
 .snap-drawer-left .alert-success,
@@ -375,21 +375,21 @@ a.feature-label:visited {
     background: none;
 }
 .snap-drawer-left .btn-group > .btn {
-	float: left;
+    float: left;
 }
 .snap-drawer-left .btn-group .counter {
-	font-size: smaller;
-	float:right;
-	margin: 7px 5px 0 0;
-	color: #aaa;
+    font-size: smaller;
+    float:right;
+    margin: 7px 5px 0 0;
+    color: #aaa;
 }
-.snap-drawer-left #btn-back {
-	color: #aaa;
-	float: left;
+.snap-drawer-left .btn-back {
+    color: #aaa;
+    float: left;
 }
-.snap-drawer-left #btn-back .glyphicon {
-	color: #6c6c6c;
-	margin-right: 5px;
+.snap-drawer-left .btn-back .glyphicon {
+    color: #6c6c6c;
+    margin-right: 5px;
 }
 .snap-drawer-left .alert-info .btn .glyphicon-circle-arrow-right:before {
     content: "\25CF";
@@ -399,20 +399,20 @@ a.feature-label:visited {
 .snap-drawer-left .btn-warning:hover,
 .snap-drawer-left .ng-isolate-scope .btn-primary,
 .snap-drawer-left .ng-isolate-scope .btn-primary:hover  {
-	background: none;
-	color: #6c6c6c;
+    background: none;
+    color: #6c6c6c;
 }
 .snap-drawer-left .pagination {
-	margin: 0 0 10px 0;
+    margin: 0 0 10px 0;
 }
 .snap-drawer-left .pagination li a {
-	margin: 0 3px;
+    margin: 0 3px;
 }
 .snap-drawer .btn-label {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	width: 184px;
-	padding-right: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 184px;
+    padding-right: 0;
 }
 .snap-drawer-left .alert-info {
     width: 100%;

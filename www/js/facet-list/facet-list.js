@@ -8,6 +8,8 @@ angular.module('ui.jassa.facet-list', [])
  */
 .controller('FacetListCtrl', ['$rootScope', '$scope', '$q', '$timeout', function($rootScope, $scope, $q, $timeout) {
 
+    $scope.showConstraints = false;
+
     $scope.ObjectUtils = jassa.util.ObjectUtils;
     //$scope.paginationOptions = $scope.paginationOptions || {};
 
