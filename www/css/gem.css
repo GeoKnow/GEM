@@ -328,7 +328,7 @@ a.feature-label:visited {
     color: #6c6c6c;
 }
 .snap-drawer-left .constraints {
-    display: none;
+/*     display: none; */
     padding-left: 15px;
 }
 .snap-drawer-left .constraints ul {
