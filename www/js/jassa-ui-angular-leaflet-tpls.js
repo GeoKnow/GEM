@@ -190,6 +190,8 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
                 source.destroy();
             });
         }
+
+        refresh();
     });
 
     // Wrap the given dataSources such that only the most recent request will be processed
@@ -274,9 +276,9 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 //    $scope.$watch('sources', function() {
 //        refresh();
 //    });
-    $scope.$watchCollection('sources', function() {
-        refresh();
-    });
+//    $scope.$watchCollection('dataSources', function() {
+//        refresh();
+//    });
 
 
 }])

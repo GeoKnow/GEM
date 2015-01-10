@@ -173,8 +173,6 @@
         }
     };
 
-    var updateRawDataSources;
-
     angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list', 'ui.jassa.breadcrumb'])
 
     .controller('gemCtrl', ['$scope', function($scope) {
@@ -254,7 +252,7 @@
         firstLoad = true;
 
 
-        updateRawDataSources = function(){
+        var updateRawDataSources = function(){
             if(localStorage.sources && localStorage.sources.length > 2){
                 sources = $.parseJSON(localStorage.sources);
             }
@@ -303,7 +301,7 @@
         };
 
 
-        updateRawDataSources();
+        //updateRawDataSources();
 
         $scope.$watch(function() {
             return util.ObjectUtils.hashCode($scope.facetTreeConfig);
@@ -322,14 +320,18 @@
         }, function() {
             updateDataSources();
         });
-		
-		$scope.$watch(function () { return localStorage.sources; }, function(){
-			updateRawDataSources();
-		},true);
 
-        $(function() {
-            refresh();
-        });
+        $scope.$watch(function () {
+            //console.log(localStorage.sources);
+            return localStorage.getItem('sources');
+        }, function() {
+            console.log('REFRESH SOURCES');
+            updateRawDataSources();
+        }, true);
+
+//         $(function() {
+//             refresh();
+//         });
 
         //$scope.rawDataSources = $scope.dataSources; // keep track of non-filtered data sources
 
