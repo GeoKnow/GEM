@@ -85,7 +85,23 @@
     $ = jQuery || $;
     jQuery = $;
 
-    jassa = new Jassa(Promise, $.ajax);
+    jassa = new Jassa(Promise, function() {
+        var jqXHR = $.ajax.apply(this, arguments);
+        var r = Promise.resolve(jqXHR)
+            .cancellable()
+            .catch(Promise.TimeoutError, Promise.CancellationError, function(e) {
+                console.log('CANCELLED REQUEST');
+                jqXHR.abort();
+                throw e;
+            });
+
+//         r = jassa.util.PromiseUtils.all([r]);
+
+//         console.log('Can cancel request? ', r.isCancellable());
+
+//         r.cancel();
+        return r;
+    });
 
     var rdf = jassa.rdf;
     var sparql = jassa.sparql;
@@ -439,7 +455,7 @@
             </div>
         </div>
         </snap-dragger>
-        <div jassa-map-leaflet="map" style="position: absolute; width: 100%; height: 100%" config="mapConfig" data-sources="dataSources" select="selectGeom(data)" id="map"></div>
+        <div jassa-map-leaflet="map" style="position: absolute; width: 100%; height: 100%" config="mapConfig" sources="dataSources" select="selectGeom(data)" id="map"></div>
     </div>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/index.js"></script>

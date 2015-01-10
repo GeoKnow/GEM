@@ -180,13 +180,51 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         return result;
     };
 
+
+    // If the datasource array changes, cancel all requests on these sources
+    $scope.$watchCollection(function() {
+        return $scope.dataSources;
+    }, function(n, o) {
+        if(o) {
+            o.forEach(function(source) {
+                source.destroy();
+            });
+        }
+    });
+
+    // Wrap the given dataSources such that only the most recent request will be processed
+    $scope.$watchCollection(function() {
+        return $scope.sources;
+    }, function() {
+        $scope.dataSources = $scope.sources.map(function(source) {
+            var fetchDataFn = jassa.util.PromiseUtils.lastRequest(function(bounds) {
+                var r = source.fetchData(bounds);
+                //r.cancellable();
+                console.log('isCancellable? ' + r.isCancellable());
+                return r;
+            });
+
+            return {
+                fetchData: fetchDataFn,
+                destroy: function() {
+                    if(fetchDataFn.deferred) {
+                        fetchDataFn.deferred.cancel();
+                    }
+                }
+            };
+        });
+    });
+
+
     refresh = function() {
 
         jassa.util.ArrayUtils.clear($scope.items);
 
-        var indexScope = angular.element($('html')).scope();
+        //var indexScope = angular.element($('html')).scope();
 
-        var dataSources = indexScope.dataSources;
+
+        var dataSources = $scope.dataSources;
+        //var dataSources = $scope.sources;//indexScope.dataSources;
 
         var tempbounds = $scope.map.getBounds();
 
@@ -199,7 +237,7 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         bounds = new geo.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);
 
         //
-        if(dataSources.length)
+        if(dataSources)//.length)
             var promise = fetchData(dataSources, bounds);
         else
             // need to force map to clear when there are no data sources active
