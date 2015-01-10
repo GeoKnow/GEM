@@ -189,7 +189,7 @@
         var geoMapFactoryAsWktVirt = geo.GeoMapFactoryUtils.createWktMapFactory('http://www.opengis.net/ont/geosparql#asWKT', 'bif:st_intersects', 'bif:st_geomFromText');
         var geoMapFactoryWgs =  geo.GeoMapFactoryUtils.wgs84MapFactory;
 
-        var createMapDataSource = function(sparqlService, geoMapFactory, concept, fillColor) {
+        var createMapDataSource = function(sparqlService, geoMapFactory, concept, fillColor, moreAttrs) {
 
             var attrs = {
                 fillColor: fillColor,
@@ -202,6 +202,8 @@
                 pointRadius: 12,
                 labelAlign: 'cm'
             };
+
+            _(attrs).extend(moreAttrs);
 
             var result = geo.GeoDataSourceUtils.createGeoDataSourceLabels(sparqlService, geoMapFactory, concept, attrs);
             return result;
@@ -276,7 +278,15 @@
                         defaultConcept = concept;
                         defaultService = sparqlService;
                     }
-                    var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020');
+
+                    var moreAttrs = {
+                        endpoint: source.endpoint,
+                        graph: source.graph,
+                        concept: baseConcept,
+                        dataSourceId: 0
+                    };
+
+                    var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020', moreAttrs);
                     dataSources.push(dataSource);
                 }
             });
