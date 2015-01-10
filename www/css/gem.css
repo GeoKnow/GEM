@@ -286,6 +286,34 @@ a.feature-label:visited {
     color: #636363;
     overflow:hidden;
 }
+.snap-drawers .snap-drawer-left,
+.snap-drawers .snap-drawer-right {
+	width: 266px;
+}
+.snap-drawer-left h2 {
+	background-color: #E91E63;
+	padding: 15px 20px 20px 20px;
+	margin: 0;
+	color: white;
+	border-top: 10px solid #C2185B;
+}
+.snap-drawer-right h2 {
+	background-color: #03A9F4;
+	padding: 15px 20px 20px 20px;
+	margin: 0;
+	color: white;
+	border-top: 10px solid #0287D0;
+	border-bottom: 5px solid rgb(234, 234, 234);
+}
+.snap-drawer .list-inline {
+	/*border-bottom: 1px solid #FFCAE0;*/
+	border-bottom: 1px solid #DDDDDD;
+	padding: 10px 0;
+	background-color: rgb(234, 234, 234);
+}
+.snap-drawer-left .input-group {
+	/*border-bottom: 1px solid #FFE38C;*/
+}
 .snap-drawer-left a{
     font-size: 12px;
 }
@@ -327,6 +355,13 @@ a.feature-label:visited {
 	float:right;
 	margin: 7px 5px 0 0;
 	color: #aaa;
+}
+.snap-drawer-left #btn-back {
+	color: #aaa;
+}
+.snap-drawer-left #btn-back .glyphicon {
+	color: #6c6c6c;
+	margin-right: 5px;
 }
 .snap-drawer-left .alert-info .btn .glyphicon-circle-arrow-right:before {
     content: "\25CF";
@@ -470,7 +505,7 @@ a.feature-label:visited {
 .snap-drawer-right a.loadtree{
     font-size: 15px;
     margin-left: -18px;
-    border-bottom: 4px solid rgb(255, 65, 137);
+    border-bottom: 4px solid #02b3d0;
     padding: 0 10px 0 20px;
     display: block;
     text-align: center;
@@ -482,7 +517,7 @@ a.feature-label:visited {
     border-top-right-radius: 5px;
 }
 .snap-drawer-right a.loadtree .glyphicon {
-    background-color: rgb(255, 65, 137);
+    background-color: #02b3d0;
     margin: 0;
     padding: 8px 8px 5px 10px;
     margin-bottom: 0px;

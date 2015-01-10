@@ -1,6 +1,6 @@
 <div>
     <H2>Facets</H2>
-    <breadcrumb sparql-service="sparqlService" path="facetValuePath"></breadcrumb>
+    <breadcrumb sparql-service="sparqlService" path="facetValuePath" id="breadcrumb"></breadcrumb>
 
     <!-- <div class="input-group">
         <button type="submit" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
@@ -19,7 +19,7 @@
         <i ng-show="filterString.length > 0"><span ng-show="loading.data || loading.pageCount">Filtering by</span><span ng-hide="loading.data || loading.pageCount">Filtered by </span> '{{filterString}}'</i>
     </div>
 
-    <button ng-show="facetValuePath" class="btn btn-primary" role="button" ng-click="facetValuePath = null">Back</button>
+    <button ng-show="facetValuePath" class="btn btn-primary" id="btn-back" role="button" ng-click="facetValuePath = null"><span class="glyphicon glyphicon-chevron-left"></span> Back</button>
 
     <div class="alert alert-info" role="alert" style="margin: 0px; padding: 0px">
         <jassa-list list-service="listService" list-filter="listFilter" list-class="'list-group'" loading="loading" pagination-options="paginationOptions">
