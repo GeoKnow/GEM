@@ -261,6 +261,7 @@
             }
 
             var dataSources = [];
+			var id = 0;
             $.each(sources, function(key, source){
                 if(source.active){
                     var baseConcept = sparql.ConceptUtils.createTypeConcept(source.type);
@@ -281,12 +282,13 @@
                         endpoint: source.endpoint,
                         graph: source.graph,
                         concept: baseConcept,
-                        dataSourceId: 0
+                        dataSourceId: id
                     };
 
                     var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020', moreAttrs);
                     dataSources.push(dataSource);
                 }
+				id++;
             });
             $scope.rawDataSources = dataSources;
         }
