@@ -82,8 +82,6 @@ $(function() {
 		sources.splice(selectedSourceId, 1);
 		localStorage.setItem("sources", JSON.stringify(sources));	
 		loadSources(sources);
-		var scope = angular.element($('html')).scope();
-		updateRawDataSources();
 		refresh();
     });
 	
@@ -110,8 +108,6 @@ $(function() {
 		
 		localStorage.setItem("sources", JSON.stringify(sources));	
 		loadSources(sources);
-		var scope = angular.element($('html')).scope();
-		updateRawDataSources();
 		refresh();
     });
 	
@@ -137,9 +133,6 @@ $(function() {
 		
 		localStorage.setItem("sources", JSON.stringify(sources));	
 
-		var scope = angular.element($('html')).scope();
-		updateRawDataSources();
-		console.log(scope.dataSources);
 		refresh();
 		
 		

@@ -56,21 +56,33 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
     var fetchDataFromSourceCore = function(dataSource, bounds) {
 
         var p = dataSource.fetchData(bounds);
+        var result = $q.when(p).then(function(items) {
+            items = _(items).compact();
+            return items;
+        });
+
+        return result;
+    };
+
+    var fetchDataFromSourceCoreUgly = function(dataSource, bounds) {
+
+        var p = dataSource.fetchData(bounds);
 
         // ugly, but working :)
-        /*
         if(dataSource.delegate.listServiceBbox){
             var endpoint = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
             var graph = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
             var concept = dataSource.delegate.listServiceBbox.listService.listService.concept.element.triples[0].object.uri;
             var id = 0;
-        }*/
-
-        sources = $.parseJSON(localStorage.sources);
+        }
+        if(localStorage.sources && localStorage.sources.length > 2){
+            sources = $.parseJSON(localStorage.sources);
+        }
 
         for(i = 0; i < sources.length; i++){
             if(sources[i].type == concept) id = i;
         }
+
 
         var result = $q.when(p).then(function(items) {
 
