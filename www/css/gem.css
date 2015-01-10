@@ -308,7 +308,7 @@ a.feature-label:visited {
 .snap-drawer .list-inline {
 	/*border-bottom: 1px solid #FFCAE0;*/
 	border-bottom: 1px solid #DDDDDD;
-	padding: 10px 0;
+	padding: 9px 0;
 	background-color: rgb(234, 234, 234);
 }
 .snap-drawer-left .input-group {
@@ -327,7 +327,34 @@ a.feature-label:visited {
     transition: none;
     color: #6c6c6c;
 }
-
+.snap-drawer-left #constraints {
+	display: none;
+	padding-left: 15px;
+}
+.snap-drawer-left #constraints ul {
+	padding-left: 15px;
+	list-style-type: disc;
+}
+.snap-drawer-left #constraints ul a,
+.snap-drawer-left #constraints ul a:hover,
+.snap-drawer-left #constraints ul a:visited {
+	font-size: 14px;
+	text-decoration: none;
+	color: #ff589e;
+}
+.snap-drawer-left a#toggle-constraints,
+.snap-drawer-left a#toggle-constraints:hover,
+.snap-drawer-left a#toggle-constraints:visited {
+	font-size: 14px;
+	color: #6c6c6c;
+	float: right;
+	margin: 6px 5px;
+	text-decoration: none;
+}
+.snap-drawer-left .glyphicon-align-justify,
+.snap-drawer-left .glyphicon-th-large {
+	margin: 0 5px;
+}
 .snap-drawer-left .alert-info,
 .snap-drawer-left .alert-success,
 .snap-drawer-left input{
@@ -358,6 +385,7 @@ a.feature-label:visited {
 }
 .snap-drawer-left #btn-back {
 	color: #aaa;
+	float: left;
 }
 .snap-drawer-left #btn-back .glyphicon {
 	color: #6c6c6c;
@@ -373,6 +401,12 @@ a.feature-label:visited {
 .snap-drawer-left .ng-isolate-scope .btn-primary:hover  {
 	background: none;
 	color: #6c6c6c;
+}
+.snap-drawer-left .pagination {
+	margin: 0 0 10px 0;
+}
+.snap-drawer-left .pagination li a {
+	margin: 0 3px;
 }
 .snap-drawer .btn-label {
 	overflow: hidden;

@@ -62,6 +62,7 @@
     <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
     <script src="js/sourcemanager/sourcemanager.js"></script>
     <script src="js/search.js"></script>
+	<script src="js/toggle-constraints.js"></script>
 
     <script src="js/breadcrumb/breadcrumb.js"></script>
     <script src="js/jassa-list/jassa-list.js"></script>
@@ -410,18 +411,19 @@
 <!--             </li> -->
 <!--         </jassa-list> -->
 
-        <facet-list
-            sparql-service="sparqlService"
-            facet-tree-config="facetTreeConfig"
-            path="path"
-            select="selectPath(path)"
-            pagination-options="paginationOptions"
-        ></facet-list>
-
-        <constraint-list
-            sparql-service="sparqlService"
-            facet-tree-config="facetTreeConfig"
-        ></constraint-list>
+		<facet-list
+			sparql-service="sparqlService"
+			facet-tree-config="facetTreeConfig"
+			path="path"
+			select="selectPath(path)"
+			pagination-options="paginationOptions"
+		></facet-list>
+		<div id="constraints">
+			<constraint-list
+				sparql-service="sparqlService"
+				facet-tree-config="facetTreeConfig"
+			></constraint-list>
+		</div>
     </div>
     <div snap-drawer="right">
       <div id="sources">
