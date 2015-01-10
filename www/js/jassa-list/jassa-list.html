@@ -1,4 +1,4 @@
-<div id="facets">
+<div>
     <ul ng-show="loading.data" class="list-group">
         <li class="list-group-item" style="text-align: center;">
             <span class="glyphicon glyphicon-refresh"></span>
@@ -12,7 +12,7 @@
 
     <div style="width: 100%; text-align: center">
         <span ng-show="loading.pageCount" class="glyphicon glyphicon-refresh"></span>
-		<script id="template/pagination/pagination.html" type="text/ng-template">
+        <script id="template/pagination/pagination.html" type="text/ng-template">
         <pagination
             ng-hide="loading.pageCount || numPages() <= 1"
             ng-model="currentPage"
@@ -30,7 +30,7 @@
             next-text="&gt;"
             last-text="&gt;&gt;"
         ></pagination>
-		</script>
+        </script>
 <!--             first-text="paginationOptions.firstText" -->
 <!--             previous-text="paginationOptions.previousText" -->
 <!--             next-text="paginationOptions.nextText" -->
