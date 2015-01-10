@@ -5,10 +5,20 @@
         </button>
     </li>
 
+    <li ng-if="offset != 0">
+        ...
+    </li>
+
 <!-- .slice(-offset) -->
-    <li ng-repeat="step in path.getSteps()">
+    <li ng-repeat-start="slot in slots">
         <button class="btn btn-primary" ng-disabled="$last" ng-click="setPath($index + 1)">
-            {{step.getPropertyName()}}
+            {{slot.labelInfo.displayLabel || slot.property.getUri()}}
         </button>
     </li>
+    <li ng-repeat-end>
+        <button class="btn btn-warning"ng-click="setPath($index + 1)">
+            {{slot.isInverse ? '&lt;' : '&gt;'}}
+        </button>
+    </li>
+
 </ol>
