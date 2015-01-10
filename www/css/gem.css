@@ -411,7 +411,7 @@ a.feature-label:visited {
 .snap-drawer .btn-label {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	width: 194px;
+	width: 184px;
 	padding-right: 0;
 }
 .snap-drawer-left .alert-info {

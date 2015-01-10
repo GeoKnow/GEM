@@ -12,6 +12,7 @@
 
     <div style="width: 100%; text-align: center">
         <span ng-show="loading.pageCount" class="glyphicon glyphicon-refresh"></span>
+		<script id="template/pagination/pagination.html" type="text/ng-template">
         <pagination
             ng-hide="loading.pageCount || numPages() <= 1"
             ng-model="currentPage"
@@ -25,11 +26,11 @@
             boundary-links="paginationOptions.boundaryLinks"
             rotate="paginationOptions.rotate"
             first-text="&lt;&lt;"
-            previous-text="&lt;"
+            previous-text='<span class="glyphicon glyphicon-step-backward"></span>'
             next-text="&gt;"
             last-text="&gt;&gt;"
         ></pagination>
-
+		</script>
 <!--             first-text="paginationOptions.firstText" -->
 <!--             previous-text="paginationOptions.previousText" -->
 <!--             next-text="paginationOptions.nextText" -->
