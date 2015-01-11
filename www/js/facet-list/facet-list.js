@@ -17,11 +17,15 @@ angular.module('ui.jassa.facet-list', [])
 
     $scope.NodeUtils = jassa.rdf.NodeUtils;
 
-    $scope.pathHead = $scope.pathHead || new jassa.facete.PathHead(new jassa.facete.Path());
+    $scope.breadcrumb = {
+        pathHead: new jassa.facete.PathHead(new jassa.facete.Path()),
+        property: null
+    };
+
 
     $scope.listFilter = $scope.listFilter || { limit: 10, offset: 0, concept: null };// new jassa.service.ListFilter();
 
-
+    // This property is derived from the values of $scope.facetValueProperty
     $scope.facetValuePath = null;
 
 
@@ -31,19 +35,22 @@ angular.module('ui.jassa.facet-list', [])
     });
 
     $scope.descendFacet = function(property) {
-        var pathHead = $scope.pathHead;
+        var pathHead = $scope.breadcrumb.pathHead;
 
         var newStep = new jassa.facete.Step(property.getUri(), pathHead.isInverse());
         var newPath = pathHead.getPath().copyAppendStep(newStep);
-        $scope.pathHead = new jassa.facete.PathHead(newPath, pathHead.isInverse());
+        $scope.breadcrumb.pathHead = new jassa.facete.PathHead(newPath, pathHead.isInverse());
     };
 
-    $scope.showFacetValues = function(property) {
-        //alert(JSON.stringify(property));
-        var pathHead = $scope.pathHead;
 
-        $scope.facetValuePath = pathHead.getPath().copyAppendStep(new jassa.facete.Step(property.getUri(), pathHead.isInverse()));
+    // Creates a path object by appending a property to a pathHead
+    var appendProperty = function(pathHead, propertyName) {
+        var result = pathHead.getPath().copyAppendStep(new jassa.facete.Step(propertyName, pathHead.isInverse()));
+        return result;
     };
+
+//    $scope.showFacetValues = function(property) {
+//    };
 
     var updateFacetValueService = function() {
         //console.log('Updating facet values');
@@ -127,7 +134,7 @@ angular.module('ui.jassa.facet-list', [])
             // The question is whether it should be allowed to get the facetService from a facetTreeService
             var facetService = facetTreeService.facetService;
 
-            $q.when(facetService.prepareListService($scope.pathHead)).then(function(listService) {
+            $q.when(facetService.prepareListService($scope.breadcrumb.pathHead)).then(function(listService) {
                 $scope.listService = listService;
             });
         }
@@ -153,7 +160,13 @@ angular.module('ui.jassa.facet-list', [])
 //        }
 //    }, true);
 
-    $scope.$watch('[ObjectUtils.hashCode(facetTreeConfig), pathHead, facetValuePath]', function() {
+    $scope.$watch(function() {
+        return $scope.breadcrumb.property;
+    }, function(property) {
+        $scope.facetValuePath = property == null ? null : appendProperty($scope.breadcrumb.pathHead, property);
+    });
+
+    $scope.$watch('[ObjectUtils.hashCode(facetTreeConfig), breadcrumb.pathHead.hashCode(), facetValuePath.hashCode()]', function() {
         update();
     }, true);
 
