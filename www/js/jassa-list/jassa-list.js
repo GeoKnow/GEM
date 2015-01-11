@@ -107,6 +107,11 @@ angular.module('ui.jassa.jassa-list', [])
         $scope.listFilter.offset = ($scope.currentPage - 1) * $scope.listFilter.limit;
     });
 
+    $scope.$watch(function() {
+        return $scope.rawListService;
+    }, function(rawListService) {
+       jassa.util.PromiseUtils.replaceService($scope, 'listService', rawListService);
+    });
 
     $scope.$watch('[listFilter, refresh]', $scope.doRefresh, true);
     $scope.$watch('listService', $scope.doRefresh);
@@ -120,7 +125,7 @@ angular.module('ui.jassa.jassa-list', [])
         //replace: true,
         //scope: true,
         scope: {
-            listService: '=',
+            rawListService: '=listService',
             listFilter: '=?', // Any object with the fields {concept, offset, limit}. No need for jassa.service.ListFilter.
 
             listClass: '=?', // CSS class to apply to the inner list
