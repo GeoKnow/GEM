@@ -55,7 +55,6 @@
     <script src="lib/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
     <script src="js/orientation.js"></script>
 
-    <script src="lib/angular-ui/0.10.0/ui-bootstrap-tpls-0.10.0.js"></script>
     <script src="lib/wicket/wicket.js"></script>
     <script src="lib/wicket/wicket-leaflet.js"></script>
 
@@ -72,18 +71,15 @@
 
     <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
     
-	<script type="text/javascript">
-		angular.module("template/pagination/pagination.html", []).run(["$templateCache", function($templateCache) {
-		  $templateCache.put("template/pagination/pagination.html",
-			"<ul class=\"pagination\">\n" +
-			"  <li ng-if=\"boundaryLinks\" ng-class=\"{disabled: noPrevious()}\"><a href ng-click=\"selectPage(1)\"> <span class=\"glyphicon glyphicon-fast-backward\"></span></a></li>\n" +
-			"  <li ng-if=\"directionLinks\" ng-class=\"{disabled: noPrevious()}\"><a href ng-click=\"selectPage(page - 1)\"><span class=\"glyphicon glyphicon-step-backward\"></span></a></li>\n" +
-			"  <li ng-repeat=\"page in pages track by $index\" ng-class=\"{active: page.active}\"><a href ng-click=\"selectPage(page.number)\">{{page.text}}</a></li>\n" +
-			"  <li ng-if=\"directionLinks\" ng-class=\"{disabled: noNext()}\"><a href ng-click=\"selectPage(page + 1)\"><span class=\"glyphicon glyphicon-step-forward\"></span></a></li>\n" +
-			"  <li ng-if=\"boundaryLinks\" ng-class=\"{disabled: noNext()}\"><a href ng-click=\"selectPage(totalPages)\"><span class=\"glyphicon glyphicon-fast-forward\"></span> </a></li>\n" +
-			"</ul>");
-		}]);
-	</script>
+	<script id="template/pagination/pagination.html" type="text/ng-template">
+<ul class="pagination">
+        <li ng-if="boundaryLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(1)" title="First Page"> <span class="glyphicon glyphicon-step-backward"></span></a></li>
+        <li ng-if="directionLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(page - 1)" title="Previous Page"><span class="glyphicon glyphicon-step-backward"></span></a></li>
+        <li ng-repeat="page in pages track by $index" ng-class="{active: page.active}"><a href ng-click="selectPage(page.number)">{{page.text}}</a></li>
+        <li ng-if="directionLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(page + 1)" title="Next Page"><span class="glyphicon glyphicon-step-forward"></span></a></li>
+        <li ng-if="boundaryLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(totalPages)" title="Last Page"><span class="glyphicon glyphicon-step-forward"></span> </a></li>
+</ul>
+</script>
 
     <title>GEM - {{bar.value}}</title>
     <script type="text/javascript">
@@ -126,36 +122,28 @@
 
     // temporary (used at first start or when the source list is empty)
     var sources = [
-                    {
-                      'name' : 'LGD Bars',
-                       'endpoint' : 'http://linkedgeodata.org/sparql',
-                      'graph' : 'http://linkedgeodata.org',
-                      'type' : 'http://linkedgeodata.org/ontology/Bar',
-                      'active' : true,
-                      'facets' : true
-                    },
-                    {
-                      'name' : 'DBP Universities',
-                      'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
-                      'graph' : 'http://dbpedia.org',
-                      'type' : 'http://dbpedia.org/ontology/University',
-                      'active' : false,
-                      'facets' : false
-                    },
                     { 'name' : 'DBP Architecture',
                       'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
                       'graph' : 'http://dbpedia.org',
                       'type' : 'http://dbpedia.org/ontology/ArchitecturalStructure',
+                      'active' : true,
+                      'facets' : true
+                    },
+					{
+                      'name' : 'DBP History',
+                      'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
+                      'graph' : 'http://dbpedia.org',
+                      'type' : 'http://dbpedia.org/ontology/HistoricPlace',
                       'active' : false,
                       'facets' : false
                     },
                     {
-                        'name' : 'LGD All',
-                        'endpoint' : 'http://linkedgeodata.org/sparql',
-                        'graph' : 'http://linkedgeodata.org',
-                        'type' : null,
-                        'active' : false,
-                        'facets' : false
+                      'name' : 'LGD All',
+                      'endpoint' : 'http://linkedgeodata.org/sparql',
+                      'graph' : 'http://linkedgeodata.org',
+                      'type' : null,
+                      'active' : false,
+                      'facets' : false
                     },
                 ];
 

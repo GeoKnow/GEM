@@ -16,6 +16,7 @@
 <!--         <script id="template/pagination/pagination.html" type="text/ng-template"> -->
 
         <pagination
+            ng-hide="loading.pageCount || numPages() <= 1"
             ng-model="currentPage"
             page="currentPage"
             items-per-page="listFilter.limit"
@@ -25,8 +26,8 @@
             ng-class="paginationOptions.cssClass"
             max-size="4"
             boundary-links="paginationOptions.boundaryLinks"
+            rotate="paginationOptions.rotate"
 			direction-links="false"
-            rotate="paginationOptions.rotate"	
         ></pagination>
 
 <!--         </script> -->

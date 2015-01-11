@@ -314,12 +314,13 @@ a.feature-label:visited {
     border-top: 10px solid #0287D0;
     border-bottom: 5px solid rgb(234, 234, 234);
 }
-.snap-drawer .list-inline {
+.snap-drawer .breadcrumb {
     /*border-bottom: 1px solid #FFCAE0;*/
     border-bottom: 1px solid #DDDDDD;
     padding: 5px 0;
 	margin-bottom: 10px;
     background-color: rgb(234, 234, 234);
+	border-radius: 0;
 }
 .snap-drawer-left .input-group {
     /*border-bottom: 1px solid #FFE38C;*/
@@ -429,13 +430,23 @@ a.feature-label:visited {
 .snap-drawer-left .pagination li a:hover,
 .snap-drawer-left .pagination li a:focus,
 .snap-drawer-left .pagination li a:visited {
-    margin: 0 2px;
+    margin: 0 5px;
 	background: none;
 	text-decoration: none;
 	color: #ff589e;
 }
-.snap-drawer-left .pagination li.active a {
+.snap-drawer-left .pagination li.disabled a,
+.snap-drawer-left .pagination li.disabled a:hover,
+.snap-drawer-left .pagination li.disabled a:focus,
+.snap-drawer-left .pagination li.disabled a:visited {
+	color: #ddd;
+}
+.snap-drawer-left .pagination li.active a,
+.snap-drawer-left .pagination li.active a:hover,
+.snap-drawer-left .pagination li.active a:visited,
+.snap-drawer-left .pagination li.active a:focus {
 	color: white;
+	background-color: #ff589e;
 }
 .snap-drawer .btn-label {
     overflow: hidden;
