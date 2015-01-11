@@ -72,24 +72,31 @@
     <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
     
 	<script id="template/pagination/pagination.html" type="text/ng-template">
-<ul class="pagination">
-        <li ng-if="boundaryLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(1)" title="First Page"> <span class="glyphicon glyphicon-step-backward"></span></a></li>
-        <li ng-if="directionLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(page - 1)" title="Previous Page"><span class="glyphicon glyphicon-step-backward"></span></a></li>
-        <li ng-repeat="page in pages track by $index" ng-class="{active: page.active}"><a href ng-click="selectPage(page.number)">{{page.text}}</a></li>
-        <li ng-if="directionLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(page + 1)" title="Next Page"><span class="glyphicon glyphicon-step-forward"></span></a></li>
-        <li ng-if="boundaryLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(totalPages)" title="Last Page"><span class="glyphicon glyphicon-step-forward"></span> </a></li>
-</ul>
-</script>
+		<ul class="pagination">
+				<li ng-if="boundaryLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(1)" title="First Page"> <span class="glyphicon glyphicon-step-backward"></span></a></li>
+				<li ng-if="directionLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(page - 1)" title="Previous Page"><span class="glyphicon glyphicon-step-backward"></span></a></li>
+				<li ng-repeat="page in pages track by $index" ng-class="{active: page.active}"><a href ng-click="selectPage(page.number)">{{page.text}}</a></li>
+				<li ng-if="directionLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(page + 1)" title="Next Page"><span class="glyphicon glyphicon-step-forward"></span></a></li>
+				<li ng-if="boundaryLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(totalPages)" title="Last Page"><span class="glyphicon glyphicon-step-forward"></span> </a></li>
+		</ul>
+	</script>
 
     <title>GEM - {{bar.value}}</title>
     <script type="text/javascript">
-    $(function(){
-        $("#bottom-drawer").css("bottom","-80%");
-        //$("#bottom-drawer p").css("width",window.innerWidth-80);
-    });
-    $(window).resize(function () {
-        //$("#bottom-drawer p").css("width",window.innerWidth-80);
-    });
+		$(function(){
+			$("#bottom-drawer").css("bottom","-80%");
+			//$("#bottom-drawer p").css("width",window.innerWidth-80);
+			
+			// HACK: Need to clear the facet filter box, when picking a facet AFTER filtering
+			$(".snap-drawer-left").on("click", "li.facet", function() {
+				$("input.facet-filter").val('');
+				$("button.facet-filter-submit").trigger("click");
+			});
+		});
+		$(window).resize(function () {
+			//$("#bottom-drawer p").css("width",window.innerWidth-80);
+		});
+		
     </script>
     <script type="text/javascript">
     _.mixin(_.str.exports());
