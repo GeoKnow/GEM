@@ -15,6 +15,7 @@ body {
     position: absolute;
     border-left: 1px solid #e3e3e3;
     border-right: 1px solid #e3e3e3;
+	background: url('../img/greyprint.png') repeat;
 }
 #map:before {
     content: "";
@@ -300,14 +301,14 @@ a.feature-label:visited {
 }
 .snap-drawer-left h2 {
     background-color: #E91E63;
-    padding: 15px 20px 20px 20px;
+    padding: 10px 15px 15px 15px;
     margin: 0;
     color: white;
     border-top: 10px solid #C2185B;
 }
 .snap-drawer-right h2 {
     background-color: #03A9F4;
-    padding: 15px 20px 20px 20px;
+    padding: 10px 15px 15px 15px;
     margin: 0;
     color: white;
     border-top: 10px solid #0287D0;
@@ -316,7 +317,8 @@ a.feature-label:visited {
 .snap-drawer .list-inline {
     /*border-bottom: 1px solid #FFCAE0;*/
     border-bottom: 1px solid #DDDDDD;
-    padding: 9px 0;
+    padding: 5px 0;
+	margin-bottom: 10px;
     background-color: rgb(234, 234, 234);
 }
 .snap-drawer-left .input-group {
@@ -336,8 +338,8 @@ a.feature-label:visited {
     color: #6c6c6c;
 }
 .snap-drawer-left .constraints {
-/*     display: none; */
     padding-left: 15px;
+	clear: both;
 }
 .snap-drawer-left .constraints ul {
     padding-left: 15px;
@@ -415,6 +417,10 @@ a.feature-label:visited {
 .snap-drawer-left .ng-isolate-scope .btn-primary:hover  {
     background: none;
     color: #6c6c6c;
+}
+.snap-drawer-left .facets .btn-primary,
+.snap-drawer-left .facets .btn-primary:hover  {
+    color: #ff589e;
 }
 .snap-drawer-left .pagination {
     margin: 0 0 10px 0;
