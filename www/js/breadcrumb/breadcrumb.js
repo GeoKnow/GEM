@@ -22,7 +22,8 @@ angular.module('ui.jassa.breadcrumb', [])
     var update = function() {
         var sparqlService = $scope.sparqlService;
 
-        var property = $scope.model.property;
+        var propertyName = $scope.model.property;
+        var property = propertyName == null ? null : jassa.rdf.NodeFactory.createUri(propertyName);
 
         var pathHead = $scope.model.pathHead;
         var path = pathHead ? pathHead.getPath() : null;
@@ -38,7 +39,7 @@ angular.module('ui.jassa.breadcrumb', [])
             var uris = jassa.facete.PathUtils.getUris(path);
 
             if(property != null) {
-                uris.push(jassa.rdf.NodeFactory.createUri(property));
+                uris.push(property);
             }
 
             $q.when(ls.lookup(uris)).then(function(map) {
@@ -58,11 +59,10 @@ angular.module('ui.jassa.breadcrumb', [])
 
                 var value = null;
                 if(property) {
-                    var p = jassa.rdf.NodeFactory.createUri(property);
                     value = {
-                        property: p,
+                        property: property,
                         labelInfo: {
-                            displayLabel: map.get(p)
+                            displayLabel: map.get(property)
                         }
                     }
                 }
