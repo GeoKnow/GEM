@@ -272,6 +272,4 @@ angular.module('ui.jassa.facet-list', [])
             };
         }
     };
-})
-
-;
+});
