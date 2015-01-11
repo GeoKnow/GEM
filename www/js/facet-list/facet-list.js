@@ -53,12 +53,35 @@ angular.module('ui.jassa.facet-list', [])
 //    };
 
     var updateFacetValueService = function() {
+        var searchString = $scope.listFilter.concept;
+
         //console.log('Updating facet values');
         var facetValueService = new jassa.facete.FacetValueService($scope.sparqlService, $scope.facetTreeConfig.getFacetConfig(), 5000000);
 
         var path = $scope.facetValuePath;
 
         $q.when(facetValueService.prepareTableService(path, true)).then(function(listService) {
+
+            var fnTransformSearch = function(searchString) {
+                var r;
+                if(searchString) {
+
+                    var bestLiteralConfig = new jassa.sparql.BestLabelConfig();
+                    var relation = jassa.sparql.LabelUtils.createRelationPrefLabels(bestLiteralConfig);
+                    // TODO Make it configurable to whether scan URIs too (the true argument)
+                    r = jassa.sparql.KeywordSearchUtils.createConceptRegex(relation, searchString, true);
+                    //var result = sparql.KeywordSearchUtils.createConceptBifContains(relation, searchString);
+                } else {
+                    r = null;
+                }
+
+                return r;
+            };
+
+            listService = new jassa.service.ListServiceTransformConcept(listService, fnTransformSearch);
+
+
+
             listService = new jassa.service.ListServiceTransformItems(listService, function(entries) {
 
                 var cm = $scope.facetTreeConfig.getFacetConfig().getConstraintManager();

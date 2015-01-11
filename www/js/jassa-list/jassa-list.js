@@ -45,6 +45,14 @@ angular.module('ui.jassa.jassa-list', [])
     // TODO Get rid of the $timeouts - not sure why $q.when alone breaks when we return results from cache
 
     $scope.doRefresh = function() {
+
+        $timeout(function() {
+            $scope.loading.data = true;
+            $scope.loading.pageCount = true;
+            $scope.items = [];
+            $scope.totalItems = 0;
+        });
+
         var listFilter = $scope.listFilter;
 
         var listService = $scope.listService;
@@ -59,9 +67,6 @@ angular.module('ui.jassa.jassa-list', [])
         // TODO if the list service is a function, expect the function to return the actual list service
         // We support the list service to be a promise
         $q.when(listService).then(function(listService) {
-
-            $scope.loading.data = true;
-            $scope.loading.pageCount = true;
 
             $q.when(listService.fetchCount(listFilter.concept)).then(function(countInfo) {
                 $timeout(function() {
