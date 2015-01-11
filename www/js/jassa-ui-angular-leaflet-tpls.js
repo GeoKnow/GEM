@@ -483,6 +483,8 @@ $.widget('custom.ssbLeafletMap', {
         // var maplayer = L.tileLayer('http://tiles.lyrk.org/ls/{z}/{x}/{y}?apikey=87be57815cf747a58ec5d84d8e64ccfa', {
         var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawnum.kab31la4/{z}/{x}/{y}@2x.png', {
             detectRetina: true,
+			reuseTiles: true,
+			//updateWhenIdle: false,
         });
 
         //this.map = new leaflet.Map(this.domElement, options);

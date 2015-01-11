@@ -417,8 +417,17 @@ a.feature-label:visited {
 .snap-drawer-left .pagination {
     margin: 0 0 10px 0;
 }
-.snap-drawer-left .pagination li a {
-    margin: 0 3px;
+.snap-drawer-left .pagination li a,
+.snap-drawer-left .pagination li a:hover,
+.snap-drawer-left .pagination li a:focus,
+.snap-drawer-left .pagination li a:visited {
+    margin: 0 2px;
+	background: none;
+	text-decoration: none;
+	color: #ff589e;
+}
+.snap-drawer-left .pagination li.active a {
+	color: white;
 }
 .snap-drawer .btn-label {
     overflow: hidden;
