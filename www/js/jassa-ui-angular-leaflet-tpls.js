@@ -208,7 +208,7 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
                 var fetchDataFn = jassa.util.PromiseUtils.lastRequest(function(bounds) {
                     var r = source.fetchData(bounds);
                     //r.cancellable();
-                    console.log('isCancellable? ' + r.isCancellable());
+                    //console.log('isCancellable? ' + r.isCancellable());
                     return r;
                 });
 

@@ -91,16 +91,10 @@
         var r = Promise.resolve(jqXHR)
             .cancellable()
             .catch(Promise.TimeoutError, Promise.CancellationError, function(e) {
-                console.log('CANCELLED REQUEST');
+                //console.log('CANCELLED REQUEST');
                 jqXHR.abort();
                 throw e;
             });
-
-//         r = jassa.util.PromiseUtils.all([r]);
-
-//         console.log('Can cancel request? ', r.isCancellable());
-
-//         r.cancel();
         return r;
     });
 
@@ -243,9 +237,9 @@
             $scope.mapConfig.zoom = 4;
         };
 
-        $scope.$watch('mapConfig', function(v) {
-            console.log('Config changed: ' + JSON.stringify(v));
-        }, true);
+//         $scope.$watch('mapConfig', function(v) {
+//             console.log('Config changed: ' + JSON.stringify(v));
+//         }, true);
 
         $scope.dataSources = [];
 
