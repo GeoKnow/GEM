@@ -24,7 +24,7 @@
 
     <li ng-show="state.value != null">
         <button class="btn btn-warning" ng-click="model.property = null">
-            {{state.value.labelInfo.displayLabel}} {{slot.isInverse ? '-1' : ''}}
+            {{state.value.labelInfo.displayLabel}} {{model.pathHead.isInverse() ? '-1' : ''}}
         </button>
     </li>
 
