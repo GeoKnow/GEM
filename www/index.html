@@ -86,12 +86,6 @@
 		$(function(){
 			$("#bottom-drawer").css("bottom","-80%");
 			//$("#bottom-drawer p").css("width",window.innerWidth-80);
-			
-			// HACK: Need to clear the facet filter box, when picking a facet AFTER filtering
-			$(".snap-drawer-left").on("click", "li.facet", function() {
-				$("input.facet-filter").val('');
-				$("button.facet-filter-submit").trigger("click");
-			});
 		});
 		$(window).resize(function () {
 			//$("#bottom-drawer p").css("width",window.innerWidth-80);
@@ -137,15 +131,15 @@
                       'facets' : true
                     },
 					{
-                      'name' : 'DBP History',
+                      'name' : 'DBP Parks',
                       'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
                       'graph' : 'http://dbpedia.org',
-                      'type' : 'http://dbpedia.org/ontology/HistoricPlace',
+                      'type' : 'http://dbpedia.org/class/yago/ParksInBelgrade',
                       'active' : false,
                       'facets' : false
                     },
                     {
-                      'name' : 'LGD All',
+                      'name' : 'LinkedGeoData',
                       'endpoint' : 'http://linkedgeodata.org/sparql',
                       'graph' : 'http://linkedgeodata.org',
                       'type' : null,
