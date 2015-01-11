@@ -22,8 +22,14 @@ angular.module('ui.jassa.facet-list', [])
         property: null
     };
 
+    $scope.location = null;
 
-    $scope.listFilter = $scope.listFilter || { limit: 10, offset: 0, concept: null };// new jassa.service.ListFilter();
+    $scope.listFilter = $scope.listFilter || { limit: 10, offset: 0, concept: null };
+
+    //$scope.listFilter = $scope.listFilter || { limit: 10, offset: 0, concept: null };// new jassa.service.ListFilter();
+
+    $scope.filterMap = new jassa.util.HashMap();
+
 
     // This property is derived from the values of $scope.facetValueProperty
     $scope.facetValuePath = null;
@@ -31,7 +37,40 @@ angular.module('ui.jassa.facet-list', [])
 
     $scope.$watch('filterString', function(newValue) {
         $scope.listFilter.concept = newValue;
-        //alert(newValue);
+    });
+
+
+    $scope.$watch('location', function() {
+        if($scope.location) {
+            var lf = $scope.filterMap.get($scope.location);
+            if(lf == null) {
+                lf = { limit: 10, offset: 0, concept: null };
+                $scope.filterMap.put($scope.location, lf);
+            }
+
+            $scope.listFilter = lf;
+        }
+
+    });
+
+//    $scope.$watch('listFilter', function(newValue) {
+//        if($scope.location) {
+//
+//            var val = newValue == null
+//                ? null
+//                : {
+//                    concept: newValue.concept,
+//                    limit: newValue.limit,
+//                    offset: newValue.offset
+//                };
+//
+//            filterMap.put($scope.location, val);
+//        }
+//    }, true);
+
+    $scope.$watch('listFilter.concept', function(newValue) {
+        $scope.filterModel = newValue;
+        $scope.filterString = newValue;
     });
 
     $scope.descendFacet = function(property) {
@@ -188,6 +227,11 @@ angular.module('ui.jassa.facet-list', [])
     }, function(property) {
         $scope.facetValuePath = property == null ? null : appendProperty($scope.breadcrumb.pathHead, property);
     });
+
+    $scope.$watch('[breadcrumb.pathHead.hashCode(), facetValuePath.hashCode()]', function() {
+        $scope.location = $scope.facetValuePath != null ? $scope.facetValuePath : $scope.breadcrumb.pathHead;
+    }, true);
+
 
     $scope.$watch('[ObjectUtils.hashCode(facetTreeConfig), breadcrumb.pathHead.hashCode(), facetValuePath.hashCode()]', function() {
         update();
