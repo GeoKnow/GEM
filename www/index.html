@@ -9,8 +9,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
 
-    <link rel="stylesheet" href="css/index.css" />
-    <link rel="stylesheet" href="css/gem.css" />
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
 
     <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.css" />
@@ -22,6 +20,9 @@
     <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css" />
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
     <!-- endbower -->
+
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/gem.css" />
 
 
     <script src="bower_components/jscache/cache.js"></script>
@@ -67,6 +68,7 @@
     <script src="js/breadcrumb/breadcrumb.js"></script>
     <script src="js/jassa-list/jassa-list.js"></script>
     <script src="js/facet-list/facet-list.js"></script>
+    <script src="js/scrollglue-right/scrollglue-right.js"></script>
 
     <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
     
@@ -82,7 +84,6 @@
 			"</ul>");
 		}]);
 	</script>
-	
 
     <title>GEM - {{bar.value}}</title>
     <script type="text/javascript">
@@ -147,7 +148,15 @@
                       'type' : 'http://dbpedia.org/ontology/ArchitecturalStructure',
                       'active' : false,
                       'facets' : false
-                    }
+                    },
+                    {
+                        'name' : 'LGD All',
+                        'endpoint' : 'http://linkedgeodata.org/sparql',
+                        'graph' : 'http://linkedgeodata.org',
+                        'type' : null,
+                        'active' : false,
+                        'facets' : false
+                    },
                 ];
 
     var createSparqlService = function(url, graphUris) {
@@ -182,7 +191,7 @@
         }
     };
 
-    angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list', 'ui.jassa.breadcrumb'])
+    angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'luegg.directives', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list', 'ui.jassa.breadcrumb'])
 
     .controller('gemCtrl', ['$scope', function($scope) {
 
@@ -273,7 +282,11 @@
             var id = 0;
             $.each(sources, function(key, source){
                 if(source.active){
-                    var baseConcept = sparql.ConceptUtils.createTypeConcept(source.type);
+                    var type = source.type;
+
+                    var baseConcept = type
+                        ? sparql.ConceptUtils.createTypeConcept(source.type)
+                        : sparql.ConceptUtils.createSubjectConcept();
 
                     var facetConfig = $scope.facetTreeConfig.getFacetConfig();
                     facetConfig.setBaseConcept(baseConcept);

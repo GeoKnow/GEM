@@ -10,10 +10,22 @@ angular.module('ui.jassa.breadcrumb', [])
 
     $scope.slots = [];
 
+    $scope.invert = function() {
+        $scope.model.property = null;
+
+        var pathHead = $scope.model.pathHead;
+        if(pathHead) {
+            $scope.model.pathHead = new jassa.facete.PathHead(pathHead.getPath(), !pathHead.isInverse());
+        }
+    };
+
     var update = function() {
         var sparqlService = $scope.sparqlService;
 
-        var path = $scope.path;
+        var property = $scope.model.property;
+
+        var pathHead = $scope.model.pathHead;
+        var path = pathHead ? pathHead.getPath() : null;
 
         if(sparqlService && path) {
             var steps = path.getSteps();
@@ -25,9 +37,13 @@ angular.module('ui.jassa.breadcrumb', [])
 
             var uris = jassa.facete.PathUtils.getUris(path);
 
+            if(property != null) {
+                uris.push(jassa.rdf.NodeFactory.createUri(property));
+            }
+
             $q.when(ls.lookup(uris)).then(function(map) {
 
-                var r = steps.map(function(step) {
+                var slots = steps.map(function(step) {
                     var node = jassa.rdf.NodeFactory.createUri(step.getPropertyName());
                     var r = {
                         property: node,
@@ -40,9 +56,25 @@ angular.module('ui.jassa.breadcrumb', [])
                     return r;
                 });
 
+                var value = null;
+                if(property) {
+                    var p = jassa.rdf.NodeFactory.createUri(property);
+                    value = {
+                        property: p,
+                        labelInfo: {
+                            displayLabel: map.get(p)
+                        }
+                    }
+                }
+
+                var r = {
+                    slots: slots,
+                    value: value
+                }
+
                 return r;
-            }).then(function(slots) {
-                $scope.slots = slots;
+            }).then(function(state) {
+                $scope.state = state;
             });
 
         }
@@ -54,7 +86,7 @@ angular.module('ui.jassa.breadcrumb', [])
         self.refresh();
     };
 
-    $scope.$watch('[ObjectUtils.hashCode(facetTreeConfig), path]', function() {
+    $scope.$watch('[ObjectUtils.hashCode(facetTreeConfig), model.pathHead.hashCode(), model.property]', function() {
         update();
     }, true);
 
@@ -71,6 +103,7 @@ angular.module('ui.jassa.breadcrumb', [])
 
     // TODO Add a function that splits the path according to maxSize
 
+    /*
     var updateVisiblePath = function() {
         var path = $scope.path;
         if(path) {
@@ -85,22 +118,26 @@ angular.module('ui.jassa.breadcrumb', [])
             $scope.visiblePath = null;
         }
     }
+    */
 
-    $scope.$watch(function() {
-        var path = $scope.path;
+//    $scope.$watch(function() {
+//        var model = $scope.model;
+//        var r = 0;
+//        if(model) {
+//            r = model.pathHead ? model.pathHead.hashCode() : 0;
+//            r += jassa.util.ObjectUtils.hashCodeStr(model.property);
+//        }
+//        return r;
+//    }, function() {
+//        updateVisiblePath();
+//    });
 
-        var r = path ? path.hashCode() : 0;
-        return r;
-    }, function() {
-        updateVisiblePath();
-    });
 
-
-    $scope.$watch(function() {
-        return $scope.maxSize;
-    }, function() {
-        updateVisiblePath();
-    });
+//    $scope.$watch(function() {
+//        return $scope.maxSize;
+//    }, function() {
+//        updateVisiblePath();
+//    });
 
 
 
@@ -127,13 +164,17 @@ angular.module('ui.jassa.breadcrumb', [])
 
 
     $scope.setPath = function(index) {
-        var path = $scope.path;
+        $scope.model.property = null;
+
+        var pathHead = $scope.model.pathHead;
+        var path = pathHead ? pathHead.getPath() : null;
+        var isInverse = pathHead ? pathHead.isInverse() : false;
         if(path != null) {
             var steps = path.getSteps();
             var newSteps = steps.slice(0, index);
 
             var newPath = new jassa.facete.Path(newSteps);
-            $scope.path = newPath;
+            $scope.model.pathHead = new jassa.facete.PathHead(newPath, isInverse);
         }
     };
 
@@ -158,11 +199,8 @@ angular.module('ui.jassa.breadcrumb', [])
         transclude: false,
         scope: {
             sparqlService: '=',
-            //label: '=',
-            path: '=',
+            model: '=ngModel',
             maxSize: '=?',
-            //plugins: '=',
-            //pluginContext: '=', //plugin context
             onSelect: '&select'
         },
         controller: 'BreadcrumbCtrl',

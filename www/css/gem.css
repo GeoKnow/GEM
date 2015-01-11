@@ -1,6 +1,14 @@
 body {
     color: #595959;
 }
+
+.breadcrumb {
+    width: 100%;
+    display: block;
+    white-space: nowrap;
+    overflow: auto;
+}
+
 #map {
     height: 100%;
     width: 100%;
@@ -396,12 +404,12 @@ a.feature-label:visited {
 .snap-drawer-left .alert-info .btn .glyphicon-circle-arrow-right:before {
     content: "\25CF";
     color: #ff589e;
-	margin-right: 8px;
+    margin-right: 8px;
 }
 .snap-drawer-left .alert-info .btn .glyphicon-circle-arrow-right.facet-value	:before {
     content: "\25CF";
     color: #CA6EFF;
-	margin-right: 8px;
+    margin-right: 8px;
 }
 .snap-drawer-left .btn-warning,
 .snap-drawer-left .btn-warning:hover,
