@@ -407,9 +407,9 @@ a.feature-label:visited {
     color: #ff589e;
     margin-right: 8px;
 }
-.snap-drawer-left .alert-info .btn .glyphicon-circle-arrow-right.facet-value	:before {
+.snap-drawer-left .alert-info .btn .glyphicon-circle-arrow-right.facet-value:before {
     content: "\25CF";
-    color: #CA6EFF;
+    color: #41B0FF;
     margin-right: 8px;
 }
 .snap-drawer-left .btn-warning,
@@ -421,7 +421,7 @@ a.feature-label:visited {
 }
 .snap-drawer-left .facets .btn-primary,
 .snap-drawer-left .facets .btn-primary:hover  {
-    color: #ff589e;
+    color: #41B0FF
 }
 .snap-drawer-left .pagination {
     margin: 0 0 10px 0;
