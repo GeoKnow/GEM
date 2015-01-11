@@ -45,13 +45,13 @@ angular.module('ui.jassa.jassa-list', [])
     // TODO Get rid of the $timeouts - not sure why $q.when alone breaks when we return results from cache
 
     $scope.doRefresh = function() {
+      $scope.loading.data = true;
+      $scope.loading.pageCount = true;
 
-        $timeout(function() {
-            $scope.loading.data = true;
-            $scope.loading.pageCount = true;
-            $scope.items = [];
-            $scope.totalItems = 0;
-        });
+//        $timeout(function() {
+//            $scope.items = [];
+//            $scope.totalItems = 0;
+//        });
 
         var listFilter = $scope.listFilter;
 
