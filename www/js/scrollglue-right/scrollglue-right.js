@@ -88,7 +88,7 @@ angular.module('luegg.directives', [])
             scope.$watch(function() {
                 return el.clientWidth;
             }, function(w) {
-                console.log('client width: ', w);
+                console.log('client width: ', w, el.scrollWidth);
                 onScopeChanges();
             });
 
