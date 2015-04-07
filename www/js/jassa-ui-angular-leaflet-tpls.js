@@ -182,7 +182,7 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
     }, function(n, o) {
         if(o) {
             o.forEach(function(source) {
-                source.cancelAll();
+                source.destroy();
             });
         }
 
@@ -193,10 +193,35 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
     $scope.$watchCollection(function() {
         return $scope.sources;
     }, function() {
-        $scope.dataSources = $scope.sources.map(function(source) {
-            var r = jassa.util.PromiseUtils.lastRequestify(source);
-            return r;
-        });
+        if(false) {
+            $scope.dataSources = $scope.sources.map(function(source) {
+                return {
+                    fetchData: function(bounds) {
+                        return source.fetchData(bounds);
+                    },
+                    destroy: function() {}
+                }
+            });
+        }
+        else {
+            $scope.dataSources = $scope.sources.map(function(source) {
+                var fetchDataFn = jassa.util.PromiseUtils.lastRequest(function(bounds) {
+                    var r = source.fetchData(bounds);
+                    //r.cancellable();
+                    //console.log('isCancellable? ' + r.isCancellable());
+                    return r;
+                });
+
+                return {
+                    fetchData: fetchDataFn,
+                    destroy: function() {
+                        if(fetchDataFn.deferred) {
+                            fetchDataFn.deferred.cancel();
+                        }
+                    }
+                };
+            });
+        }
     });
 
 
@@ -458,8 +483,8 @@ $.widget('custom.ssbLeafletMap', {
         var maplayer = L.tileLayer('http://tiles.lyrk.org/ls/{z}/{x}/{y}?apikey=87be57815cf747a58ec5d84d8e64ccfa', {
         // var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawnum.kab31la4/{z}/{x}/{y}@2x.png', {
             detectRetina: true,
-            reuseTiles: true,
-            //updateWhenIdle: false,
+			reuseTiles: true,
+			//updateWhenIdle: false,
         });
 
         //this.map = new leaflet.Map(this.domElement, options);
