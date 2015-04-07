@@ -480,8 +480,8 @@ $.widget('custom.ssbLeafletMap', {
 
         //var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawn.i66cpk3g/{z}/{x}/{y}.png', {
         // var maplayer = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
-        // var maplayer = L.tileLayer('http://tiles.lyrk.org/ls/{z}/{x}/{y}?apikey=87be57815cf747a58ec5d84d8e64ccfa', {
-        var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawnum.kab31la4/{z}/{x}/{y}@2x.png', {
+        var maplayer = L.tileLayer('http://tiles.lyrk.org/ls/{z}/{x}/{y}?apikey=87be57815cf747a58ec5d84d8e64ccfa', {
+        // var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawnum.kab31la4/{z}/{x}/{y}@2x.png', {
             detectRetina: true,
 			reuseTiles: true,
 			//updateWhenIdle: false,
