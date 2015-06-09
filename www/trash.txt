@@ -1,0 +1,19 @@
+<!--         <button type="button" ng:click="test.push({a: 100})">Test Push</button> -->
+<!--         <button type="button" ng:click="test.pop()">Test Pop</button> -->
+
+<!--         <jassa-list list-service="listService" pagination-options="{cssClass: 'pagination-sm', maxSize: 5 }"> -->
+<!--             <li ng-repeat="item in items"> -->
+<!--             {{item.id}} -->
+<!--             </li> -->
+<!--         </jassa-list> -->
+
+<!--         <facet-list -->
+<!--             sparql-service="sparqlService" -->
+<!--             facet-tree-config="facetTreeConfig" -->
+<!--             path="path" -->
+<!--             select="selectPath(path)" -->
+<!--             pagination-options="paginationOptions" -->
+<!--         ></facet-list> -->
+<!--             facet-plugins="facetTreePlugins" -->
+<!--             plugin-context="facetTreePluginContext" -->
+

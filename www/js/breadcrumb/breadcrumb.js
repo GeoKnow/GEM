@@ -83,7 +83,7 @@ angular.module('ui.jassa.breadcrumb', [])
 
 
         //updateFacetTreeService();
-        self.refresh();
+        //self.refresh();
     };
 
     $scope.$watch('[ObjectUtils.hashCode(facetTreeConfig), model.pathHead.hashCode(), model.property]', function() {

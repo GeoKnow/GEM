@@ -5,8 +5,8 @@
  * Version: 0.0.4-SNAPSHOT - 2014-08-06
  * License: MIT
  */
-angular.module("ui.jassa.leaflet", ["ui.jassa.leaflet.tpls", "ui.jassa.leaflet.jassa-map-leaflet"]);
-angular.module("ui.jassa.leaflet.tpls", []);
+angular.module('ui.jassa.leaflet', ['ui.jassa.leaflet.tpls', 'ui.jassa.leaflet.jassa-map-leaflet']);
+angular.module('ui.jassa.leaflet.tpls', ['dddi']);
 //TODO Move to some better place
 
 var currentResults;
@@ -17,7 +17,7 @@ var refresh;
 
 angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
-.controller('JassaMapLeafletCtrl', ['$scope', '$q', function($scope, $q) {
+.controller('JassaMapLeafletCtrl', ['$scope', '$q', '$dddi', function($scope, $q, $dddi) {
 
     $scope.loadingSources = [];
 
@@ -34,8 +34,9 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         }
         else {
             var val = item.val;
-            var wktNode = val.wkt;
-            var wkt = wktNode.getLiteralLexicalForm();
+            //var wktNode = val.wkt;
+            //var wkt = wktNode.getLiteralLexicalForm();
+            var wkt = val.wkt;
 
 
             mapWrapper.addWkt(item.id, wkt, item);// {fillColor: markerFillColor, strokeColor: markerStrokeColor});
@@ -53,9 +54,9 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
 
     //$scope.boxes = [];
-    var fetchDataFromSourceCore = function(dataSource, bounds) {
+    var fetchDataFromSourceCore = function(dataService, bounds) {
 
-        var p = dataSource.fetchData(bounds);
+        var p = dataService.fetchData(bounds);
         var result = p.then(function(items) {
             items = _(items).compact();
             return items;
@@ -64,15 +65,15 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         return result;
     };
 
-//    var fetchDataFromSourceCoreUgly = function(dataSource, bounds) {
+//    var fetchDataFromSourceCoreUgly = function(dataService, bounds) {
 //
-//        var p = dataSource.fetchData(bounds);
+//        var p = dataService.fetchData(bounds);
 //
 //        // ugly, but working :)
-//        if(dataSource.delegate.listServiceBbox){
-//            var endpoint = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
-//            var graph = dataSource.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
-//            var concept = dataSource.delegate.listServiceBbox.listService.listService.concept.element.triples[0].object.uri;
+//        if(dataService.delegate.listServiceBbox){
+//            var endpoint = dataService.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.serviceUri;
+//            var graph = dataService.delegate.listServiceBbox.listService.listService.sparqlService.sparqlService.sparqlService.sparqlService.sparqlService.defaultGraphUris;
+//            var concept = dataService.delegate.listServiceBbox.listService.listService.concept.element.triples[0].object.uri;
 //            var id = 0;
 //        }
 //        if(localStorage.sources && localStorage.sources.length > 2){
@@ -89,15 +90,15 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 //            items = _(items).compact();
 //
 //            // Commented out because this is the application's decision
-//            // Add the dataSource as the config
+//            // Add the dataService as the config
 ////            _(items).each(function(item) {
-////                item.config = dataSource;
+////                item.config = dataService;
 ////            });
-//            if(dataSource.delegate.listServiceBbox){
+//            if(dataService.delegate.listServiceBbox){
 //                _(items).each(function(item) {
 //                    item.graph = graph;
 //                    item.endpoint = endpoint;
-//                    item.dataSourceId = id;
+//                    item.dataServiceId = id;
 //                });
 //            }
 //
@@ -107,11 +108,11 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 //        return result;
 //    };
 
-    var fetchDataFromSource = function(dataSourceId, dataSource, bounds) {
+    var fetchDataFromSource = function(dataServiceId, dataService, bounds) {
         // Check if we are already loading from this data source
         var idToState = _($scope.loadingSources).indexBy('id');
 
-        var state = idToState[dataSourceId];
+        var state = idToState[dataServiceId];
 
         // If there is a prior state, cancel it
         if(state) {
@@ -120,27 +121,27 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 //            }
         } else {
             state = {
-                id: dataSourceId,
+                id: dataServiceId,
                 requestId: 0
             };
 
-            idToState[dataSourceId] = state;
+            idToState[dataServiceId] = state;
             $scope.loadingSources.push(state);
         }
 
         var requestId = ++state.requestId;
 
-        var promise = fetchDataFromSourceCore(dataSource, bounds);
+        var promise = fetchDataFromSourceCore(dataService, bounds);
 
         var result = $q.when(promise).then(function(items) {
-            if(idToState[dataSourceId].requestId != requestId) {
+            if(idToState[dataServiceId].requestId != requestId) {
                 return;
             }
 
             items = _(items).compact(true);
 
             jassa.util.ArrayUtils.removeByGrep($scope.loadingSources, function(item) {
-                return item.id === dataSourceId;
+                return item.id === dataServiceId;
             });
 
             jassa.util.ArrayUtils.addAll($scope.items, items);
@@ -159,10 +160,10 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
     };
 
 
-    var fetchData = function(dataSources, bounds, progressionCallback) {
+    var fetchData = function(dataServices, bounds, progressionCallback) {
 
-        var promises = dataSources.map(function(dataSource, i) {
-            var r = fetchDataFromSource('' + i, dataSource, bounds);
+        var promises = dataServices.map(function(dataService, i) {
+            var r = fetchDataFromSource('' + i, dataService, bounds);
             return r;
         });
 
@@ -176,9 +177,9 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
     };
 
 
-    // If the datasource array changes, cancel all requests on these sources
+    // If the data service array changes, cancel all requests on these sources
     $scope.$watchCollection(function() {
-        return $scope.dataSources;
+        return $scope.dataServices;
     }, function(n, o) {
         if(o) {
             o.forEach(function(source) {
@@ -189,15 +190,18 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         refresh();
     });
 
-    // Wrap the given dataSources such that only the most recent request will be processed
-    $scope.$watchCollection(function() {
-        return $scope.sources;
-    }, function() {
-        $scope.dataSources = $scope.sources.map(function(source) {
-            var r = jassa.util.PromiseUtils.lastRequestify(source);
-            return r;
+    // Wrap the given dataServices such that only the most recent request will be processed
+    var dddi = $dddi($scope);
+
+    dddi.register('dataServices', ['@sources', function(sources) {
+        //var r = $scope.sources.map(function(source) {
+        var r = sources.map(function(source) {
+            var s = jassa.util.PromiseUtils.lastRequestify(source);
+            return s;
         });
-    });
+        return r;
+    }]);
+
 
 
     refresh = function() {
@@ -207,8 +211,8 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         //var indexScope = angular.element($('html')).scope();
 
 
-        var dataSources = $scope.dataSources;
-        //var dataSources = $scope.sources;//indexScope.dataSources;
+        var dataServices = $scope.dataServices;
+        //var dataServices = $scope.sources;//indexScope.dataServices;
 
         var tempbounds = $scope.map.getBounds();
 
@@ -221,10 +225,10 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         bounds = new geo.Bounds(bounds.left, bounds.bottom, bounds.right, bounds.top);
 
         //
-        //if(dataSources)//.length)
+        //if(dataServices)//.length)
 
-        if(dataSources != null) {
-            fetchData(dataSources, bounds);
+        if(dataServices != null) {
+            fetchData(dataServices, bounds);
         }
 
         //else
@@ -262,7 +266,7 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 //    $scope.$watch('sources', function() {
 //        refresh();
 //    });
-//    $scope.$watchCollection('dataSources', function() {
+//    $scope.$watchCollection('dataServices', function() {
 //        refresh();
 //    });
 
@@ -1002,7 +1006,7 @@ $.widget('custom.ssbLeafletMap', {
             feature.label = "Unknown";
         //feature.bindPopup(feature.properties.shortLabel.displayLabel).openPopup();
 
-        var id = feature.properties.dataSourceId;
+        var id = feature.properties.dataServiceId;
 
         var defaultIcon = L.icon({
                 iconUrl: 'img/marker-icon.png',
@@ -1612,22 +1616,22 @@ return;
 
             // mapWrapper.clearItems();
 
-            // var dataSources = $scope.sources;
+            // var dataServices = $scope.sources;
 
 
             // var bounds = Jassa.geo.leaflet.MapUtils.getExtent($scope.map);
 
-            // _(dataSources).each(function(dataSource) {
+            // _(dataServices).each(function(dataService) {
 
-                // var viewStateFetcher = dataSource.viewStateFetcher || defaultViewStateFetcher;
+                // var viewStateFetcher = dataService.viewStateFetcher || defaultViewStateFetcher;
 
-                // var sparqlService = dataSource.sparqlService;
-                // var mapFactory = dataSource.mapFactory;
-                // //var conceptFactory = dataSource.conceptFactory
-                // var conceptFactory = dataSource.conceptFactory;
+                // var sparqlService = dataService.sparqlService;
+                // var mapFactory = dataService.mapFactory;
+                // //var conceptFactory = dataService.conceptFactory
+                // var conceptFactory = dataService.conceptFactory;
                 // var concept = conceptFactory.createConcept();
 
-                // var quadTreeConfig = dataSource.quadTreeConfig;
+                // var quadTreeConfig = dataService.quadTreeConfig;
 
                 // var promise = viewStateFetcher.fetchViewState(sparqlService, mapFactory, concept, bounds, quadTreeConfig);
 
@@ -1648,7 +1652,7 @@ return;
                         // _(docs).each(function(doc) {
                             // var itemData = {
                                 // id: doc.id,
-                                // config: dataSource // Make the dataSource object part of the marker's data
+                                // config: dataService // Make the dataService object part of the marker's data
                             // };
 
                             // var wkt = doc.wkt.getLiteralLexicalForm();

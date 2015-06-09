@@ -30,6 +30,7 @@
 
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bluebird/js/browser/bluebird.js"></script>
     <script src="bower_components/jassa/jassa.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
@@ -38,14 +39,15 @@
     <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
     <script src="bower_components/angular-ui-sortable/sortable.js"></script>
     <script src="bower_components/angular-ui-utils/ui-utils.js"></script>
+    <script src="bower_components/dddi-angular/dddi-angular.js"></script>
     <script src="bower_components/jassa-ui-angular/jassa-ui-angular-tpls.js"></script>
     <script src="bower_components/leaflet/dist/leaflet.js"></script>
     <script src="bower_components/leaflet/dist/leaflet-src.js"></script>
     <script src="bower_components/snapjs/snap.js"></script>
     <script src="bower_components/angular-snap/angular-snap.js"></script>
-    <script src="bower_components/bluebird/js/browser/bluebird.js"></script>
     <script src="bower_components/jquery-cookie/jquery.cookie.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/ngstorage/ngStorage.js"></script>
     <!-- endbower -->
 
     <script src="bower_components/underscore.string/lib/underscore.string.js"></script>
@@ -64,33 +66,34 @@
     <script src="js/search.js"></script>
 <!--     <script src="js/toggle-constraints.js"></script> -->
 
-    <script src="js/breadcrumb/breadcrumb.js"></script>
-    <script src="js/jassa-list/jassa-list.js"></script>
-    <script src="js/facet-list/facet-list.js"></script>
+<!--     <script src="js/breadcrumb/breadcrumb.js"></script> -->
+<!--     <script src="js/jassa-list/jassa-list.js"></script> -->
+<!--     <script src="js/facet-list/facet-list.js"></script> -->
+
     <script src="js/scrollglue-right/scrollglue-right.js"></script>
 
     <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
-    
-	<script id="template/pagination/pagination.html" type="text/ng-template">
-		<ul class="pagination">
-				<li ng-if="boundaryLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(1)" title="First Page"> <span class="glyphicon glyphicon-step-backward"></span></a></li>
-				<li ng-if="directionLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(page - 1)" title="Previous Page"><span class="glyphicon glyphicon-step-backward"></span></a></li>
-				<li ng-repeat="page in pages track by $index" ng-class="{active: page.active}"><a href ng-click="selectPage(page.number)">{{page.text}}</a></li>
-				<li ng-if="directionLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(page + 1)" title="Next Page"><span class="glyphicon glyphicon-step-forward"></span></a></li>
-				<li ng-if="boundaryLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(totalPages)" title="Last Page"><span class="glyphicon glyphicon-step-forward"></span> </a></li>
-		</ul>
-	</script>
+
+    <script id="template/pagination/pagination.html" type="text/ng-template">
+        <ul class="pagination">
+                <li ng-if="boundaryLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(1)" title="First Page"> <span class="glyphicon glyphicon-step-backward"></span></a></li>
+                <li ng-if="directionLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(page - 1)" title="Previous Page"><span class="glyphicon glyphicon-step-backward"></span></a></li>
+                <li ng-repeat="page in pages track by $index" ng-class="{active: page.active}"><a href ng-click="selectPage(page.number)">{{page.text}}</a></li>
+                <li ng-if="directionLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(page + 1)" title="Next Page"><span class="glyphicon glyphicon-step-forward"></span></a></li>
+                <li ng-if="boundaryLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(totalPages)" title="Last Page"><span class="glyphicon glyphicon-step-forward"></span> </a></li>
+        </ul>
+    </script>
 
     <title>GEM - {{bar.value}}</title>
     <script type="text/javascript">
-		$(function(){
-			$("#bottom-drawer").css("bottom","-80%");
-			//$("#bottom-drawer p").css("width",window.innerWidth-80);
-		});
-		$(window).resize(function () {
-			//$("#bottom-drawer p").css("width",window.innerWidth-80);
-		});
-		
+        $(function(){
+            $("#bottom-drawer").css("bottom","-80%");
+            //$("#bottom-drawer p").css("width",window.innerWidth-80);
+        });
+        $(window).resize(function () {
+            //$("#bottom-drawer p").css("width",window.innerWidth-80);
+        });
+
     </script>
     <script type="text/javascript">
     _.mixin(_.str.exports());
@@ -122,71 +125,305 @@
     var vocab = jassa.vocab;
 
     // temporary (used at first start or when the source list is empty)
-    var sources = [
-                    { 'name' : 'DBP Architecture',
-                      'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
-                      'graph' : 'http://dbpedia.org',
-                      'type' : 'http://dbpedia.org/ontology/ArchitecturalStructure',
-                      'active' : true,
-                      'facets' : true
-                    },
-					{
-                      'name' : 'DBP Parks',
-                      'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
-                      'graph' : 'http://dbpedia.org',
-                      'type' : 'http://dbpedia.org/class/yago/ParksInBelgrade',
-                      'active' : false,
-                      'facets' : false
-                    },
-                    {
-                      'name' : 'LinkedGeoData',
-                      'endpoint' : 'http://linkedgeodata.org/sparql',
-                      'graph' : 'http://linkedgeodata.org',
-                      'type' : null,
-                      'active' : false,
-                      'facets' : false
-                    },
-                ];
 
-    var createSparqlService = function(url, graphUris) {
-        var result = service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'})
-            .cache().virtFix().paginate(1000).pageExpand(100).create();
+    var initialSources = [{
+            'name' : 'DBP Architecture',
+            'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
+            'graph' : 'http://dbpedia.org',
+            'type' : 'http://dbpedia.org/ontology/ArchitecturalStructure',
+            'active' : true,
+            'facets' : true
+        }, {
+            'name' : 'DBP Parks',
+            'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
+            'graph' : 'http://dbpedia.org',
+            'type' : 'http://dbpedia.org/class/yago/ParksInBelgrade',
+            'active' : false,
+            'facets' : false
+        }, {
+            'name' : 'LinkedGeoData',
+            'endpoint' : 'http://linkedgeodata.org/sparql',
+            'graph' : 'http://linkedgeodata.org',
+            'type' : null,
+            'active' : false,
+            'facets' : false
+        }];
 
-        return result;
-    };
 
-    var DataSourceFilter = jassa.ext.Class.create({
-        initialize: function(delegate, filterFn) {
-            this.delegate = delegate;
-            this.filterFn = filterFn || function() { return true; };
-        },
-        fetchData: function(concept) {
-            var self = this;
-            return this.delegate.fetchData(concept).then(function(items) {
-                return items.filter(self.filterFn);
-            });
-        },
-        setFilter: function(filterFn) {
-            this.filter = filterFn;
-        }
-    });
+    //localStorage.sources = localStorage.sources || initialSources;
+//     var createSparqlService = function(url, graphUris) {
+//         var result = service.SparqlServiceBuilder.http(url, graphUris, {type: 'POST'})
+//             .cache().virtFix().paginate(1000).pageExpand(100).create();
+
+//         return result;
+//     };
+
 
     var DataSourceFilterUtils = {
-        createFilteredDataSource: function(ds, text) {
-            return new DataSourceFilter(ds, function(item) {
+        createFilteredDataService: function(ds, text) {
+            return new jassa.service.DataServiceFilter(ds, function(entry) {
                 // case insensitive filtering
-                return !text ? item : item.shortLabel.displayLabel.toLowerCase().indexOf(text.toLowerCase()) >= 0;
+                return !text ? entry : entry.shortLabel.displayLabel.toLowerCase().indexOf(text.toLowerCase()) >= 0;
             });
         }
     };
 
-    angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'luegg.directives', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list', 'ui.jassa.breadcrumb'])
+    angular.module('jassa.demo.map.ol.basic',
+        ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'luegg.directives', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list', 'ui.jassa.breadcrumb', 'dddi', 'ngStorage'],
+        [ '$rootScopeProvider', function($rootScopeProvider) {
+            $rootScopeProvider.digestTtl(20);
+        }])
 
-    .controller('gemCtrl', ['$scope', function($scope) {
+    .controller('gemCtrl', ['$scope', '$dddi', '$localStorage', function($scope, $dddi, $localStorage) {
 
-        //$scope.ObjectUtils = util.ObjectUtils;
 
-        $scope.facetTreeConfig = new facete.FacetTreeConfig();
+        $scope.$storage = $localStorage;
+
+        $scope.$storage.$reset();
+
+        $scope.$storage.$default({
+            sources: initialSources
+        });
+
+        $scope.ObjectUtils = jassa.util.ObjectUtils;
+
+        //$scope.facetTreeConfig = new facete.FacetTreeConfig();
+
+
+        // TODO We may need to extend dddi with array support, such that
+        // dependencies are managed for each item in a given array
+        // For example, given an array of dataSourceConfigs, manage the
+        // creation of the corresponding sparqlService on an per item basis
+
+        // Proposal: dddi.registerArray('arrayExpression', 'targetAttrExprRelativeToItem', [deps])
+
+    var dddi = $dddi($scope);
+
+
+
+
+    // TODO Make this part of $ddddi()
+    $scope.active = {
+        services: {}
+    };
+
+
+    // Objects being wired up here
+    // - sparqlCache
+    // - services.sparqlService
+    // - services.conceptPathFinder
+    // - services.tableGeoLink
+    // - lookupServiceNodeLabels
+    // - lookupServicePathLabels
+    // - lookupServiceConstraintLabels
+    // -
+
+
+    $scope.langs = ['en', 'de'];
+
+
+//     DDDI Array test
+//     $scope.test = [{a: 1}, {a: 2}];
+
+//     dddi.forArray('test').register('b', ['a', '$index', function(x, $index) { console.log('$index: ', x, $index); return x + 1; }]);
+//     dddi.forArray('test').register('c', ['b', function(x) { return x + 1; }]);
+
+    $scope.$watchCollection('test', function(arr) {
+        console.log('test: ', JSON.stringify(arr));
+    });
+
+
+    dddi.register('labelLiteralPreference', ['@langs',
+        function(langs) {
+            var r = new sparql.LiteralPreference(langs);
+            return r;
+        }]);
+
+
+    // Create a copy of the sources in the scope
+    // Note that placing circular json objects into $storage will break it :/
+    dddi.register('sourceConfigs', ['=$storage.sources', function(sources) {
+
+        var r = sources.map(function(item) {
+            var s = angular.extend({}, item);
+            return s;
+        });
+
+        console.log('Sources changed ', r);
+
+        return r;
+    }]);
+
+
+    // FUCK.... if either the array reference or the target item reference change,
+    // all values need to be recomputed -
+    // even if the dependency values actually did not change.
+    // A workaround for now is to add the array as a collection-watch-dependency
+
+    // Create a facetTreeConfig if not part of the config already
+    dddi.forArray('sourceConfigs').register('facetTreeConfig', ['?facetTreeConfig', '@$scope.sourceConfigs',
+        function(facetTreeConfig) {
+//            console.log('Hm Status: ', $scope.sourceConfigs);
+            var r = facetTreeConfig ? facetTreeConfig : new facete.FacetTreeConfig();
+            return r;
+        }]);
+
+
+    // Link the size of the array for each source's associated services with that of the configs
+    dddi.linkArray('sourceServices', 'sourceConfigs', {
+        preCreate: function() { return {}; }
+    });
+
+
+    $scope.$watchCollection('sourceServices', function(s) {
+        console.log('Status: ' + s.length, s, $localStorage, $scope.sourceConfigs);
+    });
+
+    // For each source....
+
+    // copy the language settings
+    dddi.forArray('sourceServices').register('labelLiteralPreference', ['$scope.labelLiteralPreference',
+        function(llp) {
+            return llp;
+        }]);
+
+    dddi.forArray('sourceServices').register('sparqlService', [ '?$scope.sourceConfigs[$index].endpoint', '?$scope.sourceConfigs[$index].graph',
+        function(endpoint, graph, serviceConfig, sparqlProxyUrl, sparqlCache) {
+            var serviceConfig = {
+                serviceIri: endpoint,
+                defaultGraphIris: graph ? [graph] : []
+            };
+            //var cache = sparqlCacheSupplier ? sparqlCacheSupplier.getCache(serviceIri, defaultGraphIris) : null;
+//console.log('Recreated sparql service');
+
+            var base = sparqlProxyUrl == null
+                ? jassa.service.SparqlServiceBuilder.http(serviceConfig.serviceIri, serviceConfig.defaultGraphIris, {type: 'POST'})
+                : jassa.service.SparqlServiceBuilder.http(sparqlProxyUrl, serviceConfig.defaultGraphIris, {type: 'POST'}, {'service-uri': serviceConfig.serviceIri})
+                ;
+
+            //if(sparqlCache) {
+                // TODO Reuse prior request cache?
+                var requestCache = null; //new jassa.service.RequestCache(null, sparqlCache);
+                base = base.cache(requestCache);
+            //}
+
+            var r = base.virtFix().paginate(1000).pageExpand(100).create();
+
+            //console.log('Sparql service', serviceIri, defaultGraphIris);
+            return r;
+        }]);
+
+    dddi.forArray('sourceServices').register('lookupServiceNodeLabels', [ 'sparqlService', 'labelLiteralPreference',
+        function(sparqlService, literalPreference) {
+            //var literalPreference = active.services.labelLiteralPreference; //new sparql.LiteralPreference($scope.langs);
+            var r = sponate.LookupServiceUtils.createLookupServiceNodeLabels(sparqlService, literalPreference, 20 /* predicates */);
+            //r = new service.LookupServiceCache(r);
+            return r;
+        }]);
+
+    dddi.forArray('sourceServices').register('lookupServicePathLabels', [ 'lookupServiceNodeLabels',
+        function(lookupServiceNodeLabels) {
+            var r = new facete.LookupServicePathLabels(lookupServiceNodeLabels);
+            return r;
+        }]);
+
+    dddi.forArray('sourceServices').register('lookupServiceConstraintLabels', [ 'lookupServiceNodeLabels', 'lookupServicePathLabels',
+        function(lookupServiceNodeLabels, lookupServicePathLabels) {
+            var r = new facete.LookupServiceConstraintLabels(lookupServiceNodeLabels, lookupServicePathLabels);
+            return r;
+        }]);
+
+    dddi.forArray('sourceServices').register('listServiceConstraintLabels', ['$index', 'lookupServiceConstraintLabels', '$scope.ObjectUtils.hashCode($scope.sourceConfigs[$index].facetTreeConfig.getFacetConfig().getConstraintManager())',
+        function($index, lookupServiceConstraintLabels) {
+
+            var cm = $scope.sourceConfigs[$index].facetTreeConfig.getFacetConfig().getConstraintManager();
+            var constraints = cm != null ? cm.getConstraints() : [];
+
+            var promise = lookupServiceConstraintLabels.lookup(constraints).then(function(map) {
+
+                var entries = constraints.map(function(constraint) {
+                    var label = map.get(constraint);
+
+                    var r = {
+                        key: constraint,
+                        val: {
+                            constraint: constraint,
+                            displayLabel: label
+                        }
+                    };
+
+                    return r;
+                });
+
+                var filterSupplierFn = function(searchString) {
+                    var result;
+
+                    if(searchString != null) {
+                        var re = new RegExp(searchString, 'mi');
+
+                        result = function(entry) {
+                            var m1 = re.test(entry.val.displayLabel);
+                            return m1;
+                        };
+                    } else {
+                        result = function(entry) { return true; };
+                    }
+
+                    return result;
+                };
+
+                var r = new jassa.service.ListServiceArray(entries, filterSupplierFn);
+                return r;
+            });
+
+//            promise.then(function(ls) {
+//               ls.fetchItems().then(function(entries) {
+//                   console.log('WEEE: ', entries);
+//               });
+//            });
+            return promise;
+        }]);
+
+
+//    dddi.register('active.config.constraintManager', ['active.config.facetConfig',
+//        function() {
+//
+//        }]);
+
+
+    dddi.forArray('sourceServices').register('facetService', [ '$index', 'sparqlService', '$scope.ObjectUtils.hashCode($scope.sourceConfigs[$index].facetTreeConfig.getFacetConfig())', 'labelLiteralPreference',
+        function($index, sparqlService, facetConfigHash, labelLiteralPreference) {
+            var facetConfig = $scope.sourceConfigs[$index].facetTreeConfig.getFacetConfig();
+
+            var r = jassa.facete.FacetServiceBuilder
+                .core(sparqlService, facetConfig)
+                .labelConfig(labelLiteralPreference)
+                .index()
+                //.pathToTags(pathToTags)
+                //.tagFn(tagFn)
+                .create();
+
+            return r;
+        }]);
+
+    // TODO We could actually depend on the nodeLabel lookupService
+    // But maybe its ok to just depend on the labelLiteralPreference
+    dddi.forArray('sourceServices').register('facetValueService', [ '$index', 'sparqlService', '$scope.ObjectUtils.hashCode($scope.sourceConfigs[$index].facetTreeConfig.getFacetConfig())', 'labelLiteralPreference',
+        function($index, sparqlService, facetConfigHash, labelLiteralPreference) {
+            var facetConfig = $scope.sourceConfigs[$index].facetTreeConfig.getFacetConfig();
+
+            var facetValueServiceRowLimit = 5000000;
+
+            //var constraintManager = facetConfig.getConstraintManager();
+
+            var r = jassa.facete.FacetValueServiceBuilder
+                .core(sparqlService, facetConfig, facetValueServiceRowLimit)
+                .labelConfig(labelLiteralPreference)
+                .constraintTagging()
+                .create();
+
+            return r;
+        }]);
 
 
         // Different factories
@@ -253,161 +490,99 @@
 //             console.log('Config changed: ' + JSON.stringify(v));
 //         }, true);
 
-        $scope.dataSources = [];
-
-        var defaultConcept = sparql.ConceptUtils.createSubjectConcept(), defaultService;
-        firstLoad = true;
-
-
-        var updateRawDataSources = function(){
-            if(localStorage.sources && localStorage.sources.length > 2){
-                sources = $.parseJSON(localStorage.sources);
-            }
-            else if(!firstLoad){
-                sources = $.parseJSON(localStorage.sources);
-            }
-
-            var dataSources = [];
-            var id = 0;
-            $.each(sources, function(key, source){
-                if(source.active){
-                    var type = source.type;
-
-                    var baseConcept = type
-                        ? sparql.ConceptUtils.createTypeConcept(source.type)
-                        : sparql.ConceptUtils.createSubjectConcept();
-
-                    var facetConfig = $scope.facetTreeConfig.getFacetConfig();
-                    facetConfig.setBaseConcept(baseConcept);
-
-                    var concept = facete.FacetUtils.createConceptResources(facetConfig, new facete.Path()); //, null, false);
-
-
-                    var sparqlService = createSparqlService(source.endpoint, source.graph);
-                    if(source.facets){
-                        defaultConcept = baseConcept;
-                        defaultService = sparqlService;
-                    }
-
-                    var moreAttrs = {
-                        endpoint: source.endpoint,
-                        graph: source.graph,
-                        concept: baseConcept,
-                        dataSourceId: id
-                    };
-
-                    var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020', moreAttrs);
-                    dataSources.push(dataSource);
-                }
-                id++;
-            });
-            $scope.rawDataSources = dataSources;
-        }
-
-
         $scope.filterText = null;
 
-        var updateDataSources = function() {
-            $scope.dataSources = $scope.rawDataSources.map(function(rawDataSource) {
-                var r = DataSourceFilterUtils.createFilteredDataSource(rawDataSource, $scope.filterText);
+        dddi.forArray('sourceConfigs').register('baseConcept' , [ '?type', function(type) {
+                var r = type
+                    ? sparql.ConceptUtils.createTypeConcept(type)
+                    : sparql.ConceptUtils.createSubjectConcept();
+
                 return r;
-            });
-        };
+            }]);
+
+        // TODO HACK / We need to add proper support for setter functions
+        ///facetTreeConfig.facetConfig.setBaseConcept(baseConcept);
+        dddi.forArray('sourceConfigs').register('facetTreeConfig.getFacetConfig().baseConcept', ['baseConcept',
+            function(baseConcept) {
+                return baseConcept
+                //var facetConfig = $scope.facetTreeConfig.getFacetConfig();
+            }]);
+
+        dddi.forArray('sourceConfigs').register('concept', ['$index', '$scope.ObjectUtils.hashCode(facetTreeConfig.getFacetConfig())',
+            function($index, hash) {
+                var facetConfig = $scope.sourceConfigs[$index].facetTreeConfig.getFacetConfig();
+                var concept = facete.FacetUtils.createConceptResources(facetConfig, new facete.Path()); //, null, false);
+                return concept;
+            }]);
 
 
-        $scope.$watch(function() {
-            return util.ObjectUtils.hashCode($scope.facetTreeConfig);
-        }, function() {
-            updateRawDataSources();
-        });
+        dddi.forArray('sourceServices').register('rawMapDataService', [ '$index', 'sparqlService', '$scope.sourceConfigs[$index].concept', '$scope.sourceConfigs[$index]',
+            function($index, sparqlService, concept, sourceConfig) {
 
-        $scope.$watchCollection(function() {
-            return $scope.rawDataSources;
-        }, function() {
-            updateDataSources();
-        });
+                var moreAttrs = {
+                    endpoint: sourceConfig.endpoint,
+                    graph: sourceConfig.graph,
+                    concept: sourceConfig.baseConcept,
+                    dataSourceId: $index
+                };
 
-        $scope.$watch(function() {
-            return $scope.filterText;
-        }, function() {
-            updateDataSources();
-        });
+                var r = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020', moreAttrs);
 
-        $scope.$watch(function () {
-            //console.log(localStorage.sources);
-            return localStorage.getItem('sources');
-        }, function() {
-            console.log('REFRESH SOURCES');
-            updateRawDataSources();
-        }, true);
+                return r;
+            }]);
 
-//         $(function() {
-//             refresh();
-//         });
 
-        //$scope.rawDataSources = $scope.dataSources; // keep track of non-filtered data sources
+        dddi.forArray('sourceServices').register('mapDataService', ['rawMapDataService', '?$scope.filterText',
+            function(rawMapDataService, filterText) {
+                var r = DataSourceFilterUtils.createFilteredDataService(rawMapDataService, filterText);
+                //var r = rawMapDataService;
+                return r;
+            }]);
 
-        $scope.filterClicked = function(text) {
-            $scope.filterText = text ? text : null;
 
+        $scope.$watch('filterText', function(text) {
             if(text){ // Show filtered
-//                 var rawDataSources = $scope.rawDataSources; // always apply filter to all of the resources within current bounds
-//                 $scope.dataSources = []; // clear datasources
-//                 for(i in tempDataSources) {
-//                     $scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(rawDataSources[i], text));
-//                 }
-                //$('#search').attr("placeholder", 'Leave empty and press Enter to clear filter');
+//              var rawDataSources = $scope.rawDataSources; // always apply filter to all of the resources within current bounds
+//              $scope.dataSources = []; // clear datasources
+//              for(i in tempDataSources) {
+//                  $scope.dataSources.push(DataSourceFilterUtils.createFilteredDataSource(rawDataSources[i], text));
+//              }
+             //$('#search').attr("placeholder", 'Leave empty and press Enter to clear filter');
                 $('#search').css("display", 'none');
                 $('#clear').css("display", 'block');
             }
             else { // Show raw
-//                 $scope.dataSources = $scope.rawDataSources;
-                $('#search').attr("placeholder", 'Type, then press Enter to apply filter');
+//              $scope.dataSources = $scope.rawDataSources;
+             $('#search').attr("placeholder", 'Type, then press Enter to apply filter');
             }
-        };
-
-
-
-        // TODO: Select default data source for facet tree
-        $scope.updateFacetTree = function(defaultService, defaultConcept){
-            $scope.sparqlService = defaultService;
-
-            $scope.facetTreeConfig.getFacetConfig().setBaseConcept(defaultConcept);
-            $scope.selectedPath = new facete.Path();
-            $scope.selectPath = function(path) {
-                $scope.selectedPath = path;
-            };
-
-            $scope.facetTreeConfig.getFacetTreeState().getPathExpansions().add(new facete.Path());
-
-            $scope.$watch('facetTreeConfig.getFacetConfig().getConstraintManager();', function() {
-                $scope.facetValueConceptService = new facete.FacetValueConceptServiceExact($scope.facetTreeConfig.getFacetConfig());
-
-                $scope.facetValueConceptService.prepareConcept(new facete.Path());//.then(function(concept) {
-                    //$scope.dataSources = [ createMapDataSource($scope.sparqlService, geoMapFactoryWgs, concept, '#CC0020') ];
-                //});
-            }, true);
-
-            $scope.path = null;
-
-
-            var concept = sparql.ConceptUtils.createTypeConcept(defaultConcept);
-            var query = new sparql.Query();
-            query.setQueryPattern(concept.getElement());
-            query.getProject().add(concept.getVar());
-
-            //alert(query);
-            $scope.listService = new service.ListServiceSparqlQuery($scope.sparqlService, query, concept.getVar());
-
-            $scope.paginationOptions = {cssClass: 'pagination-sm', maxSize: 3 };
-        }
-
-        $scope.$watch(function() {
-            return defaultService;
-        }, function() {
-            $scope.updateFacetTree(defaultService, defaultConcept);
         });
 
+
+        var sfn = $dddi.utils.wrapArrayFn(function() {
+            var r = [];
+            for(var i = 0; i < $scope.sourceConfigs.length; ++i) {
+                var isActive = $scope.sourceConfigs[i].active;
+                var mapDataService = $scope.sourceServices[i].mapDataService;
+
+                if(isActive && mapDataService) {
+                    r.push(mapDataService);
+                }
+            }
+            return r;
+        });
+
+        dddi.register('mapDataServices', sfn);
+
+        $scope.$watchCollection('mapDataServices', function(mdss) {
+            console.log('MapDataServices: ', mdss);
+        });
+
+        $scope.filterClicked = function(text) {
+            $scope.filterText = text ? text : null;
+        };
+
+        // The active facet tree
+        $scope.activeFacetTreeIndex = 0;
     }]);
     </script>
 
@@ -415,19 +590,17 @@
 
 <body>
     <div snap-drawer="left">
-<!--         <jassa-list list-service="listService" pagination-options="{cssClass: 'pagination-sm', maxSize: 5 }"> -->
-<!--             <li ng-repeat="item in items"> -->
-<!--             {{item.id}} -->
-<!--             </li> -->
-<!--         </jassa-list> -->
 
         <facet-list
-            sparql-service="sparqlService"
-            facet-tree-config="facetTreeConfig"
-            path="path"
+            ui-model="active.breadcrumb"
+            constraint-manager="sourceConfigs[activeFacetTreeIndex].facetTreeConfig.getFacetConfig().getConstraintManager()"
+            lookup-service-node-labels="sourceServices[activeFacetTreeIndex].lookupServiceNodeLabels"
+            constraint-service="sourceServices[activeFacetTreeIndex].listServiceConstraintLabels"
+            facet-service="sourceServices[activeFacetTreeIndex].facetService"
+            facet-value-service="sourceServices[activeFacetTreeIndex].facetValueService"
             select="selectPath(path)"
-            pagination-options="paginationOptions"
         ></facet-list>
+
     </div>
     <div snap-drawer="right">
       <div id="sources">
@@ -478,7 +651,7 @@
             </div>
         </div>
         </snap-dragger>
-        <div jassa-map-leaflet="map" style="position: absolute; width: 100%; height: 100%" config="mapConfig" sources="dataSources" select="selectGeom(data)" id="map"></div>
+        <div jassa-map-leaflet="map" style="position: absolute; width: 100%; height: 100%" config="mapConfig" sources="mapDataServices" select="selectGeom(data)" id="map"></div>
     </div>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/index.js"></script>

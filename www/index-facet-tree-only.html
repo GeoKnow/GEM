@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html ng-app="jassa.demo.map.ol.basic" ng-controller="gemCtrl">
+
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+
+    <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="bower_components/angular-snap/angular-snap.css" />
+
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/jassa-ui-angular/jassa-ui-angular.css" />
+    <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
+    <!-- endbower -->
+
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/facet-list.css" />
+<!--     <link rel="stylesheet" href="css/gem.css" /> -->
+
+
+    <script src="bower_components/jscache/cache.js"></script>
+
+
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/jassa/jassa.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
+    <script src="bower_components/angular-ui-sortable/sortable.js"></script>
+    <script src="bower_components/angular-ui-utils/ui-utils.js"></script>
+    <script src="bower_components/jassa-ui-angular/jassa-ui-angular-tpls.js"></script>
+    <script src="bower_components/leaflet/dist/leaflet.js"></script>
+    <script src="bower_components/leaflet/dist/leaflet-src.js"></script>
+    <script src="bower_components/snapjs/snap.js"></script>
+    <script src="bower_components/angular-snap/angular-snap.js"></script>
+    <script src="bower_components/bluebird/js/browser/bluebird.js"></script>
+    <script src="bower_components/jquery-cookie/jquery.cookie.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <!-- endbower -->
+
+    <script src="bower_components/underscore.string/lib/underscore.string.js"></script>
+
+
+    <script src="lib/angular-snap/angular-snap.js"></script>
+    <script src="lib/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+    <script src="js/orientation.js"></script>
+
+    <script src="lib/wicket/wicket.js"></script>
+    <script src="lib/wicket/wicket-leaflet.js"></script>
+
+
+    <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
+    <script src="js/sourcemanager/sourcemanager.js"></script>
+    <script src="js/search.js"></script>
+<!--     <script src="js/toggle-constraints.js"></script> -->
+
+    <script src="js/breadcrumb/breadcrumb.js"></script>
+    <script src="js/jassa-list/jassa-list.js"></script>
+    <script src="js/facet-list/facet-list.js"></script>
+    <script src="js/scrollglue-right/scrollglue-right.js"></script>
+
+    <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+
+    <script id="template/pagination/pagination.html" type="text/ng-template">
+        <ul class="pagination">
+                <li ng-if="boundaryLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(1)" title="First Page"> <span class="glyphicon glyphicon-step-backward"></span></a></li>
+                <li ng-if="directionLinks" ng-class="{disabled: noPrevious()}"><a href ng-click="selectPage(page - 1)" title="Previous Page"><span class="glyphicon glyphicon-step-backward"></span></a></li>
+                <li ng-repeat="page in pages track by $index" ng-class="{active: page.active}"><a href ng-click="selectPage(page.number)">{{page.text}}</a></li>
+                <li ng-if="directionLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(page + 1)" title="Next Page"><span class="glyphicon glyphicon-step-forward"></span></a></li>
+                <li ng-if="boundaryLinks" ng-class="{disabled: noNext()}"><a href ng-click="selectPage(totalPages)" title="Last Page"><span class="glyphicon glyphicon-step-forward"></span> </a></li>
+        </ul>
+    </script>
+
+    <title>GEM - {{bar.value}}</title>
+    <script type="text/javascript">
+        $(function(){
+            $("#bottom-drawer").css("bottom","-80%");
+            //$("#bottom-drawer p").css("width",window.innerWidth-80);
+        });
+        $(window).resize(function () {
+            //$("#bottom-drawer p").css("width",window.innerWidth-80);
+        });
+
+    </script>
+    <script type="text/javascript">
+    _.mixin(_.str.exports());
+
+    $ = jQuery || $;
+    jQuery = $;
+
+    jassa = new Jassa(Promise, function() {
+        var jqXHR = $.ajax.apply(this, arguments);
+        var r = Promise.resolve(jqXHR)
+            .cancellable()
+            .catch(Promise.TimeoutError, Promise.CancellationError, function(e) {
+                //console.log('CANCELLED REQUEST');
+                jqXHR.abort();
+                throw e;
+            });
+        return r;
+    });
+
+    var rdf = jassa.rdf;
+    var sparql = jassa.sparql;
+    var service = jassa.service;
+    var sponate = jassa.sponate;
+    var facete = jassa.facete;
+    var util = jassa.util;
+
+    var geo = jassa.geo;
+
+    var vocab = jassa.vocab;
+
+    angular.module('jassa.demo.map.ol.basic', ['ngSanitize', 'ui.bootstrap', 'ui.jassa', 'ui.jassa.leaflet', 'luegg.directives', 'snap', 'ui.jassa.facet-list', 'ui.jassa.jassa-list', 'ui.jassa.breadcrumb'])
+
+    .controller('gemCtrl', ['$scope', function($scope) {
+
+        var createSparqlService = function(url, graphUris) {
+            //var proxyUrl = 'http://localhost:7532/cache/sparql';
+			var proxyUrl = 'http://localhost:8080/facete2/cache/sparql';
+
+            var result = service.SparqlServiceBuilder.http(proxyUrl, graphUris, {type: 'POST'}, {'service-uri': url})
+                .cache().virtFix().paginate(1000).pageExpand(100).create();
+
+            return result;
+        };
+
+        $scope.sparqlService = createSparqlService('http://linkedgeodata.org/sparql', ['http://linkedgeodata.org']);
+
+        $scope.facetTreeConfig = new facete.FacetTreeConfig();
+        $scope.facetTreeConfig.getFacetConfig().setBaseConcept(sparql.ConceptUtils.createTypeConcept('http://linkedgeodata.org/ontology/Pub'));
+
+    }]);
+    </script>
+
+</head>
+
+<body>
+
+    <facet-list
+        sparql-service="sparqlService"
+        facet-tree-config="facetTreeConfig"
+        path="path"
+        select="selectPath(path)"
+        pagination-options="paginationOptions"
+    ></facet-list>
+
+</body>
+
+</html>
+

@@ -1,7 +1,7 @@
 angular.module('luegg.directives', [])
 
 // Adapted version from https://github.com/Luegg/angularjs-scroll-glue/blob/master/src/scrollglue.js
-.directive('scrollGlue', ['$parse', '$timeout', function($parse, $timeout) {
+.directive('scrollGlueRight', ['$parse', '$timeout', function($parse, $timeout) {
     function unboundState(initValue){
         var activated = initValue;
         return {
@@ -56,7 +56,7 @@ angular.module('luegg.directives', [])
         restrict: 'A',
         link: function(scope, $el, attrs){
             var el = $el[0],
-                activationState = createActivationState(attrs.scrollGlue, scope);
+                activationState = createActivationState(attrs.scrollGlueRight, scope);
 
             function scrollToBottom(){
                 el.scrollTop = el.scrollHeight;
@@ -88,7 +88,7 @@ angular.module('luegg.directives', [])
             scope.$watch(function() {
                 return el.clientWidth;
             }, function(w) {
-                console.log('client width: ', w, el.scrollWidth);
+                //console.log('client width: ', w, el.scrollWidth);
                 onScopeChanges();
             });
 
