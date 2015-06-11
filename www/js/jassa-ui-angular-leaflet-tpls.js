@@ -14,6 +14,13 @@ var screenItems;
 var featureLayer;
 var selectedFeature;
 var refresh;
+var userLocation;
+var route;
+var selectedIcon = L.icon({
+                iconUrl: 'img/marker-icon-selected.png',
+				iconAnchor: [12,41],
+                shadowUrl: 'img/marker-shadow.png',
+            });
 
 angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
@@ -478,12 +485,12 @@ $.widget('custom.ssbLeafletMap', {
                 ]
         }; */
 
-        //var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawn.i66cpk3g/{z}/{x}/{y}.png', {
+        var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawn.i66cpk3g/{z}/{x}/{y}.png', {
         // var maplayer = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
-        var maplayer = L.tileLayer('http://tiles.lyrk.org/ls/{z}/{x}/{y}?apikey=87be57815cf747a58ec5d84d8e64ccfa', {
+        //var maplayer = L.tileLayer('http://tiles.lyrk.org/ls/{z}/{x}/{y}?apikey=87be57815cf747a58ec5d84d8e64ccfa', {
         // var maplayer = L.tileLayer('http://{s}.tiles.mapbox.com/v3/whitepawnum.kab31la4/{z}/{x}/{y}@2x.png', {
             detectRetina: true,
-			reuseTiles: true,
+			reuseTiles: false,
 			//updateWhenIdle: false,
         });
 
@@ -519,7 +526,7 @@ $.widget('custom.ssbLeafletMap', {
                 iconAnchor: [12, 41],
             });
 
-            var userLocation = L.marker(e.latlng);
+            userLocation = L.marker(e.latlng);
             userLocation.setIcon(userIcon);
             userLocation.addTo(map);
 
@@ -543,6 +550,13 @@ $.widget('custom.ssbLeafletMap', {
                 .setLatLng(e.latlng)
                 .setContent("You clicked the map at " + e.latlng.toString())
                 .openOn(map);*/
+			mapPixelHeight = parseFloat($('#map').css('height'));
+			mapParentPixelHeight = parseFloat($('#map').parent().css('height'));
+			var mapHeight = 100 * parseFloat($('#map').css('height')) / parseFloat($('#map').parent().css('height'));
+			if(mapHeight < 30){
+				$("#map").css("height","100%");
+				map.invalidateSize();
+			}
             if(!$("body").hasClass("snapjs-left") && !$("body").hasClass("snapjs-right")){
                 $(".ui-element").css("opacity","0.5");
             }
@@ -550,7 +564,8 @@ $.widget('custom.ssbLeafletMap', {
                 $("#bottom-drawer").removeClass('expanded preview');
                  $('#details').html('');
             });
-            $('#search-box').height("inherit");
+            $('#search-box').show();
+			$('#search-box').height("inherit");
             $('#search-box #results').html('');
             $('#search-box #results').css('display','none');
         }
@@ -564,6 +579,12 @@ $.widget('custom.ssbLeafletMap', {
         $(".ui-element").on("click",onUITouch);
 
         function onUITouch(e) {
+			var mapHeight = 100 * parseFloat($('#map').css('height')) / parseFloat($('#map').parent().css('height'));
+			if(mapHeight < 30){
+				$("#map").css("height","100%");
+				map.invalidateSize();
+				map.panTo(selectedFeature._latlng);
+			}
             $(".ui-element").css("opacity","1");
             $("#bottom-drawer").slideUp(function(){
                 $("#bottom-drawer").removeClass('expanded preview');
@@ -574,35 +595,71 @@ $.widget('custom.ssbLeafletMap', {
             if(e.target.id) id = e.target.id;
             else if(e.target.parentNode.parentNode) id = e.target.parentNode.parentNode.id;
             if(id != "search" && (id != "results" && e.target.localName != "li")) {
-                $('#search-box').height("inherit");
+                $('#search-box').show();
+				$('#search-box').height("inherit");
                 $('#search-box #results').html('');
                 $('#search-box #results').css('display','none');
             }
         }
 
         this.map.on('dragstart', function() {
+			var mapHeight = 100 * parseFloat($('#map').css('height')) / parseFloat($('#map').parent().css('height'));
+			if(mapHeight < 30){
+				$("#map").css("height","100%");
+				map.invalidateSize();
+			}
             if(!$("body").hasClass("snapjs-left") && !$("body").hasClass("snapjs-right")){
                 $(".ui-element").css("opacity","0.18");
                 $(".ui-element-content").css("opacity","0");
             }
             $("#bottom-drawer").slideUp();
+			$('#search-box').show();
             $('#search-box').height("inherit");
             $('#search-box #results').html('');
             $('#search-box #results').css('display','none');
         });
 
         this.map.on('dragend', function() {
+			var mapHeight = 100 * parseFloat($('#map').css('height')) / parseFloat($('#map').parent().css('height'));
+			if(mapHeight < 30){
+				$("#map").css("height","100%");
+				map.invalidateSize();
+			}
             if(!$("body").hasClass("snapjs-left") && !$("body").hasClass("snapjs-right")){
                 $(".ui-element").css("opacity","0.5");
                 $(".ui-element-content").css("opacity","1");
             }
+			if(selectedFeature) selectedFeature.setIcon(selectedIcon);
         });
 
         $("#bottom-drawer").on("click", "a.feature-label", function() {
+			expandDrawer();            
+			getFeatureDetails();
+        });
+		
+		function expandDrawer(){
+			$('#search-box').hide();
             $("#bottom-drawer").removeClass('preview');
             $("#bottom-drawer").addClass('expanded');
-            $("#bottom-drawer").animate({'bottom': '0px'}, 200);
-            var resource = selectedFeature.properties.shortLabel.id;
+            $("#bottom-drawer").animate({'bottom': '0px'}, 200, function() {
+				$("#map").css("height","20%");
+				map.invalidateSize();
+				map.panTo(selectedFeature._latlng);
+				selectedFeature.setIcon(selectedIcon);
+			});
+		}
+		
+		$("#info").on("click", "a", function(){
+			$('#info').addClass('tab-active');
+			$('#directions').removeClass('tab-active');
+			getFeatureDetails();
+		});
+		
+		function getFeatureDetails(){
+			$('#details').html('');
+			$('#directions').removeClass('tab-active');
+			$('#info').addClass('tab-active');
+			var resource = selectedFeature.properties.shortLabel.id;
             var graph = encodeURIComponent(selectedFeature.properties.graph);
             var endpoint = '';
             if(graph == "http%3A%2F%2Fdbpedia.org")
@@ -681,7 +738,7 @@ $.widget('custom.ssbLeafletMap', {
                     console.log( "complete" );
                 });
             }
-        });
+		}
 
         /*
          * Renderer init (needed for outlines of labels)
@@ -1031,17 +1088,21 @@ $.widget('custom.ssbLeafletMap', {
 
         var defaultIcon = L.icon({
                 iconUrl: 'img/marker-icon.png',
+				iconAnchor: [12,41],
                 shadowUrl: 'img/marker-shadow.png',
                 className: 'icon-' + id,
-            });
-        var selectedIcon = L.icon({
-                iconUrl: 'img/marker-icon-selected.png',
-                shadowUrl: 'img/marker-shadow.png',
             });
 
         feature.setIcon(defaultIcon);
 
         feature.on("click", function(){
+			var mapHeight = 100 * parseFloat($('#map').css('height')) / parseFloat($('#map').parent().css('height'));
+			if(mapHeight < 30){
+				$("#map").css("height","100%");
+				map.invalidateSize();
+			}
+			map.panTo(feature._latlng);
+			feature.setIcon(selectedIcon);
             var label, uri;
             $('#details').html('');
             selectedFeature = feature;
@@ -1065,14 +1126,20 @@ $.widget('custom.ssbLeafletMap', {
             $("#bottom-drawer").css('display','block');
             $("#bottom-drawer").addClass("preview");
             $("#bottom-drawer").animate({'bottom': '0px'}, 200);
+			$("#bottom-drawer").scrollTop(0);
             if(prevFeature) {
                   prevFeature.setIcon(defaultIcon);
             }
             feature.setIcon(selectedIcon);
             prevFeature = feature;
+			
         });
 
-
+		if(selectedFeature){
+			if(feature.label == selectedFeature.label){
+				feature.setIcon(selectedIcon);
+			}
+		}
         featureLayer.addLayer(feature);
 
         //feature.geometry.transform(this.map.displayProjection, this.map.projection);

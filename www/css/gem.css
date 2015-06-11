@@ -183,16 +183,14 @@ h2 {
     padding-left: 10px;
 }
 #bottom-drawer {
-    background: url('../img/point.png') 40px 14px no-repeat;
     bottom: 0;
     position: absolute;
     width: 100%;
     height: 80%;
-    padding-top: 14px;
+    padding-top: 17px;
     background-color: white;
     box-shadow: inset 0px 0px 1px 1px #d0d0d0;
     z-index: 3;
-    padding-left: 70px;
     overflow-y: scroll;
     overflow-x: hidden;
 }
@@ -208,25 +206,79 @@ h2 {
     display: block;
     height: 60px;
     bottom: -60px;
+	overflow-y: hidden;
 }
 #bottom-drawer p{
-    text-align: left;
-    padding-left: 10px;
-    line-height: 1em;
+    background: url('../img/point.png') 2px -1px no-repeat;
+    padding-top: 1px;
+    padding-left: 45px;
+	text-align: left;
+    line-height: 1.2em;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: 90%;
 }
-#bottom-drawer.expanded  p{
-    padding-left: 0;
-    margin: 0 auto 10px auto;
-
+#info-header{
+	width: 90%;
+	margin: 0 auto;
+}
+#tabs img {
+	float: left;
+	margin-top: 2px;
+}
+#tabs {
+	width: 100%;
+	padding: 5px 0 0 0px;
+	margin: 20px auto 10px auto;
+	border-top: 1px solid #e3e3e3; 
+}
+#tabs a,
+#tabs a:hover,
+#tabs a:visited {
+	font-size: 16px;
+	color: #909090;
+	text-decoration: none;
+}
+#tabs .tab-active a,
+#tabs .tab-active a:hover,
+#tabs .tab-active a:visited {
+	color: #5853C7;
+}
+#info,
+#directions,
+#clear-route {
+	width: 50%;
+	float: left;
+	line-height: 1em;
+	padding: 7px 0px 5px 22px;
+	font-size: 14px;
+	margin-top: -6px;
+}
+#info{
+	background: url('../img/info-inactive.png') 22px 9px no-repeat;
+}
+#info.tab-active{
+	background: url('../img/info.png') 22px 9px no-repeat;
+}
+#directions{
+	background: url('../img/directions-inactive.png') 22px 9px no-repeat;
+}
+#directions.tab-active{
+	background: url('../img/directions.png') 22px 9px no-repeat;
+}
+.tab-active {
+	border-bottom: 4px solid #928DFF;
+}
+#tab-label{
+	float: left;
+	margin: 6px 0 6px 30px;
+	font-size: 14px;
 }
 #loader {
     margin: 0 auto;
 }
 #details {
+	clear: both;
     display: -webkit-box;
     display: -moz-box;
     display: box;
@@ -632,4 +684,78 @@ a.feature-label:visited {
     font-weight: normal;
     border-radius: 5px;
     box-shadow: 0px 0px 1px 1px #d0d0d0;
+}
+.leaflet-right{
+	display:none;
+	margin-left: auto;
+    margin-right: auto;
+    width: 95%;
+	height: 95%;
+	right: inherit;
+}
+.leaflet-right .leaflet-routing-container {
+	margin-left: auto;
+    margin-right: auto;
+	width: 95%;
+	height: 90%;
+	margin-top: 60px;
+	border: none;
+	box-shadow: rgb(208, 208, 208) 0px 0px 1px 1px;
+}
+.leaflet-right .leaflet-routing-container table {
+	width: 100%;
+}
+#details  .leaflet-routing-alt {
+	max-height: 100%;
+	border-top: 1px solid #e3e3e3;
+	margin-top: 1px;
+	border-bottom: none;
+}
+#details .leaflet-routing-alt h2 {
+	font-size: 20px;
+	margin-top: 10px;
+	font-weight: bold;
+	padding-left: 17px;
+}
+#details  .leaflet-routing-alt.leaflet-routing-alt-minimized {
+	max-height: 32px;
+	padding-top: 0px;
+	color: rgb(89, 89, 89);
+	padding: 0 39px;
+	background: url('../img/directions-alt.png') 22px 9px no-repeat;
+}
+#details .leaflet-routing-alt.leaflet-routing-alt-minimized h2 {
+	font-weight: bold;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 17px;
+}
+#details .leaflet-routing-alt h3 {
+	  padding-left: 17px;
+	  font-size: 22px;
+}
+#details  .leaflet-routing-alt  table{
+	font-size: 16px;
+	width: 100%;
+}
+#details  .leaflet-routing-alt  tr{
+	border-top: 1px solid #dedede;
+	padding: 8px 16px;
+	float: left;
+	width: 100%;
+	clear: both;
+}
+#details .leaflet-routing-alt tr:hover {
+  background-color: #F2FAFF;
+}
+#details  .leaflet-routing-alt  td:first-of-type{
+	width: 10%;
+}
+#details  .leaflet-routing-alt td{
+	float: left;
+	width: 73%;
+}
+#details  .leaflet-routing-alt  td:last-of-type{
+	float: right;
+	width: 15%;
 }

@@ -16,6 +16,13 @@ $(function() {
     });
 	
 	$('#search').on('click', function(){
+		var googleGeocodeProvider = new L.GeoSearch.Provider.Google();
+		addressText = 'Amsterdam';
+
+		googleGeocodeProvider.GetLocations( addressText, function ( data ) {
+		  console.log(data);
+		  // in data are your results with x, y, label and bounds (currently availabel for google maps provider only)
+		});
 		$('#search').attr('placeholder', 'Select from list or type, then press Enter to filter');
 		$('#search-box #results').css('display','block');
 		$('#search-box #results').html('');
