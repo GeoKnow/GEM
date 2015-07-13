@@ -1,11 +1,53 @@
-<span class="source-name-icon">&#x25cf; </span>Name:
-<input type="text" id="source-name" />
-<span class="source-endpoint-icon">&#x25cf; </span>Endpoint:
-<input type="text" id="source-endpoint" />
-<span class="source-graph-icon">&#x25cf; </span>Graph:
-<input type="text" id="source-graph" />
-<span class="source-type-icon">&#x25cf; </span>Type:
-<input type="text" id="source-type" style="margin-bottom: 25px;" />
-<br />
-<a href="#" class="finish-editing"><span class="glyphicon glyphicon-ok"></span>&nbsp; Save</a>
-<a href="#" class="cancel-editing"><span class="glyphicon glyphicon-remove"></span>&nbsp; Cancel</a>
+<div id="source-editor">
+	<span class="source-name-icon">&#x25cf; </span>Name:
+	<input type="text" id="source-name" />
+	<span class="source-endpoint-icon">&#x25cf; </span>Endpoint:
+	<input type="text" id="source-endpoint" />
+	<span class="source-graph-icon">&#x25cf; </span>Graph:
+	<input type="text" id="source-graph" />
+	<span class="source-type-icon">&#x25cf; </span>Type:
+	<input type="text" id="source-type" style="margin-bottom: 25px;" />
+	<span class="source-properties-icon">&#x25cf; </span>Properties:
+	<input type="text" id="source-properties" style="margin-bottom: 25px;" />
+	<br />
+	<a href="#" class="finish-editing"><span class="glyphicon glyphicon-ok"></span>&nbsp; Save</a>
+	<a href="#" class="cancel-editing"><span class="glyphicon glyphicon-remove"></span>&nbsp; Cancel</a>
+</div>
+<div id="type-finder">
+	<div class="throbber">Fetching available types...</div>
+	<div id="type-finder-input">
+		<span class="source-type-icon">&#x25cf; </span>Type:
+		<input type="text" id="source-type-temp" style="margin-bottom: 25px;" />
+		<div id="type-results"></div>
+		<a href="#" class="accept"><span class="glyphicon glyphicon-ok"></span>&nbsp; OK</a>
+		<a href="#" class="cancel"><span class="glyphicon glyphicon-remove"></span>&nbsp; Cancel</a>
+	</div>
+	
+	<a href="#" class="manual"><span class="glyphicon glyphicon-pencil"></span>&nbsp; Add manually</a>
+</div>
+<div id="property-finder">
+	<div class="throbber">Fetching available properties...</div>
+	<div id="property-finder-input">
+		<span class="source-properties-icon">&#x25cf; </span>Properties:
+		<div class="clone">
+			<input type="text" style="margin-bottom: 25px;" />
+			<select class="type">
+			  <option value="text">txt</option>
+			  <option value="image">img</option>
+			  <option value="uri">uri</option>
+			  <option value="numeric">num</option>
+			</select>
+		</div>
+		<div id="clones"></div>
+		<div id="property-results"></div>
+		<div style="clear: both">
+			<a href="#" class="add-field"><span class="glyphicon glyphicon-plus"></span>Add property</a>
+			<div class="editor-controls">
+				<a href="#" class="accept"><span class="glyphicon glyphicon-ok"></span>&nbsp; OK</a>
+				<a href="#" class="cancel"><span class="glyphicon glyphicon-remove"></span>&nbsp; Cancel</a>
+			</div>
+		</div>
+	</div>
+	
+	<a href="#" class="manual"><span class="glyphicon glyphicon-pencil"></span>&nbsp; Add manually</a>
+</div>

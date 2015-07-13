@@ -1,7 +1,9 @@
 body {
     color: #595959;
 }
-
+input:focus {
+	outline: none;
+}
 .breadcrumb {
     width: 100%;
     display: block;
@@ -232,6 +234,13 @@ h2 {
 	margin: 20px auto 10px auto;
 	border-top: 1px solid #e3e3e3; 
 }
+.inactive {
+	pointer-events: none;
+}
+#tabs #add-waypoint.inactive  a,
+#tabs #clear-route.inactive  a {
+	color: #E3E3E3;
+}
 #tabs a,
 #tabs a:hover,
 #tabs a:visited {
@@ -246,36 +255,65 @@ h2 {
 }
 #info,
 #directions,
-#clear-route {
-	width: 50%;
+#clear-route,
+#add-waypoint {
 	float: left;
 	line-height: 1em;
-	padding: 7px 0px 5px 22px;
+	padding: 7px 0px 5px 15px;
 	font-size: 14px;
 	margin-top: -6px;
 }
-#info{
-	background: url('../img/info-inactive.png') 22px 9px no-repeat;
+#info,
+#directions {
+	width: 37%;
 }
-#info.tab-active{
-	background: url('../img/info.png') 22px 9px no-repeat;
+#clear-route,
+#add-waypoint {
+	width: 13%;
+	padding-left: 5px;
 }
-#directions{
-	background: url('../img/directions-inactive.png') 22px 9px no-repeat;
+#directions, #clear-route, #add-waypoint {
+	margin-bottom:-1px;
 }
-#directions.tab-active{
-	background: url('../img/directions.png') 22px 9px no-repeat;
+#clear-route.tab-active,
+#add-waypoint.tab-active {
+	border-bottom: 4px solid rgb(227, 227, 227);
+}
+#directions.tab-active {
+	border-bottom: 4px solid #0DCBE6;
+}
+#info.tab-active {
+	border-bottom: 4px solid #FF8A2A;
+}
+#tabs #info.tab-active a{
+	color: #FF8A2A;
+}
+#tabs #clear-route a{
+	color: #FF8DB1;
+}
+#tabs #add-waypoint a {
+	color: #928DFF;
+}
+#tabs #directions.tab-active a {
+	color: #0DCBE6;
+}
+.tab-active a.clear-route,
+.tab-active a.clear-route:visited,
+.tab-active a.clear-route:hover{
+	color: #F97791;
 }
 .tab-active {
 	border-bottom: 4px solid #928DFF;
 }
-#tab-label{
+.tab-label{
 	float: left;
 	margin: 6px 0 6px 30px;
 	font-size: 14px;
 }
 #loader {
-    margin: 0 auto;
+	width: 100%;
+	clear: both;
+	text-align: center;
 }
 #details {
 	clear: both;
@@ -315,7 +353,7 @@ h2 {
     -moz-box-ordinal-group: 2;
     box-ordinal-group: 2;
 }
-#details .url {
+#details .uri {
     padding: 5px 0;
     font-size: 12px;
     color: #009EFF;
@@ -323,10 +361,13 @@ h2 {
     -moz-box-ordinal-group: 3;
     box-ordinal-group: 3;
 }
-#details .url .content {
+#details .uri .content {
     padding: 5px 0;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+#details .numeric .content {
+    color: rgb(138, 43, 178);
 }
 #resource-icon,
 #resource-info {
@@ -574,6 +615,9 @@ a.feature-label:visited {
 .snap-drawer-right .source-type-icon {
     color: #83D5FF;
 }
+.snap-drawer-right .source-properties-icon {
+    color: #44EF9B;
+}
 .snap-drawer-right li.inactive,
 .snap-drawer-right li.inactive .source-name a,
 .snap-drawer-right li.inactive .source-endpoint-icon,
@@ -597,6 +641,27 @@ a.feature-label:visited {
     margin-bottom: 15px;
     color: #B3B3B3;
 }
+.snap-drawer-right #editor #property-finder input {
+    width: 77%;
+	float: left;
+	margin-right: 6px;
+}
+.snap-drawer-right #editor #property-finder select.type {
+	width: 20%;
+	float: left;
+	border-top: none;
+	border-bottom: none;
+	border-right: none;
+	border-left: 1px solid #e3e3e3;
+	margin-bottom: 15px;
+	color: #B3B3B3;
+}
+.snap-drawer-right #editor #property-finder select.type:focus {
+	outline: none;
+}
+.snap-drawer-right #property-results {
+	clear: both;
+}
 .snap-drawer-right #editor .glyphicon-remove {
     margin-left: 20px;
     top: 2px;
@@ -607,6 +672,16 @@ a.feature-label:visited {
 .snap-drawer-right a {
     color: #6C6C6C;
     font-size: 20px;
+}
+.snap-drawer-right a.add-field {
+    color: #6C6C6C;
+    font-size: 14px;
+}
+.snap-drawer-right .editor-controls {
+	clear: both;
+	margin-top: 10px;
+	border-top: 1px solid #E3E3E3;
+	padding-top: 10px;
 }
 .snap-drawer-right .source-name a .glyphicon{
     font-size: 29px;
@@ -677,6 +752,40 @@ a.feature-label:visited {
 }
 .snap-drawer-right a .glyphicon{
     margin-right: 10px;
+}
+#type-finder {
+	display: none;
+}
+#property-finder {
+	display: none;
+}
+.throbber {
+	width: 100%;
+	height: 36px;
+	background: url('../img/loader.gif') no-repeat center;
+	margin: -10px auto 30px auto;
+	text-align: center;
+	padding-top: 55px;
+}
+.snap-drawer-right ul.ui-autocomplete {
+	margin-top: 12px;
+	background-color: white;
+}
+.snap-drawer-right ul.ui-autocomplete li {
+	padding: 5px 0;
+}
+.snap-drawer-right ul.ui-autocomplete a {
+	font-size: 13px;
+	color: #009EFF;
+}
+.snap-drawer-right .ui-helper-hidden-accessible {
+	display: none;
+}
+.snap-drawer-right a.manual {
+	width: 100%;
+	border-top: 1px solid #e3e3e3;
+	float: left;
+	padding-top: 15px;
 }
 #map .label-primary {
     background-color: #FFFFFF;

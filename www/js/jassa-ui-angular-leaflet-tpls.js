@@ -9,19 +9,57 @@ angular.module("ui.jassa.leaflet", ["ui.jassa.leaflet.tpls", "ui.jassa.leaflet.j
 angular.module("ui.jassa.leaflet.tpls", []);
 //TODO Move to some better place
 
-var currentResults;
-var screenItems;
-var featureLayer;
-var selectedFeature;
-var refresh;
-var userLocation;
-var route;
+var currentResults,
+	screenItems,
+	featureLayer,
+	selectedFeature,
+	refresh,
+	userLocation,
+	route,
+	line,
+	directions;
+var waypoints = [];
 var selectedIcon = L.icon({
                 iconUrl: 'img/marker-icon-selected.png',
 				iconAnchor: [12,41],
                 shadowUrl: 'img/marker-shadow.png',
             });
+			
+function onMapClick(e) {
+	/*popup
+		.setLatLng(e.latlng)
+		.setContent("You clicked the map at " + e.latlng.toString())
+		.openOn(map);*/
+	mapPixelHeight = parseFloat($('#map').css('height'));
+	mapParentPixelHeight = parseFloat($('#map').parent().css('height'));
+	var mapHeight = 100 * parseFloat($('#map').css('height')) / parseFloat($('#map').parent().css('height'));
+	if(mapHeight < 30){
+		$("#map").css("height","100%");
+		map.invalidateSize();
+	}
+	if(!$("body").hasClass("snapjs-left") && !$("body").hasClass("snapjs-right")){
+		$(".ui-element").css("opacity","0.5");
+	}
+	$("#bottom-drawer").slideUp(function(){
+		$("#bottom-drawer").removeClass('expanded preview');
+		 $('#details').html('');
+	});
+	$('#search-box').show();
+	$('#search-box').height("inherit");
+	$('#search-box #results').html('');
+	$('#search-box #results').css('display','none');
+}
 
+function showDirections(){
+	$('#details').html('');
+	$('#loader').hide();
+	$('#info').removeClass('tab-active');
+	$('#directions').addClass('tab-active');
+	$('#clear-route').addClass('tab-active');
+	$('#add-waypoint').addClass('tab-active');
+	directions.appendTo('#details');
+}			
+			
 angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
 
 .controller('JassaMapLeafletCtrl', ['$scope', '$q', function($scope, $q) {
@@ -280,8 +318,8 @@ angular.module('ui.jassa.leaflet.jassa-map-leaflet', [])
         }
 
         $scope.map.invalidateSize();
-        $scope.map.panTo(new L.LatLng(config.center.lat, config.center.lon));
-        $scope.map.setZoom(config.zoom);
+        //$scope.map.panTo(new L.LatLng(config.center.lat, config.center.lon));
+        //$scope.map.setZoom(config.zoom);
     }, true);
 
 
@@ -545,31 +583,6 @@ $.widget('custom.ssbLeafletMap', {
 
         this.map.on('locationerror', onLocationError);
 
-        function onMapClick(e) {
-            /*popup
-                .setLatLng(e.latlng)
-                .setContent("You clicked the map at " + e.latlng.toString())
-                .openOn(map);*/
-			mapPixelHeight = parseFloat($('#map').css('height'));
-			mapParentPixelHeight = parseFloat($('#map').parent().css('height'));
-			var mapHeight = 100 * parseFloat($('#map').css('height')) / parseFloat($('#map').parent().css('height'));
-			if(mapHeight < 30){
-				$("#map").css("height","100%");
-				map.invalidateSize();
-			}
-            if(!$("body").hasClass("snapjs-left") && !$("body").hasClass("snapjs-right")){
-                $(".ui-element").css("opacity","0.5");
-            }
-            $("#bottom-drawer").slideUp(function(){
-                $("#bottom-drawer").removeClass('expanded preview');
-                 $('#details').html('');
-            });
-            $('#search-box').show();
-			$('#search-box').height("inherit");
-            $('#search-box #results').html('');
-            $('#search-box #results').css('display','none');
-        }
-
         this.map.on('click', onMapClick);
 
         $(".ui-element").on("dragstart",onUITouch);
@@ -633,8 +646,17 @@ $.widget('custom.ssbLeafletMap', {
         });
 
         $("#bottom-drawer").on("click", "a.feature-label", function() {
-			expandDrawer();            
-			getFeatureDetails();
+			expandDrawer();
+			var wp = false;
+			if(route && route._map) {
+				for(i=0; i < waypoints.length; i++){
+					if(selectedFeature.properties.val.id == waypoints[i]){
+						showDirections();
+						wp = true;
+					}
+				}
+			}				
+			if(!wp) getFeatureDetails();
         });
 		
 		function expandDrawer(){
@@ -650,31 +672,61 @@ $.widget('custom.ssbLeafletMap', {
 		}
 		
 		$("#info").on("click", "a", function(){
-			$('#info').addClass('tab-active');
-			$('#directions').removeClass('tab-active');
+			$('#directions').show();		
 			getFeatureDetails();
 		});
 		
 		function getFeatureDetails(){
 			$('#details').html('');
 			$('#directions').removeClass('tab-active');
+			$('#clear-route').removeClass('tab-active');
+			$('#add-waypoint').removeClass('tab-active');
+			$('#clear-route').addClass('inactive');
+			$('#add-waypoint').addClass('inactive');
 			$('#info').addClass('tab-active');
+			
+			wp = false;
+			if(route && route._map) {
+				$('#clear-route').removeClass('inactive');
+				for(i=0; i < waypoints.length; i++){
+					if(selectedFeature.properties.val.id == waypoints[i]){
+						$('#add-waypoint').addClass('inactive');
+						wp = true;
+					}
+				}
+				if(!wp)	$('#add-waypoint').removeClass('inactive');
+			}
+			else {
+				$('#clear-route').addClass('inactive');
+				$('#add-waypoint').addClass('inactive');
+			}
+			
 			var resource = selectedFeature.properties.shortLabel.id;
             var graph = encodeURIComponent(selectedFeature.properties.graph);
-            var endpoint = '';
-            if(graph == "http%3A%2F%2Fdbpedia.org")
+            var endpoint = selectedFeature.properties.endpoint;
+			if(graph == "http%3A%2F%2Fdbpedia.org")
                 endpoint = 'http://dbpedia.org/sparql';
             else
                 endpoint = selectedFeature.properties.endpoint;
 
-            /* This is only temporary; will be replaced by user provided input */
             // WARNING: will work for up to 10 properties (see $.getJSON() below)
+			
+			var sources = $.parseJSON(localStorage.sources);
+			
             var properties = [];
-            properties[0] = {uri : 'http://dbpedia.org/ontology/abstract', filter: true, type: 'text'};
-            properties[1] = {uri : 'http://xmlns.com/foaf/0.1/depiction', filter: false, type: 'image'};
-            properties[2] = {uri : 'http://www.w3.org/2000/01/rdf-schema#comment', filter: true, type: 'text'};
-            properties[3] = {uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', filter: false, type: 'url'};
-
+			/* Need a better mechanism to account for sources with the same
+			   endpoint + graph (but different type or properties) */
+			for(i = 0; i < sources.length; i++){
+				//if(sources[i].endpoint == endpoint)
+					if(sources[i].graph == selectedFeature.properties.graph)	
+						properties = sources[i].properties;
+			}
+			
+			// if properties haven't been provided, load some default ones
+			if(properties.length == 0){
+				properties.push({uri : 'http://www.w3.org/2000/01/rdf-schema#comment', type: 'text'});
+				properties.push({uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'url'});
+			}
 
 
             for(i = 0; i < properties.length; i++){
@@ -682,7 +734,7 @@ $.widget('custom.ssbLeafletMap', {
                 var filter = '';
                 var optionalquery = '';
                 var orderby = ' ORDER BY';
-                if(properties[i].filter) filter = ' FILTER(langMatches(lang(?o' + i + '), "EN"))';
+                if(properties[i].type == 'text') filter = ' FILTER(langMatches(lang(?o' + i + '), "EN"))';
                 optionalquery += ' OPTIONAL { <' + resource + '> <' + properties[i].uri + '> ?o' + i + '.' + filter + '}';
                 orderby += ' ?o' + i;
 
@@ -719,11 +771,10 @@ $.widget('custom.ssbLeafletMap', {
                                 }
                                 if(properties[j].type == 'text')
                                     $('#details').append('<div class="property textual"><div class="content">' + property + '' + val.value + '</div></div>');
-                                if(properties[j].type == 'url')
-                                    $('#details').append('<div class="property url"><div class="content">' + property + '' + val.value + '</div></div>');
+                                if(properties[j].type == 'uri')
+                                    $('#details').append('<div class="property uri"><div class="content">' + property + '' + val.value + '</div></div>');
                                 if(properties[j].type == 'numeric')
-                                    // do something for numbers
-                                    console.log("Numbers!");
+                                    $('#details').append('<div class="property numeric"><div class="content">' + property + '' + val.value + '</div></div>');
                             }
                         });
                     }

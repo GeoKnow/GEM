@@ -57,9 +57,6 @@
     <script src="lib/wicket/wicket.js"></script>
     <script src="lib/wicket/wicket-leaflet.js"></script>
 
-	<script src="lib/leaflet-geosearch/js/l.control.geosearch.js"></script>
-	<script src="lib/leaflet-geosearch/js/l.geosearch.provider.google.js"></script>
-
 	<link rel="stylesheet" href="lib/leaflet-routing-machine/leaflet-routing-machine.css" />
 	<script src="lib/leaflet-routing-machine/leaflet-routing-machine.js"></script>
 	
@@ -132,6 +129,11 @@
                       'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
                       'graph' : 'http://dbpedia.org',
                       'type' : 'http://dbpedia.org/ontology/ArchitecturalStructure',
+					  'properties' : [{uri : 'http://dbpedia.org/ontology/abstract', type: 'text'},
+									  {uri : 'http://xmlns.com/foaf/0.1/depiction', type: 'image'},
+									  {uri : 'http://www.w3.org/2000/01/rdf-schema#comment', type: 'text'},
+									  {uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'uri'}
+									 ],
                       'active' : true,
                       'facets' : true
                     },
@@ -140,6 +142,11 @@
                       'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
                       'graph' : 'http://dbpedia.org',
                       'type' : 'http://dbpedia.org/class/yago/ParksInBelgrade',
+					  'properties' : [{uri : 'http://dbpedia.org/ontology/abstract', type: 'text'},
+									  {uri : 'http://xmlns.com/foaf/0.1/depiction', type: 'image'},
+									  {uri : 'http://www.w3.org/2000/01/rdf-schema#comment', type: 'text'},
+									  {uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'uri'}
+									 ],
                       'active' : false,
                       'facets' : false
                     },
@@ -148,6 +155,10 @@
                       'endpoint' : 'http://linkedgeodata.org/sparql',
                       'graph' : 'http://linkedgeodata.org',
                       'type' : null,
+					  'properties' : [{uri : 'http://xmlns.com/foaf/0.1/depiction', type: 'image'},
+									  {uri : 'http://www.w3.org/2000/01/rdf-schema#comment', type: 'text'},
+									  {uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'uri'}
+									 ],
                       'active' : false,
                       'facets' : false
                     },
@@ -445,26 +456,34 @@
         <div id="resource-info">
 			<div id="info-header">
 				<p></p>
-				<img src="img/loader.gif" id="loader" />
 			</div>
 			<div id="tabs">
 				<div id="info" class="tab-active">
 					<a href="#">
-						<div id="tab-label">Information</div>
+						<span class="glyphicon glyphicon-info-sign" style="float:left; margin-top: 4px; margin-right: -15px;"></span>
+						<div class="tab-label">Information</div>
 					</a>
 				</div>
 				<div id="directions">
 					<a href="#">
-						<div id="tab-label">Directions</div>
+						<span class="glyphicon glyphicon-road" style="float:left; margin-top: 5px; margin-right: -15px;"></span>
+						<div class="tab-label">Directions</div>
 					</a>
 				</div>
-				<!--<div id="clear-route">
-					<a href="#">
-						<img src="img/delete-icon-s-active.png" />
-						<div id="tab-label">Clear route</div>
+				<div id="add-waypoint">
+					<a href="#" >
+						<span class="glyphicon glyphicon-plus" style="float:left; margin-top: 5px; margin-bottom: 5px; margin-right: -15px;"></span>
+						<!--<div class="tab-label">Add WP</div>-->
 					</a>
-				</div>-->
+				</div>
+				<div id="clear-route">
+					<a href="#">
+						<span class="glyphicon glyphicon-remove" style="float:left; margin-top: 5px; margin-bottom: 5px; margin-right: -15px;"></span>
+						<!--<div class="tab-label">Clear route</div>-->
+					</a>
+				</div>
 			</div>
+			<div id="loader"><img src="img/loader.gif" /></div>
             <div id="details">
 			</div>
         </div>
