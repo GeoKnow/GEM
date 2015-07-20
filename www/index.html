@@ -60,6 +60,7 @@
 	<link rel="stylesheet" href="lib/leaflet-routing-machine/leaflet-routing-machine.css" />
 	<script src="lib/leaflet-routing-machine/leaflet-routing-machine.js"></script>
 	
+	<script src="js/authoring.js"></script>
     <script src="js/jassa-ui-angular-leaflet-tpls.js"></script>
     <script src="js/sourcemanager/sourcemanager.js"></script>
     <script src="js/search.js"></script>
@@ -135,31 +136,39 @@
 									  {uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'uri'}
 									 ],
                       'active' : true,
+					  'lang' : 'en',
+					  'id' : 0,
+					  'writable': false,
                       'facets' : true
                     },
-					{
-                      'name' : 'DBP Parks',
-                      'endpoint' : 'http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql',
-                      'graph' : 'http://dbpedia.org',
-                      'type' : 'http://dbpedia.org/class/yago/ParksInBelgrade',
-					  'properties' : [{uri : 'http://dbpedia.org/ontology/abstract', type: 'text'},
-									  {uri : 'http://xmlns.com/foaf/0.1/depiction', type: 'image'},
-									  {uri : 'http://www.w3.org/2000/01/rdf-schema#comment', type: 'text'},
-									  {uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'uri'}
-									 ],
-                      'active' : false,
-                      'facets' : false
-                    },
+					
                     {
                       'name' : 'LinkedGeoData',
                       'endpoint' : 'http://linkedgeodata.org/sparql',
                       'graph' : 'http://linkedgeodata.org',
-                      'type' : null,
+                      'type' : 'http://linkedgeodata.org/ontology/Bar',
 					  'properties' : [{uri : 'http://xmlns.com/foaf/0.1/depiction', type: 'image'},
 									  {uri : 'http://www.w3.org/2000/01/rdf-schema#comment', type: 'text'},
 									  {uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'uri'}
 									 ],
                       'active' : false,
+					  'lang' : 'en',
+					  'id' : 1,
+					  
+                      'facets' : false
+                    },
+					{
+                      'name' : 'DBP Serbian',
+                      'endpoint' : 'http://jpo.imp.bg.ac.rs/virtuoso/sparql',
+                      'graph' : 'http://sr.dbpedia.org',
+                      'type' : '',
+					  'properties' : [{uri : 'http://www.w3.org/2000/01/rdf-schema#comment', type: 'text'},
+									  {uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'uri'}
+									 ],
+                      'active' : false,
+					  'lang' : 'sr',
+					  'id' : 2,
+					  'writable': true,
                       'facets' : false
                     },
                 ];
@@ -308,8 +317,10 @@
                     var moreAttrs = {
                         endpoint: source.endpoint,
                         graph: source.graph,
+						lang: source.lang,
                         concept: baseConcept,
-                        dataSourceId: id
+                        dataSourceId: id,
+						storeSourceId: source.id
                     };
 
                     var dataSource = createMapDataSource(sparqlService, geoMapFactoryWgs, concept, '#CC0020', moreAttrs);

@@ -24,7 +24,9 @@ $(function() {
 					treeText = "Facets loaded";
 					treeStatus = "";
 				}
-				$("#sources ul").append('<li id="' + i + '"' + sourceStatus + '><span class="source-name"><p class="source-name-value"><a href="#" class="toggleactive">'
+				var type = source.type;
+				if(type == '') type = 'Any';
+				$("#sources ul").append('<li id="' + i + '"' + sourceStatus + '><span class="source-lang">' + source.lang + '</span><span class="source-name"><p class="source-name-value"><a href="#" class="toggleactive">'
 										//+ source.name + '</a></p><a href="#" class="delete-source"><img src="img/delete-icon.png" style= "float: right; margin-right: 20px; margin-left: 10px; margin-top: -5px;" /></a>'
 										+ source.name + '</a></p><a href="#" class="delete-source"><span class="glyphicon glyphicon-remove"></span></a>'
 										//+ '<a href="#" class="edit-source"><img src="img/edit-icon.png" style= "float: right; margin-right: 10px; margin-left: 10px; margin-top: -5px;" /></a></span>'
@@ -35,7 +37,7 @@ $(function() {
 										+ '<span class="source-graph"><span class="source-graph-icon">&#x25cf; </span><span class="source-graph-value">'
 										+ source.graph + '</span></span><br />'
 										+ '<span class="source-type"><span class="source-type-icon">&#x25cf; </span><span class="source-type-value">'
-										+ source.type + '</span></span></div><a href="#" class="loadtree' + treeStatus +'"><span class="glyphicon glyphicon-th-large"></span><span class="toggleload"></span></a></li>');
+										+ type + '</span></span></div><a href="#" class="loadtree' + treeStatus +'"><span class="glyphicon glyphicon-th-large"></span><span class="toggleload"></span></a></li>');
 				i++;
 			});
 		}
@@ -54,10 +56,17 @@ $(function() {
 			if($(this).parent().attr("id") != "editor"){
 				selectedSourceId = $(this).parent().parent().attr('id');			
 		
-				var sourceName = $(this).parent().text();
-				var sourceEndpoint = $(this).parent().siblings().find(".source-endpoint .source-endpoint-value" ).text();
-				var sourceGraph = $(this).parent().siblings().find(".source-graph .source-graph-value" ).text();
-				var sourceType = $(this).parent().siblings().find(".source-type .source-type-value" ).text();
+				var sourceName = sources[selectedSourceId].name;
+				var sourceEndpoint = sources[selectedSourceId].endpoint;
+				var sourceGraph = sources[selectedSourceId].graph;
+				var sourceType = sources[selectedSourceId].type;
+				var sourceLang = sources[selectedSourceId].lang;
+				var sourceWritable = sources[selectedSourceId].writable;
+				// var sourceName = $(this).parent().text();
+				// var sourceEndpoint = $(this).parent().siblings().find(".source-endpoint .source-endpoint-value" ).text();
+				// var sourceGraph = $(this).parent().siblings().find(".source-graph .source-graph-value" ).text();
+				// var sourceType = $(this).parent().siblings().find(".source-type .source-type-value" ).text();
+				// var sourceLang = $(this).parent().siblings(".source-lang").text();
 				if(sources[selectedSourceId] && sources[selectedSourceId].properties)
 					selectedProperties = sources[selectedSourceId].properties;
 				$("#sources h2").html("Edit source");
@@ -65,6 +74,7 @@ $(function() {
 			else{
 				selectedSourceId = $.parseJSON(localStorage.sources).length;
 				$("#sources h2").html("Add source");
+				selectedProperties = [];
 			}
 		}
 		
@@ -76,6 +86,19 @@ $(function() {
 			$("#sources #editor input#source-endpoint").val(sourceEndpoint);
 			$("#sources #editor input#source-graph").val(sourceGraph);
 			$("#sources #editor input#source-type").val(sourceType);
+			$("#sources #editor input#source-lang").val(sourceLang);
+			if(sourceWritable){
+				$("#sources #editor #writable-switch").removeClass("off");
+				$("#sources #editor #writable-switch").addClass("on");
+				$('a.switch').css('pointer-events', 'none');
+			}
+			else {
+				if(sourceWritable !== undefined){
+					$("#sources #editor #writable-switch").removeClass("off");
+					$("#sources #editor #writable-switch").addClass("no");
+					$('a.switch').css('pointer-events', 'none');
+				}
+			}
 		});
 	};
 	// using a delegated .on("click") event to attach the event handler AFTER injecting new HTML (i.e. adding a SPARQL source)
@@ -110,7 +133,15 @@ $(function() {
 		source.endpoint = $("#sources #editor input#source-endpoint").val();
 		source.graph = $("#sources #editor input#source-graph").val();
 		source.type = $("#sources #editor input#source-type").val();
+		source.lang = $("#sources #editor input#source-lang").val();
 		source.properties = selectedProperties;
+		source.id = selectedSourceId;
+		if($("#writable-switch").hasClass("on")){
+			source.writable = true;
+		}
+		if($("#writable-switch").hasClass("no")){
+			source.writable = false;
+		}
 		
 		sources[selectedSourceId] = source;
 		
@@ -296,6 +327,7 @@ $(function() {
 			$("#sources #editor input#source-endpoint").val(sources[selectedSourceId].endpoint);
 			$("#sources #editor input#source-graph").val(sources[selectedSourceId].graph);
 			$("#sources #editor input#source-type").val(sources[selectedSourceId].type);
+			$("#sources #editor input#source-lang").val(sources[selectedSourceId].lang);
 		});
     });
 	
@@ -310,9 +342,9 @@ $(function() {
 			$("#property-finder .throbber").hide();
 			$("#property-finder a.manual").hide();
 			
-			$('.clone .type').first().val(selectedProperties[0].uri);
+			$('.clone input').first().val(selectedProperties[0].uri);
 			$('.clone .type').first().val(selectedProperties[0].type);
-			$('.clone .type').first().autocomplete({
+			$('.clone input').first().autocomplete({
 					source: propertyStore,
 					appendTo: "#property-results"
 				});
@@ -350,4 +382,48 @@ $(function() {
 		
 		counter++;
     });
+	
+	$("#sources #editor").on("click", "a.switch", function() {
+		query = 'INSERT DATA {GRAPH <' + $("#source-graph").val() + '> {<http://example.org/resource> a <http://example.org/thing>}} DELETE DATA {GRAPH <' + $("#source-graph").val() + '> {<http://example.org/resource> a <http://example.org/thing>}}';
+		query = $("#source-endpoint").val() + '?query=' + encodeURIComponent(query);
+		
+		$('#check-writable .loader').show();
+		
+		$.ajax({
+			url: query,
+		}).done(function(data){
+			$('#check-writable .loader').hide();
+			if($("#writable-switch").hasClass("off")){
+				$("#writable-switch").removeClass("off");
+				$("#writable-switch").addClass("on");
+			}
+			else {
+				$("#writable-switch").removeClass("no");
+				$("#writable-switch").addClass("on");
+			}
+			$('a.switch').css('pointer-events', 'none');
+		}).error(function(){
+			$('#check-writable .loader').hide();
+			$("#writable-switch").removeClass("off");
+			$("#writable-switch").addClass("no");
+			$('a.switch').css('pointer-events', 'none');
+		});	
+	});
+	
+	function isWritable(endpoint, graph){
+		writable = true;
+		
+		query = 'INSERT DATA {GRAPH <' + graph + '> {<http://example.org/resource> a <http://example.org/thing>}} DELETE DATA {GRAPH <' + graph + '> {<http://example.org/resource> a <http://example.org/thing>}}';
+		query = endpoint + '?query=' + encodeURIComponent(query);
+		
+		$.ajax({
+			url: query,
+		}).done(function(data){
+			console.log(data);
+		}).error(function(){
+			writable = false;
+		});
+		
+		return writable;
+	}
 });

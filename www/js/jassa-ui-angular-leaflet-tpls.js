@@ -24,7 +24,7 @@ var selectedIcon = L.icon({
 				iconAnchor: [12,41],
                 shadowUrl: 'img/marker-shadow.png',
             });
-			
+		
 function onMapClick(e) {
 	/*popup
 		.setLatLng(e.latlng)
@@ -701,31 +701,35 @@ $.widget('custom.ssbLeafletMap', {
 				$('#add-waypoint').addClass('inactive');
 			}
 			
-			var resource = selectedFeature.properties.shortLabel.id;
+			var resource = selectedFeature.properties.val.id;
             var graph = encodeURIComponent(selectedFeature.properties.graph);
             var endpoint = selectedFeature.properties.endpoint;
 			if(graph == "http%3A%2F%2Fdbpedia.org")
                 endpoint = 'http://dbpedia.org/sparql';
             else
                 endpoint = selectedFeature.properties.endpoint;
-
+			
             // WARNING: will work for up to 10 properties (see $.getJSON() below)
 			
 			var sources = $.parseJSON(localStorage.sources);
 			
             var properties = [];
-			/* Need a better mechanism to account for sources with the same
-			   endpoint + graph (but different type or properties) */
+			var language = 'en';
+			var writable;
+
 			for(i = 0; i < sources.length; i++){
-				//if(sources[i].endpoint == endpoint)
-					if(sources[i].graph == selectedFeature.properties.graph)	
+					if(sources[i].id == selectedFeature.properties.storeSourceId){	
+						language = sources[i].lang;
 						properties = sources[i].properties;
+						if(sources[i].writable !== undefined)
+							writable = sources[i].writable;
+					}
 			}
 			
 			// if properties haven't been provided, load some default ones
 			if(properties.length == 0){
 				properties.push({uri : 'http://www.w3.org/2000/01/rdf-schema#comment', type: 'text'});
-				properties.push({uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'url'});
+				properties.push({uri : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', type: 'uri'});
 			}
 
 
@@ -734,8 +738,8 @@ $.widget('custom.ssbLeafletMap', {
                 var filter = '';
                 var optionalquery = '';
                 var orderby = ' ORDER BY';
-                if(properties[i].type == 'text') filter = ' FILTER(langMatches(lang(?o' + i + '), "EN"))';
-                optionalquery += ' OPTIONAL { <' + resource + '> <' + properties[i].uri + '> ?o' + i + '.' + filter + '}';
+                if(properties[i].type == 'text') filter = ' FILTER(langMatches(lang(?o' + i + '), "' + language + '"))';
+                optionalquery += ' OPTIONAL { <' + resource + '> <' + properties[i].uri + '> ?o' + i + '. ' + filter + '}';
                 orderby += ' ?o' + i;
 
                 console.log(optionalquery);
@@ -769,24 +773,39 @@ $.widget('custom.ssbLeafletMap', {
                                     property = '<h4>' + property + '</h4>';
                                     printedLabel = true;
                                 }
+								
+								var propertyURI = '<div class="property-uri">' + properties[j].uri + '</div>';
+								var datatype = '';
+								if(val.datatype)
+									datatype = '<div class="datatype">' + val.datatype + '</div>';
+								
+								var typeClass = '';
                                 if(properties[j].type == 'text')
-                                    $('#details').append('<div class="property textual"><div class="content">' + property + '' + val.value + '</div></div>');
+                                    typeClass = 'textual';
                                 if(properties[j].type == 'uri')
-                                    $('#details').append('<div class="property uri"><div class="content">' + property + '' + val.value + '</div></div>');
+                                    typeClass = 'uri';
                                 if(properties[j].type == 'numeric')
-                                    $('#details').append('<div class="property numeric"><div class="content">' + property + '' + val.value + '</div></div>');
-                            }
+                                    typeClass = 'numeric';
+								
+								var updateEdit, updateField = '';
+								if(writable){
+									updateEdit = '<a href="#" class="edit-field"><span class="glyphicon glyphicon-pencil"></span></a>';
+									updateField = '<div class="updater"><input type="text" class="update-field" value="' + val.value + '" onfocus="this.value = this.value;" /><a href="#" class="update-submit"><span class="glyphicon glyphicon-ok"></span></a></div>';
+								}
+								$('#details').append('<div class="property ' + typeClass + '"><div class="content">' + property + '<span class="property-value">' + val.value + '</span>' + updateEdit + '</div>' + updateField + datatype + propertyURI + '</div>');
+							}
                         });
                     }
                 })
                 .done(function() {
-                    console.log( "second success" );
+                    console.log("Results retrieved");
                 })
-                .fail(function() {
-                    console.log( "error" );
+                .fail(function(e) {
+					console.log("ERROR!");
+                    console.log(e);
                 })
                 .always(function() {
-                    console.log( "complete" );
+                    // do something
                 });
             }
 		}
@@ -1187,7 +1206,7 @@ $.widget('custom.ssbLeafletMap', {
         });
 
 		if(selectedFeature){
-			if(feature.label == selectedFeature.label){
+			if(feature.properties.val.id == selectedFeature.properties.val.id){
 				feature.setIcon(selectedIcon);
 			}
 		}
