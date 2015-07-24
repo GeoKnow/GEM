@@ -2,6 +2,14 @@ $(function() {
 	var propertyStore = [];
 	var selectedProperties = [];
 	var counter = 1;
+	var prefixes = 'PREFIX void: <http://rdfs.org/ns/void#> \
+					PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \
+					PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
+					PREFIX dcterms: <http://purl.org/dc/terms/> \
+					PREFIX sd: <http://www.w3.org/ns/sparql-service-description#> \
+					PREFIX gem: <http://jpo.imp.bg.ac.rs/gem#> ';
+					
+	var base = 'http://jpo.imp.bg.ac.rs/virtuoso/sparql?query=';
 	
 	var loadSources = function(sources){
 		$("#sources h2").html("Sources");
@@ -41,7 +49,8 @@ $(function() {
 				i++;
 			});
 		}
-		$("#sources #editor").html('<a href="#" class="add-source"><span class="glyphicon glyphicon-plus"></span>&nbsp; Add source</a>');
+		$("#sources #editor").html('<a href="#" class="add-source"><span class="glyphicon glyphicon-plus"></span>&nbsp; Add source</a><br /><br />');
+		$("#sources #editor").append('<a href="#" class="add-source-catalog"><span class="glyphicon glyphicon-th-list"></span>&nbsp; Browse catalog</a>');
 	};
 	
 	
@@ -90,13 +99,13 @@ $(function() {
 			if(sourceWritable){
 				$("#sources #editor #writable-switch").removeClass("off");
 				$("#sources #editor #writable-switch").addClass("on");
-				$('a.switch').css('pointer-events', 'none');
+				//$('a.switch').css('pointer-events', 'none');
 			}
 			else {
 				if(sourceWritable !== undefined){
 					$("#sources #editor #writable-switch").removeClass("off");
 					$("#sources #editor #writable-switch").addClass("no");
-					$('a.switch').css('pointer-events', 'none');
+					//$('a.switch').css('pointer-events', 'none');
 				}
 			}
 		});
@@ -114,8 +123,9 @@ $(function() {
 		refresh();
     });
 	
-	$("#sources #editor").on("click", "a.finish-editing", function() {		
-		var sources, source = {};
+	function saveSource(src){
+		var sources = [];
+		var source = {};
 		source.name = '';
 		source.endpoint = '';
 		source.graph = '';
@@ -124,28 +134,47 @@ $(function() {
 		source.active = true;
 		if(localStorage.sources && localStorage.sources.length > 2){
 			sources = $.parseJSON(localStorage.sources);
+			if(src) selectedSourceId = sources.length;
 			if(selectedSourceId < sources.length)
 				source = sources[selectedSourceId];
 		}
 		else selectedSourceId = 0;
 		
-		source.name = $("#sources #editor input#source-name").val();
-		source.endpoint = $("#sources #editor input#source-endpoint").val();
-		source.graph = $("#sources #editor input#source-graph").val();
-		source.type = $("#sources #editor input#source-type").val();
-		source.lang = $("#sources #editor input#source-lang").val();
-		source.properties = selectedProperties;
-		source.id = selectedSourceId;
-		if($("#writable-switch").hasClass("on")){
-			source.writable = true;
+		if(src){
+			source.name = src.name;
+			source.endpoint = src.endpoint.value;
+			source.graph = src.graph.value;
+			source.lang = src.lang.value;
+			if(src.type) source.type = src.type.value;
+			source.properties = src.properties;
+			source.active = $.parseJSON(src.active.value);
+			source.writable = $.parseJSON(src.writable.value);
 		}
-		if($("#writable-switch").hasClass("no")){
-			source.writable = false;
+		else{
+			source.name = $("#sources #editor input#source-name").val();
+			source.endpoint = $("#sources #editor input#source-endpoint").val();
+			source.graph = $("#sources #editor input#source-graph").val();
+			source.type = $("#sources #editor input#source-type").val();
+			source.lang = $("#sources #editor input#source-lang").val();
+			source.properties = selectedProperties;
+			source.id = selectedSourceId;
+			if($("#writable-switch").hasClass("on")){
+				source.writable = true;
+			}
+			if($("#writable-switch").hasClass("no")){
+				source.writable = false;
+			}
 		}
 		
 		sources[selectedSourceId] = source;
 		
-		localStorage.setItem("sources", JSON.stringify(sources));	
+		localStorage.setItem("sources", JSON.stringify(sources));
+		
+		return sources;
+	}
+	
+	$("#sources #editor").on("click", "a.finish-editing", function() {		
+		var sources = saveSource();	
 		loadSources(sources);
 		refresh();
     });
@@ -384,46 +413,133 @@ $(function() {
     });
 	
 	$("#sources #editor").on("click", "a.switch", function() {
-		query = 'INSERT DATA {GRAPH <' + $("#source-graph").val() + '> {<http://example.org/resource> a <http://example.org/thing>}} DELETE DATA {GRAPH <' + $("#source-graph").val() + '> {<http://example.org/resource> a <http://example.org/thing>}}';
-		query = $("#source-endpoint").val() + '?query=' + encodeURIComponent(query);
-		
-		$('#check-writable .loader').show();
-		
-		$.ajax({
-			url: query,
-		}).done(function(data){
-			$('#check-writable .loader').hide();
-			if($("#writable-switch").hasClass("off")){
+		if($("#source-endpoint").val() != '' && $("#source-graph").val()){
+			query = 'INSERT DATA {GRAPH <' + $("#source-graph").val() + '> {<http://example.org/resource> a <http://example.org/thing>}} DELETE DATA {GRAPH <' + $("#source-graph").val() + '> {<http://example.org/resource> a <http://example.org/thing>}}';
+			query = $("#source-endpoint").val() + '?query=' + encodeURIComponent(query);
+			
+			$('#check-writable .loader').show();
+			
+			$.ajax({
+				url: query,
+			}).done(function(data){
+				$('#check-writable .loader').hide();
+				if($("#writable-switch").hasClass("off")){
+					$("#writable-switch").removeClass("off");
+					$("#writable-switch").addClass("on");
+				}
+				else {
+					$("#writable-switch").removeClass("no");
+					$("#writable-switch").addClass("on");
+				}
+				//$('a.switch').css('pointer-events', 'none');
+			}).error(function(){
+				$('#check-writable .loader').hide();
 				$("#writable-switch").removeClass("off");
-				$("#writable-switch").addClass("on");
-			}
-			else {
-				$("#writable-switch").removeClass("no");
-				$("#writable-switch").addClass("on");
-			}
-			$('a.switch').css('pointer-events', 'none');
-		}).error(function(){
-			$('#check-writable .loader').hide();
-			$("#writable-switch").removeClass("off");
-			$("#writable-switch").addClass("no");
-			$('a.switch').css('pointer-events', 'none');
-		});	
+				$("#writable-switch").addClass("no");
+				//$('a.switch').css('pointer-events', 'none');
+			});
+		}
 	});
 	
-	function isWritable(endpoint, graph){
-		writable = true;
+	$("#sources #editor").on("click", "a.add-source-catalog", function() {
+		$("#sources h2").html("Source catalog");
+		$("#sources ul").html('');		
+		$("#sources #editor").load( "js/sourcemanager/sourcemanager-catalog.html", function() {
+				
+			var query = prefixes + 'SELECT ?title ?description FROM <http://jpo.imp.bg.ac.rs/gem> WHERE { \
+									?service sd:url ?endpoint ; \
+									sd:defaultDatasetDescription [ \
+									a sd:Dataset ; \
+									dcterms:title ?title ; \
+									dcterms:description ?description; \
+									] . \
+									} ';
+						
+			query = base + encodeURIComponent(query);
+			
+			$.getJSON(query, function(data) {
+				var results = data.results.bindings;
+				
+				$('#catalog-browser').autocomplete({
+					source: function(request, response){
+						var matches = [];
+						for(i = 0; i < results.length; i++){
+							if(results[i].title.value.toLowerCase().indexOf(request.term.toLowerCase()) > -1 || results[i].description.value.toLowerCase().indexOf(request.term.toLowerCase()) > -1){
+								matches.push({label: results[i].title.value, value: results[i].description.value});
+							}
+						}
+						response(matches);
+					},
+					select: function(event, ui) {
+						$("#catalog .throbber").show();
+						$("#catalog-browser-ui").hide();
+						loadFromCatalog(ui.item.label);
+						return false;
+					},
+					close : function (event, ui) {
+						 $(this).autocomplete( "search", $(this).val());
+						return false;  
+					},
+					appendTo: "#catalog-results"
+				}).data("ui-autocomplete")._renderItem = function( ul, item ) {
+					return $( "<li>" )
+					.append( "<a><h3>" + item.label + "</h3>" + item.value + "</a>" )
+					.appendTo( ul );
+				};
+				
+				$('#catalog-browser').on("focusin", function(){
+					if($(this).val() && $(this).val() != " ")
+						$(this).autocomplete( "search", $(this).val());
+					else
+						$(this).autocomplete("search", " ");
+				});
+				
+				$('#catalog-browser').focus();
+			});		
+		});
+    });
+	
+	function loadFromCatalog(name){
+		var query = prefixes + 'SELECT * WHERE { \
+								?service sd:url ?endpoint ; \
+								 sd:defaultDatasetDescription [ \
+								a sd:Dataset ; \
+								dcterms:title "' + name + '"; \
+								dcterms:language ?lang; \
+								sd:namedGraph [ \
+								sd:name ?graph; \
+								]; \
+								gem:active ?active; \
+								gem:writable ?writable; \
+								gem:facets ?facets; \
+								 ] . \
+								OPTIONAL {?service  sd:defaultDatasetDescription [void:classPartition [ void:class ?type; ];].} \
+								}';
 		
-		query = 'INSERT DATA {GRAPH <' + graph + '> {<http://example.org/resource> a <http://example.org/thing>}} DELETE DATA {GRAPH <' + graph + '> {<http://example.org/resource> a <http://example.org/thing>}}';
-		query = endpoint + '?query=' + encodeURIComponent(query);
+		query = base + encodeURIComponent(query);
 		
-		$.ajax({
-			url: query,
-		}).done(function(data){
-			console.log(data);
-		}).error(function(){
-			writable = false;
+		$.getJSON(query, function(data) {
+			var source = data.results.bindings[0];
+			
+			var queryProperties =  prefixes + 'SELECT ?property ?propertyType WHERE { \
+									?s dcterms:title "' + name + '". \
+									?s void:propertyPartition [ void:property ?property; gem:type ?propertyType]. \
+									}';
+									
+			queryProperties = base + encodeURIComponent(queryProperties);
+			$.getJSON(queryProperties, function(data) {
+				source.properties = [];
+				for(i = 0; i < data.results.bindings.length; i++){
+					source.properties.push({type: data.results.bindings[i].property.type, uri: data.results.bindings[i].property.value});
+				}
+				source.name = name;
+				var sources = saveSource(source);	
+				$("#catalog .throbber").hide();
+				$("#catalog-browser-ui").show();
+				loadSources(sources);
+				refresh();
+			});
 		});
 		
-		return writable;
 	}
 });
