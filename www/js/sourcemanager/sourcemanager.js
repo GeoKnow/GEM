@@ -13,6 +13,7 @@ $(function() {
 	
 	var loadSources = function(sources){
 		$("#sources h2").html("Sources");
+		$("#sources .sources-headline i").addClass("glyphicon-cog");
 		$("#sources #editor").html('');
 		localStorage.setItem("sources", JSON.stringify(sources));
 		if(localStorage.sources){
@@ -45,17 +46,104 @@ $(function() {
 										+ '<span class="source-graph"><span class="source-graph-icon">&#x25cf; </span><span class="source-graph-value">'
 										+ source.graph + '</span></span><br />'
 										+ '<span class="source-type"><span class="source-type-icon">&#x25cf; </span><span class="source-type-value">'
-										+ type + '</span></span></div><a href="#" class="loadtree' + treeStatus +'"><span class="glyphicon glyphicon-th-large"></span><span class="toggleload"></span></a></li>');
+										+ prettifier.prettifyURI(type) + '</span></span></div><a href="#" class="loadtree' + treeStatus +'"><span class="glyphicon glyphicon-th-large"></span><span class="toggleload"></span></a></li>');
 				i++;
 			});
 		}
-		$("#sources #editor").html('<a href="#" class="add-source"><span class="glyphicon glyphicon-plus"></span>&nbsp; Add source</a><br /><br />');
-		$("#sources #editor").append('<a href="#" class="add-source-catalog"><span class="glyphicon glyphicon-th-list"></span>&nbsp; Browse catalog</a>');
+		$("#sources #editor").html('<a href="#" class="add-source"><span class="glyphicon glyphicon-plus"></span>&nbsp; Add</a>');
+		$("#sources #editor").append('<a href="#" class="add-source-catalog"><span class="glyphicon glyphicon-th-list"></span>&nbsp; Catalog</a>');
+		$("#sources #editor").append('<br><a href="#" class="add-source-mappify"><span class="glyphicon glyphicon-download-alt"></span>&nbsp; Add From Mappify</a>');
 	};
 	
 	
 	if(!localStorage.sources || localStorage.sources.length == 2) loadSources(sources);
 	else loadSources($.parseJSON(localStorage.sources));
+
+	var loadPrefixes = function() {
+		$("#sources h2").html("Prefixes");
+		$("#sources .sources-headline i").removeClass("glyphicon-cog");
+		$("#sources ul").html('');
+		$("#sources #editor").html('');
+		$("#sources #editor").load("js/sourcemanager/sourcemanager-prefixes.html", function() {
+			var prefixMap = prettifier.getPrefixMap();
+			for (var prefix in prefixMap) {
+				var namespace = prefixMap[prefix];
+				var newPair = $("<li></li>");
+				newPair.append($('<input type="text" class="prefix-name">').val(prefix));
+				newPair.append('<span>:</span>');
+				newPair.append($('<input type="text" class="prefix-value">').val(namespace));
+				newPair.append($('<i class="prefix-remove-btn glyphicon glyphicon-remove"></i>'));
+				$("#prefix-editor .prefix-pairs").append(newPair);
+			}
+		});
+	};
+
+	var cancelPrefixes = function() {
+		loadSources($.parseJSON(localStorage.sources));
+	};
+
+	function checkPrefix(prefix) {
+		if (prefix === '') return false;
+		return true;
+	}
+
+	function checkNamespace(namespace) {
+		if (namespace === '') return false;
+		return true;
+	}
+
+	var storePrefixes = function() {
+		// store prefixes
+		var newMappings = {};
+		$("#prefix-editor .prefix-pairs li").each(function(index, item) {
+			var prefix = $(item).find("input.prefix-name").val().trim();
+			var namespace = $(item).find("input.prefix-value").val().trim();
+			if (checkPrefix(prefix) && checkNamespace(namespace)) {
+				newMappings[prefix] = namespace;
+			}
+		});
+		prettifier.setPrefixMap(newMappings);
+		// go back to sources view
+		loadSources($.parseJSON(localStorage.sources));
+	};
+
+	var addPrefix = function() {
+		var newPair = $("<li></li>");
+		newPair.append($('<input type="text" class="prefix-name">').val(''));
+		newPair.append('<span>:</span>');
+		newPair.append($('<input type="text" class="prefix-value">').val(''));
+		newPair.append($('<i class="prefix-remove-btn glyphicon glyphicon-remove"></i>'));
+		$("#prefix-editor .prefix-pairs").append(newPair);
+	};
+
+	var removePrefix = function() {
+		$("#prefix-editor .prefix-pairs").toggleClass("prefix-remove-mode");
+	};
+
+	var removeClicked = function() {
+		$(this).closest("li").remove();
+	};
+
+	function toggleMotiveDrawer() {
+		//var isClosed = $("#motive-drawer").css("height").startsWith("0");
+		var isClosed = $("#motive-drawer").css("display") === "none";
+		var animHeight = "0";
+		if (isClosed) animHeight = "19.5em";
+		$("#motive-drawer").css("display", "block");
+		$("#motive-drawer").css("height", "0");
+		$("#motive-drawer").animate({
+			height: animHeight
+		}, 200);
+	}
+
+	$("#sources").on("click", ".sources-headline i", loadPrefixes);
+	$("#sources").on("click", ".cancel-prefixes", cancelPrefixes);
+	$("#sources").on("click", ".finish-prefixes", storePrefixes);
+	$("#sources").on("click", ".add-prefix", addPrefix);
+	$("#sources").on("click", ".remove-prefix", removePrefix);
+	$("#sources").on("click", ".prefix-pairs li i.glyphicon", removeClicked);
+
+	$(".snap-drawers").on("click", ".facets-headline i", toggleMotiveDrawer);
 	
 	var selectedSourceId = 0;
 	
@@ -79,10 +167,12 @@ $(function() {
 				if(sources[selectedSourceId] && sources[selectedSourceId].properties)
 					selectedProperties = sources[selectedSourceId].properties;
 				$("#sources h2").html("Edit source");
+				$("#sources .sources-headline i").removeClass("glyphicon-cog");
 			}
 			else{
 				selectedSourceId = $.parseJSON(localStorage.sources).length;
 				$("#sources h2").html("Add source");
+				$("#sources .sources-headline i").removeClass("glyphicon-cog");
 				selectedProperties = [];
 			}
 		}
@@ -94,7 +184,8 @@ $(function() {
 			$("#sources #editor input#source-name").val(sourceName);
 			$("#sources #editor input#source-endpoint").val(sourceEndpoint);
 			$("#sources #editor input#source-graph").val(sourceGraph);
-			$("#sources #editor input#source-type").val(sourceType);
+			$("#sources #editor input#source-type").attr('originalURI', sourceType);
+			$("#sources #editor input#source-type").val(prettifier.prettifyURI(sourceType));
 			$("#sources #editor input#source-lang").val(sourceLang);
 			if(sourceWritable){
 				$("#sources #editor #writable-switch").removeClass("off");
@@ -122,6 +213,66 @@ $(function() {
 		loadSources(sources);
 		refresh();
     });
+
+	var editMappify = function() {
+		$("#sources ul").html('');
+		$("#sources #editor").load( "js/sourcemanager/sourcemanager-mappify.html");
+	};
+
+	$("#sources #editor").on("click", "a.add-source-mappify", editMappify);
+
+	function addMappifyConfiguration(conf) {
+		var dataSources = conf.dataSources;
+		if (dataSources) {
+			var sources = [];
+			if(localStorage.sources && localStorage.sources.length > 2){
+				sources = $.parseJSON(localStorage.sources);
+			}
+			for (var i=0; i<dataSources.length; i++) {
+				// this is actually
+				sources.push(extractDataSource(dataSources[i]));
+			}
+			localStorage.setItem("sources", JSON.stringify(sources));
+			loadSources(sources);
+		}
+
+		//set view center based on layout property
+		var layout = conf.layout;
+		if (layout && layout.viewCenter) {
+			var lat = layout.viewCenter.latitude;
+			var lng = layout.viewCenter.longitude;
+			// TODO set new map center
+		}
+
+		refresh();
+	}
+
+	function extractDataSource(dataSource) {
+		var source = {};
+		source.name = '';
+		source.endpoint = '';
+		source.graph = '';
+		source.type = '';
+		source.properties = [];
+		source.active = true;
+		source.facets = false;
+		source.writeable = false;
+		var id = sources.length;
+		source.id = '' + id;
+
+		var concept = dataSource.concept;
+		var service = dataSource.service;
+		var displayName = service.displayName;
+		var endpoint = service.serviceUrl;
+		var graphUris = service.defaultGraphUris;
+
+		if (concept) source.type = concept;
+		if (displayName) source.name = displayName;
+		if (endpoint) source.endpoint = endpoint;
+		if (graphUris) source.graph = graphUris[0];
+
+		return source;
+	}
 	
 	function saveSource(src){
 		var sources = [];
@@ -154,7 +305,8 @@ $(function() {
 			source.name = $("#sources #editor input#source-name").val();
 			source.endpoint = $("#sources #editor input#source-endpoint").val();
 			source.graph = $("#sources #editor input#source-graph").val();
-			source.type = $("#sources #editor input#source-type").val();
+			//source.type = $("#sources #editor input#source-type").val();
+			source.type = $("#sources #editor input#source-type").attr('originalURI');
 			source.lang = $("#sources #editor input#source-lang").val();
 			source.properties = selectedProperties;
 			source.id = selectedSourceId;
@@ -182,6 +334,14 @@ $(function() {
 	$("#sources #editor").on("click", "a.cancel-editing", function() {				
 		loadSources($.parseJSON(localStorage.sources));
     });
+
+	$("#sources #editor").on("click", "a.finish-editing-mappify", function() {
+		var location = $("#mappify-url").val();
+		// TODO check if it's a URI
+		$.getJSON(location, {}, function(data) {
+			addMappifyConfiguration(data);
+		});
+	});
 	
 	$("#sources ul").on("click", "li a.toggleactive", function() {
 		var sources = {};
@@ -277,13 +437,13 @@ $(function() {
 			if(selectedProperties.length){
 				if(selectedProperties.length == properties.length){
 					//fill out existing fields
-					// $.each(selectedProperties, function(key, property){
-						// $("input:text#source-property-temp").autocomplete({
-							// source: propertyStore,
-							// appendTo: "#property-results"
-						// });
-						// selectedProperties.push(property.value);
-					// });
+					$.each(selectedProperties, function(key, property){
+						$(".clone input:text").autocomplete({
+							source: propertyStore,
+							appendTo: "#property-results"
+						});
+						selectedProperties.push(property.value);
+					});
 				}
 				else{
 					//create & populate input fields
@@ -326,8 +486,11 @@ $(function() {
 		$("#source-editor").show();
 		var id  = $(this).parent().attr("id");
 		
-		if(id && $(this).parent().attr("id")[0] == 't')
-			$("input:text#source-type").val($("input:text#source-type-temp").val());
+		if(id && $(this).parent().attr("id")[0] == 't') {
+			var originalURI = $("input:text#source-type-temp").val();
+			$("input:text#source-type").attr('originalURI', originalURI);
+			$("input:text#source-type").val(prettifier.prettifyURI(originalURI));
+		}
 		else {
 			$("input:text#source-properties").val($("input:text#source-property-temp").val());
 			var properties = $(".clone");
@@ -355,7 +518,9 @@ $(function() {
 			$("#sources #editor input#source-name").val(sources[selectedSourceId].name);
 			$("#sources #editor input#source-endpoint").val(sources[selectedSourceId].endpoint);
 			$("#sources #editor input#source-graph").val(sources[selectedSourceId].graph);
-			$("#sources #editor input#source-type").val(sources[selectedSourceId].type);
+			var originalURI = sources[selectedSourceId].type;
+			$("#sources #editor input#source-type").attr('originalURI', originalURI);
+			$("#sources #editor input#source-type").val(prettifier.prettifyURI(originalURI));
 			$("#sources #editor input#source-lang").val(sources[selectedSourceId].lang);
 		});
     });
@@ -443,6 +608,7 @@ $(function() {
 	
 	$("#sources #editor").on("click", "a.add-source-catalog", function() {
 		$("#sources h2").html("Source catalog");
+		$("#sources .sources-headline i").removeClass("glyphicon-cog");
 		$("#sources ul").html('');		
 		$("#sources #editor").load( "js/sourcemanager/sourcemanager-catalog.html", function() {
 				
@@ -530,7 +696,7 @@ $(function() {
 			$.getJSON(queryProperties, function(data) {
 				source.properties = [];
 				for(i = 0; i < data.results.bindings.length; i++){
-					source.properties.push({type: data.results.bindings[i].property.type, uri: data.results.bindings[i].property.value});
+					source.properties.push({type: data.results.bindings[i].propertyType.value, uri: data.results.bindings[i].property.value});
 				}
 				source.name = name;
 				var sources = saveSource(source);	

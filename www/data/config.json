@@ -1,0 +1,48 @@
+{
+  "layout": {
+    "viewCenter": {
+      "latitude": 48.63291,
+      "longitude": 5.58105
+    },
+    "zoom": 6
+  },
+  "dataSources": [
+    {
+      "concept": "http://dbpedia.org/ontology/Castle",
+      "service": {
+        "id": "DBpedia-Sparql",
+        "displayName": "DBpedia",
+        "serviceUrl": "http://akswnc3.informatik.uni-leipzig.de/data/dbpedia/sparql",
+        "defaultGraphUris": [
+          "http://dbpedia.org"
+        ],
+        "geoMapFactory": "wkt"
+      }
+    },
+    {
+      "concept": "http://dbpedia.org/ontology/Building",
+      "service": {
+        "id": "PUPIN-Sparql",
+        "displayName": "PUPIN",
+        "serviceUrl": "http://jpo.imp.bg.ac.rs/sparql",
+        "defaultGraphUris": [
+          "http://sr.dbpedia.org"
+        ],
+        "geoMapFactory": "wkt"
+      }
+    }
+  ],
+  "markers": {
+    "unselected": {
+      "prefix": "fa",
+      "icon": "home",
+      "markerColor": "blue",
+      "iconColor": "white"
+    },
+    "selected": {
+      "prefix": "fa",
+      "icon": "home",
+      "markerColor": "red"
+    }
+  }
+}

@@ -1,3 +1,7 @@
 **/bower_components
 **/node_modules
 **/platforms
+.idea
+*.iml
+**/www/data/motives
+www/js/geojson-country.js

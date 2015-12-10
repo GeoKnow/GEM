@@ -61,7 +61,7 @@ $(function() {
 			url: query,
 		}).done(function(){
 				console.log("UPDATED!");
-				current.find('.content .property-value').html(newValue);
+				current.find('.content .property-value').html(prettifier.prettifyURI(newValue));
 		});
 		
 	});

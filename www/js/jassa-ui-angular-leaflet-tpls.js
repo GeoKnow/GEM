@@ -17,7 +17,8 @@ var currentResults,
 	userLocation,
 	route,
 	line,
-	directions;
+	directions,
+    map;
 var waypoints = [];
 var selectedIcon = L.icon({
                 iconUrl: 'img/marker-icon-selected.png',
@@ -26,6 +27,11 @@ var selectedIcon = L.icon({
             });
 		
 function onMapClick(e) {
+    $("#motive-drawer").animate({
+        height: '0'
+    }, 200, function() {
+        $("#motive-drawer").css("display", "none");
+    });
 	/*popup
 		.setLatLng(e.latlng)
 		.setContent("You clicked the map at " + e.latlng.toString())
@@ -787,12 +793,13 @@ $.widget('custom.ssbLeafletMap', {
                                 if(properties[j].type == 'numeric')
                                     typeClass = 'numeric';
 								
-								var updateEdit, updateField = '';
+								var updateEdit = '';
+								var updateField = '';
 								if(writable){
 									updateEdit = '<a href="#" class="edit-field"><span class="glyphicon glyphicon-pencil"></span></a>';
 									updateField = '<div class="updater"><input type="text" class="update-field" value="' + val.value + '" onfocus="this.value = this.value;" /><a href="#" class="update-submit"><span class="glyphicon glyphicon-ok"></span></a></div>';
 								}
-								$('#details').append('<div class="property ' + typeClass + '"><div class="content">' + property + '<span class="property-value">' + val.value + '</span>' + updateEdit + '</div>' + updateField + datatype + propertyURI + '</div>');
+								$('#details').append('<div class="property ' + typeClass + '"><div class="content">' + property + '<span class="property-value">' + prettifier.prettifyURI(val.value) + '</span>' + updateEdit + '</div>' + updateField + datatype + propertyURI + '</div>');
 							}
                         });
                     }
@@ -1192,7 +1199,7 @@ $.widget('custom.ssbLeafletMap', {
                     uri = "Unknown";
             }
 
-            $("#bottom-drawer p").html('<a class="feature-label">' + label + '</a><br /><span class="feature-uri">' + uri + '</span>');
+            $("#bottom-drawer p").html('<a class="feature-label">' + label + '</a><br /><span class="feature-uri">' + prettifier.prettifyURI(uri) + '</span>');
             $("#bottom-drawer").css('display','block');
             $("#bottom-drawer").addClass("preview");
             $("#bottom-drawer").animate({'bottom': '0px'}, 200);

@@ -582,6 +582,13 @@ a.feature-label:visited {
 	color: white;
 	background-color: #ff589e;
 }
+.snap-drawer-right .add-source-catalog {
+	margin-left: 30px;
+}
+.snap-drawer-right .add-source-mappify {
+    margin-top: 10px;
+    display: block;
+}
 .snap-drawer .btn-label {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -938,4 +945,147 @@ a.feature-label:visited {
 #details  .leaflet-routing-alt  td:last-of-type{
 	float: right;
 	width: 15%;
+}
+
+.sources-headline, .facets-headline {
+    position: relative;
+}
+
+.sources-headline i, .facets-headline i {
+    position: absolute;
+    top: 23px;
+    right: 18px;
+    font-size: 29px;
+    color: white;
+}
+
+#prefix-editor .prefix-pairs {
+    list-style: none;
+}
+
+#prefix-editor .prefix-pairs li {
+    padding: 0;
+    border-bottom: none;
+}
+
+#prefix-editor input.prefix-name {
+    width: 25%;
+}
+
+#prefix-editor .prefix-pairs span {
+    width: 5%;
+    display: inline-block;
+    text-align: center;
+}
+
+#prefix-editor input.prefix-value {
+    width: 70%;
+}
+
+#prefix-editor .add-prefix, #prefix-editor .finish-prefixes {
+    width: 40%;
+    display: inline-block;
+}
+
+#prefix-editor .remove-prefix, #prefix-editor .cancel-prefixes {
+    width: 55%;
+    display: inline-block;
+}
+
+#prefix-editor .prefix-controls a {
+    font-size: 16px;
+}
+
+.prefix-controls {
+    border-bottom: 1px solid #e3e3e3;
+    padding: 8px 0 14px 0;
+}
+
+.snap-drawer-right #prefix-editor .glyphicon-remove {
+    margin-left: 0;
+}
+
+#prefix-editor a .glyphicon {
+    margin: 0;
+    width: 30px;
+}
+
+.prefix-pairs li {
+    position: relative;
+}
+
+.prefix-remove-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0 5px;
+    color: rgba(221, 122, 117, 0.5);
+    display: none;
+}
+
+.prefix-remove-mode .prefix-remove-btn {
+    display: block;
+}
+
+#motive-drawer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    /*height: 19.5em; /!* (4*3em:block-height) + (4*0.5em:margin-top-bottom + 0.5em:margin-top-bottom) + 5em:headline *!/*/
+    height: 19.5em;
+    width: 100%;
+    z-index: 90000;
+    background: white;
+    font-size: 16px;
+    display: none;
+}
+
+#motive-drawer h2 {
+    font-size: 2em;
+    height: 1em;
+    padding-left: 0.5em;
+    margin: 0.5em 0;
+}
+
+#motive-drawer hr {
+    margin: 1em 0;
+}
+
+.motive-block {
+    display: flex;
+    height: 3em;
+    margin: 0.5em;
+    padding: 0.5em 0 0.5em 0.5em;
+    align-items: center;
+}
+
+.motive-slider {
+    width: 50%;
+}
+
+.motive-headline {
+    flex-grow: 1;
+}
+
+.motive-value {
+    width: 3em;
+    text-align: center;
+}
+
+#attraction-slider {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.4), #FFB317);
+}
+
+#theatre-slider {
+    background: linear-gradient(to right, rgba(150, 150, 255, 0.4), #0000ff);
+    /*background-image: url(../img/culture-gradient.svg);*/
+    /*background-size: cover;*/
+}
+
+#viewpoint-slider {
+    background: linear-gradient(to right, rgba(255, 150, 150, 0.4), #ff0000);
+}
+
+#mountain-slider {
+    background: linear-gradient(to right, rgba(150, 255, 150, 0.4), #00ff00);
 }
