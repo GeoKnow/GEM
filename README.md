@@ -14,3 +14,6 @@ where *&lt;platform&gt;* can be any of the Cordova/Phonegap supported platforms 
 ```
 cordova run <platform>
 ```
+Where to download
+---
+Pre-built packages for Android are available at [http://geoknow.imp.bg.ac.rs/gem/apks](http://geoknow.imp.bg.ac.rs/gem/apks)
