@@ -1,4 +1,11 @@
-$(function() {	 
+var fakeLocation = {
+	_latlng: {
+		lat: 44.812076,
+		lng: 20.482353
+	}
+};
+fakeLocation = undefined;
+$(function() {
 	var lineOptions = { styles: [{color: '#19afc3', opacity: 0.8, weight: 9},
 								{color: '#00ffb4', opacity: 0.8, weight: 6},
 								{color: '#00fdf6', opacity: 1, weight: 2}],
@@ -50,14 +57,17 @@ $(function() {
 			alert("Please let GEM pinpoint your location first, then try again.");
 			$( "#compass" ).trigger( "click" );
 		}
-		
+		var startLatLng = userLocation._latlng;
+		if (fakeLocation) startLatLng = fakeLocation._latlng;
+
 		route = L.Routing.control({
 		  alternativeClassName: 'alternative-route',
 		  waypoints: [
-			userLocation._latlng,
+			startLatLng,
 			selectedFeature._latlng
 		  ],
-		  serviceUrl: 'http://router.project-osrm.org/viaroute', // a workaround for Cordova & local files
+			serviceUrl: 'https://api-osrm-routed-production.tilestream.net/viaroute',
+		  //serviceUrl: 'http://router.project-osrm.org/viaroute', // a workaround for Cordova & local files
 		  routeLine: function(r) {
 						var line = L.Routing.line(r, lineOptions);
 						//line.on('linetouched', function(e) { alert("Clicked"); });

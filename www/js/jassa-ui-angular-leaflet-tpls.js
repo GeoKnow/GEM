@@ -562,6 +562,7 @@ $.widget('custom.ssbLeafletMap', {
         });
 
         function onLocationFound(e) {
+            if (fakeLocation) e.latlng = fakeLocation._latlng;
             $('#compass').stop(true).css('opacity',1);
             var radius = e.accuracy / 2;
             var userIcon = L.icon({
