@@ -10,7 +10,7 @@ GEM is an [Apache Cordova](http://cordova.apache.org/) / [Adobe Phonegap](http:/
 ```
 cordova build <platform>
 ```
-where *&lt;platform&gt;* can be any of the Cordova/Phonegap supported platforms (e.g. *android*). It is worth noting that the Phonegap equivalent of the Cordova command is *phonegap build <platform>*. To compile and deploy the application to the desired device, we execute:
+where *&lt;platform&gt;* can be any of the Cordova/Phonegap supported platforms (e.g. *android*). It is worth noting that the Phonegap equivalent of the Cordova command is *phonegap build \<platform\>*. To compile and deploy the application to the desired device, we execute:
 ```
 cordova run <platform>
 ```
